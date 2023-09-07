@@ -4,7 +4,7 @@
 
 <!-- ![](https://img.shields.io/github/stars/pandao/editor.md.svg) ![](https://img.shields.io/github/forks/pandao/editor.md.svg) ![](https://img.shields.io/github/tag/pandao/editor.md.svg) ![](https://img.shields.io/github/release/pandao/editor.md.svg) ![](https://img.shields.io/github/issues/pandao/editor.md.svg) ![](https://img.shields.io/bower/v/editor.md.svg) -->
 
-The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** `BaseRepository` is to significantly reduce the `boilerplate` code required to implement `data access layers for persistance entities` by providing `out of the box` actions on the `database` like `.create(), .getAll(), findByPrimaryKey(), find() ...`
+The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** `BaseRepository` is to significantly reduce the `boilerplate` code required to implement `data access layers for persistance entities` by providing `out of the box` actions on the `database` like `.create(), .getAll(), find() ...`
 
 <a name="readme-top"></a>
 
@@ -36,6 +36,7 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** `Bas
         - [deleteAll](#deleteall)
         - [exists](#exists)
         - [count](#count)
+    - [Example](#example)
   - [Contributing](#contributing)
   - [License](#license)
   - [Authors](#authors)
@@ -54,11 +55,11 @@ npm install [OUR_NPM_PACKAGE]
 
 **We recommend adhering** to the **Controller-Service-Repository**.
 
-1. `Controller` - Manages the REST interface to the business logic [Service](#service)
+1. `EntityHandler` - Manages the REST interface to the business logic `Service`
 2. `Service` - Contains business logic implementations
 3. `Repository` - Will contain manipulation of entities through the utilization of [CDS-QL]
 
-A much more detailed version of this pattern can be found on [NPM] :
+A much more detailed version of this pattern can be found on [NPM] : TODO
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -66,7 +67,7 @@ A much more detailed version of this pattern can be found on [NPM] :
 
 ### Option 1 : BaseRepository using (CDS-TS)
 
-`BaseRepository` provides `out of the box` actions on the `database layer` like `.create(), .getAll(), findByPrimaryKey(), find() ...`
+`BaseRepository` provides `out of the box` actions on the `database layer` like `.create(), .getAll(), find() ...`
 
 `BaseRepository<T>` abstract class, which is parameterized with the `<T>` type which is a `TypeScript interface.`
 
@@ -116,7 +117,7 @@ class HandleClass extends BaseRepository<MyInterface> {
   protected srv : CdsService
 
   constructor(srv : CdsService, private req : Request) {
-    super('Books')
+    super('MyEntity')
     this.srv = srv;
   }
 
@@ -145,7 +146,7 @@ class HandleClass extends BaseRepository<MyInterface> {
 
 ### Option 2 : BaseRepository using (CDS-TS-Dispatcher)
 
-`BaseRepository` provides `out of the box` actions on the `database layer` like `.create(), .getAll(), findByPrimaryKey(), find() ...`
+`BaseRepository` provides `out of the box` actions on the `database layer` like `.create(), .getAll(), .find() ...`
 
 `BaseRepository<T>` abstract class, which is parameterized with the `<T>` type which is a `TypeScript interface.`
 
@@ -1034,6 +1035,10 @@ class MyRepository extends BaseRepository<MyInterface> {
   ...
 }
 ```
+
+### Example
+
+TODO
 
 ## Contributing
 
