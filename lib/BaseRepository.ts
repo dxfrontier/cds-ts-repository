@@ -15,13 +15,21 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
     return this.srv.entities[this.entityName]
   }
 
+  private isAllSuccess(items: number[]): boolean {
+    if (items.includes(0)) {
+      return false
+    }
+
+    return true
+  }
+
   // Public routines
   public async create(entry: KeyValueType<T>): Promise<InsertResult<T>> {
-    return INSERT.into(this.getEntity()).entries([entry])
+    return INSERT.into(this.getEntity()).values(entry)
   }
 
   public async createAll(entries: KeyValueType<T>[]): Promise<InsertResult<T>> {
-    return INSERT.into(this.getEntity()).entries(entries)
+    return INSERT.into(this.getEntity()).values(entries)
   }
 
   public async getAll(): Promise<T[]> {
@@ -36,6 +44,7 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
     const query = SELECT.from(this.getEntity())
 
     if (props.offset) return query.limit(props.limit, props.offset)
+    const entity = this.getEntity()
 
     return query.limit(props.limit)
   }
@@ -51,17 +60,17 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
   public async findAndOrderAsc(keys: KeyValueType<T>, columns: (keyof T)[]): Promise<T[]> {
     return SELECT.from(this.getEntity())
       .where(keys)
-      .orderBy(columns.join(', ') + ' asc')
+      .orderBy(columns.join(' ') + ' asc')
   }
 
   public async findAndOrderDesc(keys: KeyValueType<T>, columns: (keyof T)[]): Promise<T[]> {
     return SELECT.from(this.getEntity())
       .where(keys)
-      .orderBy(columns.join(', ') + ' desc')
+      .orderBy(columns.join(' ') + ' desc')
   }
 
   public async findAndGroupBy(keys: KeyValueType<T>, columns: (keyof T)[]): Promise<T[]> {
-    return SELECT.from(this.getEntity()).where(keys).groupBy(columns.join(', '))
+    return SELECT.from(this.getEntity()).where(keys).groupBy(columns.join(' '))
   }
 
   public findBuilder(keys: KeyValueType<T>): SelectBuilder<T> {
@@ -81,11 +90,9 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
       allPromises.push(update)
     })
 
-    const updated = Promise.all(allPromises)
-      .then(() => true)
-      .catch(() => false)
+    const allUpdated: number[] = await Promise.all(allPromises)
 
-    return updated
+    return this.isAllSuccess(allUpdated)
   }
 
   public async updateLocaleTexts(keys: Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean> {
@@ -106,11 +113,9 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
       allPromises.push(itemDelete)
     })
 
-    const deleted = Promise.all(allPromises)
-      .then(() => true)
-      .catch(() => false)
+    const deletedItems: number[] = await Promise.all(allPromises)
 
-    return deleted
+    return this.isAllSuccess(deletedItems)
   }
 
   public async exists(keys: KeyValueType<T>): Promise<boolean> {
