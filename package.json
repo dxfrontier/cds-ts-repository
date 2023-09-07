@@ -1,0 +1,40 @@
+{
+  "name": "cds-ts-repository",
+  "version": "1.0.0",
+  "description": "The goal of SAP CAP CDS-QL BaseRepository is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the database like .create(), .getAll(), findByPrimaryKey(), find() ...",
+  "main": "index.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dxfrontier/cds-ts-repository.git"
+  },
+  "keywords": [
+    "CDS-TS-Repository",
+    "Controller-Service-Repository",
+    "SAP CAP CDS-TS Decorators",
+    "SAP CAP TypeScript Decorators"
+  ],
+  "authors": [
+    {
+      "name": "Daniel Dragolea",
+      "email": "dragolea@yahoo.com"
+    },
+    {
+      "name": "Sebastian Blessing",
+      "email": "dragolea@yahoo.com"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dxfrontier/cds-ts-repository/issues"
+  },
+  "homepage": "https://github.com/dxfrontier/cds-ts-repository#readme",
+  "dependencies": {
+    "@sap/cds": "^7.2.0"
+  }
+}
