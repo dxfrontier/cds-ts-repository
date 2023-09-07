@@ -15,8 +15,8 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** `Bas
   - [Installation](#installation)
   - [Architecture](#architecture)
   - [Usage](#usage)
-    - [BaseRepository (CDS-TS)](#baserepository-cds-ts)
-    - [BaseRepository (CDS-TS-Dispatcher)](#baserepository-cds-ts-dispatcher)
+    - [Option 1 : BaseRepository using (CDS-TS)](#option-1--baserepository-using-cds-ts)
+    - [Option 2 : BaseRepository using (CDS-TS-Dispatcher)](#option-2--baserepository-using-cds-ts-dispatcher)
       - [Methods](#methods)
         - [create](#create)
         - [createAll](#createall)
@@ -64,25 +64,86 @@ A much more detailed version of this pattern can be found on [NPM] :
 
 ## Usage
 
-### BaseRepository (CDS-TS)
+### Option 1 : BaseRepository using (CDS-TS)
 
-If you want to use BaseRepository with the `SAP CDS-TS` the
+`BaseRepository` provides `out of the box` actions on the `database layer` like `.create(), .getAll(), findByPrimaryKey(), find() ...`
 
-TODO
+`BaseRepository<T>` abstract class, which is parameterized with the `<T>` type which is a `TypeScript interface.`
 
-TODO
-v
-TODO
-v
-v
-TODO
-TODO
-TODO
-v
-TODO
-TODO
+If you want to use `BaseRepository` with the `SAP CDS-TS` without using the [CDS-TS-Dispatcher](#baserepository-cds-ts-dispatcher--option-2)
 
-### BaseRepository (CDS-TS-Dispatcher)
+- Create a new private field `private aHandleClass: HandleClass`
+- Create a new handler class `class HandleClass extends BaseRepository<T> { ... `
+- Use the handler on the `callback` of the `events` `this.before('READ', MyEntity, (req) => this.aHandleClass(srv, req))`
+
+`MyInterface`
+
+```ts
+export interface MyInterface {
+  ID: string
+  createdAt?: Date
+  createdBy?: string
+  modifiedAt?: Date
+  modifiedBy?: string
+  name: string
+  description: string
+}
+```
+
+`Example`
+
+```ts
+class MainService extends cds.ApplicationService {
+  private aHandleClass: HandleClass
+  // ...
+
+  init() {
+    const srv = this
+    const { MyEntity } = this.entities
+
+    this.before('READ', MyEntity, (req) => this.aHandleClass(srv, req))
+    this.after('READ', MyEntity, (req) => this.aHandleClass(srv, req))
+
+    return super.init()
+  }
+}
+```
+
+```ts
+
+class HandleClass extends BaseRepository<MyInterface> {
+
+  protected srv : CdsService
+
+  constructor(srv : CdsService, private req : Request) {
+    super('Books')
+    this.srv = srv;
+  }
+
+  public aMethod() {
+
+    // BaseRepository predefined methods using the 'MyEntity' entity
+    // All methods parameters will allow only parameters of type 'MyInterface'
+
+    const result1 = await this.create(...)
+    const result2 = await this.createAll(...)
+    const result3 = await this.findAndOrderAsc(...)
+    const result4 = await this.findAndOrderDesc(...)
+    const result5 = await this.getAll()
+    const result6 = await this.getAllAndLimit(...)
+    const result7 = await this.find(...)
+    const result8 = await this.findOne(...)
+    const result9 = await this.delete(...)
+    const result10 = await this.update(...)
+    const result11 = await this.updateLocaleTexts(...)
+    const result12 = await this.exists(...)
+    const result13 = await this.count()
+  }
+}
+
+```
+
+### Option 2 : BaseRepository using (CDS-TS-Dispatcher)
 
 `BaseRepository` provides `out of the box` actions on the `database layer` like `.create(), .getAll(), findByPrimaryKey(), find() ...`
 
@@ -111,6 +172,7 @@ All defined methods in the `BaseRepository` can be accessed in the class using t
 ```ts
 import {MyInterface} from 'types.ts'
 
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -193,6 +255,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -243,6 +306,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -294,6 +358,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -336,6 +401,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -384,6 +450,7 @@ export interface MyInterface {
 `Example 1` : Retrieve the first 10 items
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -400,6 +467,7 @@ class MyRepository extends BaseRepository<MyInterface> {
 `Example 2` : Retrieve items starting from the 20th item, limit to 5 items
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -446,6 +514,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -492,6 +561,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -539,6 +609,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -606,6 +677,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -655,6 +727,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -706,6 +779,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -756,6 +830,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -802,6 +877,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -852,6 +928,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -901,6 +978,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
@@ -943,6 +1021,7 @@ export interface MyInterface {
 `Example`
 
 ```ts
+@Repository()
 class MyRepository extends BaseRepository<MyInterface> {
   ...
   constructor() {
