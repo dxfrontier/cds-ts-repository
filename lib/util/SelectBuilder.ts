@@ -10,18 +10,18 @@ class SelectBuilder<T> {
   }
 
   public orderAsc(columns: (keyof T)[]): this {
-    this.select.orderBy(columns.join(', ') + ' asc')
+    this.select.orderBy(columns.join(' ') + ' asc')
     return this
   }
 
   public orderDesc(columns: (keyof T)[]): this {
-    this.select.orderBy(columns.join(', ') + ' desc')
+    this.select.orderBy(columns.join(' ') + ' desc')
 
     return this
   }
 
   public groupBy(columns: (keyof T)[]): this {
-    this.select.groupBy(columns.join(', '))
+    this.select.groupBy(columns.join(' '))
     return this
   }
 
@@ -35,7 +35,7 @@ class SelectBuilder<T> {
     return this
   }
 
-  public async execute() {
+  public async execute(): Promise<any> {
     return this.select
   }
 }

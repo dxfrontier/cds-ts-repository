@@ -57,22 +57,6 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
     return SELECT.one.from(this.getEntity()).where(keys)
   }
 
-  public async findAndOrderAsc(keys: KeyValueType<T>, columns: (keyof T)[]): Promise<T[]> {
-    return SELECT.from(this.getEntity())
-      .where(keys)
-      .orderBy(columns.join(' ') + ' asc')
-  }
-
-  public async findAndOrderDesc(keys: KeyValueType<T>, columns: (keyof T)[]): Promise<T[]> {
-    return SELECT.from(this.getEntity())
-      .where(keys)
-      .orderBy(columns.join(' ') + ' desc')
-  }
-
-  public async findAndGroupBy(keys: KeyValueType<T>, columns: (keyof T)[]): Promise<T[]> {
-    return SELECT.from(this.getEntity()).where(keys).groupBy(columns.join(' '))
-  }
-
   public findBuilder(keys: KeyValueType<T>): SelectBuilder<T> {
     return new SelectBuilder<T>(this.getEntity(), keys)
   }

@@ -2,8 +2,6 @@
 
 <img src="https://img.shields.io/badge/SAP-0FAAFF?style=for-the-badge&logo=sap&logoColor=white" /> <img src="https://img.shields.io/badge/ts--node-3178C6?style=for-the-badge&logo=ts-node&logoColor=white" /> <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" /> <img src="https://img.shields.io/badge/Express%20js-000000?style=for-the-badge&logo=express&logoColor=white" /> <img src="https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white" /> <img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white" /> <img src="https://img.shields.io/badge/Cloud%20Foundry-0C9ED5?style=for-the-badge&logo=Cloud%20Foundry&logoColor=white" /> <img src="https://img.shields.io/badge/kubernetes-326ce5.svg?&style=for-the-badge&logo=kubernetes&logoColor=white" />
 
-<!-- ![](https://img.shields.io/github/stars/pandao/editor.md.svg) ![](https://img.shields.io/github/forks/pandao/editor.md.svg) ![](https://img.shields.io/github/tag/pandao/editor.md.svg) ![](https://img.shields.io/github/release/pandao/editor.md.svg) ![](https://img.shields.io/github/issues/pandao/editor.md.svg) ![](https://img.shields.io/bower/v/editor.md.svg) -->
-
 The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** `BaseRepository` is to significantly reduce the `boilerplate` code required to implement `data access layers for persistance entities` by providing `out of the box` actions on the `database` like `.create(), .getAll(), find() ...`
 
 <a name="readme-top"></a>
@@ -25,9 +23,6 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** `Bas
         - [getAllAndLimit](#getallandlimit)
         - [find](#find)
         - [findOne](#findone)
-        - [findAndOrderAsc](#findandorderasc)
-        - [findAndOrderDesc](#findandorderdesc)
-        - [findAndOrderBy](#findandorderby)
         - [findBuilder](#findbuilder)
         - [update](#update)
         - [updateAllBy](#updateallby)
@@ -46,7 +41,7 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** `Bas
 To get started follow these steps:
 
 ```bash
-npm install [OUR_NPM_PACKAGE]
+npm install cds-ts-respository TODO
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -59,7 +54,7 @@ npm install [OUR_NPM_PACKAGE]
 2. `Service` - Contains business logic implementations
 3. `Repository` - Will contain manipulation of entities through the utilization of [CDS-QL]
 
-A much more detailed version of this pattern can be found on [NPM] : TODO
+A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher](https://google.com) : TODO
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -73,9 +68,9 @@ A much more detailed version of this pattern can be found on [NPM] : TODO
 
 If you want to use `BaseRepository` with the `SAP CDS-TS` without using the [CDS-TS-Dispatcher](#baserepository-cds-ts-dispatcher--option-2)
 
-- Create a new private field `private aHandleClass: HandleClass`
+- Create a new private field `private HandleClass: HandleClass`
 - Create a new handler class `class HandleClass extends BaseRepository<T> { ... `
-- Use the handler on the `callback` of the `events` `this.before('READ', MyEntity, (req) => this.aHandleClass(srv, req))`
+- Use the handler on the `callback` of the `events` `this.before('READ', MyEntity, (req) => this.HandleClass.aMethod(req))`
 
 `MyInterface`
 
@@ -95,15 +90,17 @@ export interface MyInterface {
 
 ```ts
 class MainService extends cds.ApplicationService {
-  private aHandleClass: HandleClass
+  private handleClass: HandleClass
   // ...
 
   init() {
-    const srv = this
     const { MyEntity } = this.entities
 
-    this.before('READ', MyEntity, (req) => this.aHandleClass(srv, req))
-    this.after('READ', MyEntity, (req) => this.aHandleClass(srv, req))
+    this.handleClass = new HandleClass(this)
+    // ...
+
+    this.before('READ', MyEntity, (req: Request) => this.handleClass.aMethod(req))
+    this.after('READ', MyEntity, (req: Request) => this.handleClass.anotherMethod(req))
 
     return super.init()
   }
@@ -111,25 +108,24 @@ class MainService extends cds.ApplicationService {
 ```
 
 ```ts
+import Service from '@sap/cds'
 
 class HandleClass extends BaseRepository<MyInterface> {
 
-  protected srv : CdsService
+  protected srv : Service
 
-  constructor(srv : CdsService, private req : Request) {
+  constructor(srv : Service) {
     super('MyEntity')
     this.srv = srv;
   }
 
-  public aMethod() {
+  public aMethod(req : Request) {
 
     // BaseRepository predefined methods using the 'MyEntity' entity
     // All methods parameters will allow only parameters of type 'MyInterface'
 
     const result1 = await this.create(...)
     const result2 = await this.createAll(...)
-    const result3 = await this.findAndOrderAsc(...)
-    const result4 = await this.findAndOrderDesc(...)
     const result5 = await this.getAll()
     const result6 = await this.getAllAndLimit(...)
     const result7 = await this.find(...)
@@ -139,6 +135,10 @@ class HandleClass extends BaseRepository<MyInterface> {
     const result11 = await this.updateLocaleTexts(...)
     const result12 = await this.exists(...)
     const result13 = await this.count()
+  }
+
+    public anotherMethod(req : Request) {
+      // ...
   }
 }
 
@@ -171,7 +171,9 @@ All defined methods in the `BaseRepository` can be accessed in the class using t
 `Example` using the CDS-TS-Dispatcher
 
 ```ts
-import {MyInterface} from 'types.ts'
+
+import { MyInterface } from 'myTypes.ts'
+import { Repository } from 'cds-ts-dispatcher';
 
 @Repository()
 class MyRepository extends BaseRepository<MyInterface> {
@@ -187,8 +189,6 @@ class MyRepository extends BaseRepository<MyInterface> {
 
     const result1 = await this.create(...)
     const result2 = await this.createAll(...)
-    const result3 = await this.findAndOrderAsc(...)
-    const result4 = await this.findAndOrderDesc(...)
     const result5 = await this.getAll()
     const result6 = await this.getAllAndLimit(...)
     const result7 = await this.find(...)
@@ -315,7 +315,7 @@ class MyRepository extends BaseRepository<MyInterface> {
   }
 
   public async aMethod() {
-    const createdInstance = await this.create([
+    const createdInstance = await this.createAll([
     {
       name: 'Customer 1',
       description : 'Customer 1 description'
@@ -575,70 +575,6 @@ class MyRepository extends BaseRepository<MyInterface> {
   ...
 }
 ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-##### findAndOrderAsc
-
-`(method) this.findAndOrderDesc(keys: KeyValueType<T>, columns: (keyof T)[]): Promise<T[]>`
-
-The `findAndOrderDesc` method allows you to find and retrieve entries from the database while specifying the `keys to filter by` and the `columns to use for descending order`.
-
-`Parameters`
-
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyInterface`, and the values should match the filter criteria.
-- `columns (Array)`: An array of property names `(keys)` from the `MyInterface`. The retrieved entries will be ordered in descending order based on these columns.
-
-`Return value`
-
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyInterface`.
-
-`MyInterface`
-
-```ts
-export interface MyInterface {
-  ID: string
-  createdAt?: Date
-  createdBy?: string
-  modifiedAt?: Date
-  modifiedBy?: string
-  name: string
-  description: string
-}
-```
-
-`Example`
-
-```ts
-@Repository()
-class MyRepository extends BaseRepository<MyInterface> {
-  ...
-  constructor() {
-    super('MyEntity') // a CDS entity name
-  }
-
-  public async aMethod() {
-    const results = await this.findAndOrderDesc({ name: 'Customer' }, ['name', 'description'])
-  }
-  ...
-}
-```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-##### findAndOrderDesc
-
-`(method) this.findAndOrderAsc(keys: KeyValueType<T>, columns: (keyof T)[]): Promise<T[]>`
-
-This method is similar to [findAndOrderAsc](#findandorderasc), the only difference is that, it will return the `results` of the items in `DESC`.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-##### findAndOrderBy
-
-`(method) this.findAnOrderBy(keys: KeyValueType<T>, columns: (keyof T)[]): Promise<T[]>`
-
-This method is similar to [findAndOrderAsc](#findandorderasc), the only difference is that the `results` of the items will be `orderBy columns`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

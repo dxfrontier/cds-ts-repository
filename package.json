@@ -19,14 +19,18 @@
     "SAP CAP CDS-TS Decorators",
     "SAP CAP TypeScript Decorators"
   ],
-  "authors": [
+  "author": {
+    "name": "Daniel Dragolea",
+    "email": "dragolea@yahoo.com"
+  },
+  "maintainers": [
     {
       "name": "Daniel Dragolea",
       "email": "dragolea@yahoo.com"
     },
     {
       "name": "Sebastian Blessing",
-      "email": "dragolea@yahoo.com"
+      "email": "sebastian.blessing@abs-gmbh.de"
     }
   ],
   "license": "MIT",

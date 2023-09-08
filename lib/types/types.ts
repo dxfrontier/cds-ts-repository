@@ -19,9 +19,6 @@ interface RepositoryPredefinedMethods<T> {
 
   find(keys: KeyValueType<T>): Promise<T[]>
   findOne(keys: KeyValueType<T>): Promise<T>
-  findAndOrderAsc(keys: KeyValueType<T>, columns: Array<keyof T>): Promise<T[]>
-  findAndOrderDesc(keys: KeyValueType<T>, columns: Array<keyof T>): Promise<T[]>
-  findAndGroupBy(keys: KeyValueType<T>, columns: Array<keyof T>): Promise<T[]>
   findBuilder(keys: KeyValueType<T>): SelectBuilder<T>
 
   update(keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>): Promise<boolean>
