@@ -124,14 +124,14 @@ class HandleClass extends BaseRepository<MyEntity> {
   protected srv : Service
 
   constructor(srv : Service) {
-    super('MyEntity')
+    super(MyEntity)
     this.srv = srv;
   }
 
   public aMethod(req : Request) {
 
-    // BaseRepository predefined methods using the 'MyEntity' entity
-    // All methods parameters will allow only parameters of type 'MyEntity'
+    // BaseRepository predefined methods using the MyEntity entity
+    // All methods parameters will allow only parameters of type MyEntity
 
     const result1 = await this.create(...)
     const result2 = await this.createAll(...)
@@ -171,13 +171,13 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // MyService.MyEntity CDS entity
+    super(MyEntity) // MyService.MyEntity CDS entity
   }
 
   aMethod() {
 
-    // BaseRepository predefined methods using the 'MyEntity' entity
-    // All methods parameters will allow only parameters of type 'MyEntity'
+    // BaseRepository predefined methods using the MyEntity entity
+    // All methods parameters will allow only parameters of type MyEntity
 
     const result1 = await this.create(...)
     const result2 = await this.createAll(...)
@@ -229,7 +229,7 @@ This method allows you to create a new entry in the database.
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -267,7 +267,7 @@ This method allows you to add multiple entries in the database.
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -306,7 +306,7 @@ This method will return all database `entries`.
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -336,7 +336,7 @@ This method will return all database `entries`.
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -372,7 +372,7 @@ This method allows you to find and retrieve a `list of items with optional pagin
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -389,7 +389,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -423,7 +423,7 @@ The method allows you to find and `retrieve entries` from the database that matc
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -457,7 +457,7 @@ The method allows you to find and `retrieve a single entry` from the database th
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -571,7 +571,7 @@ const resultsAndAllExpandedEntities = await this.findBuilder({ name: 'A company 
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -608,7 +608,7 @@ The method allows you to update entries in the data store that match the specifi
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -647,7 +647,7 @@ The method in this class allows you to update `multiple database entries` based 
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -685,7 +685,7 @@ The method allows you to update entries in the data store that match the specifi
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -719,7 +719,7 @@ The method allows you to delete entries from the database that match the specifi
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -757,7 +757,7 @@ The method allows you to `multiple entries` from the database that match the spe
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -794,7 +794,7 @@ The method allows you to check whether entries exist in the database that match 
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
@@ -823,7 +823,7 @@ The method allows to count all items from the database.
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super('MyEntity') // a CDS entity name
+    super(MyEntity) // a CDS entity name
   }
 
   public async aMethod() {
