@@ -1,4 +1,3 @@
-import { Service as CdsService } from '@sap/cds'
 import SelectBuilder from '../util/SelectBuilder'
 
 type KeyValueType<T> = {
@@ -33,4 +32,4 @@ interface RepositoryPredefinedMethods<T> {
   count(): Promise<number>
 }
 
-export { CdsService, RepositoryPredefinedMethods, KeyValueType, InsertResult, Locale }
+export { RepositoryPredefinedMethods, KeyValueType, InsertResult, Locale }

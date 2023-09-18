@@ -1,2 +1,2 @@
 export * from './BaseRepository'
-export { CdsService, InsertResult } from './types/types'
+export { InsertResult } from './types/types'
