@@ -49,7 +49,7 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **Ba
 ### Install CDS-TS-Repository
 
 ```bash
-npm install cds-ts-respository TODO
+npm install cds-ts-respository
 ```
 
 ### Generate CDS Typed entities
@@ -60,8 +60,8 @@ The following command should be used to generate typed entity classes
 npx @cap-js/cds-typer ./srv/controller/mainService --outputDirectory ./srv/util/types/entities
 ```
 
-Source folder : `./srv/controller/mainService` - Change to your location folder
-Target folder :`./srv/util/types/entities` - Change to your location folder
+- Source folder : `./srv/controller/mainService` - Change to your location folder
+- Target folder :`./srv/util/types/entities` - Change to your location folder
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
