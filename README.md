@@ -108,9 +108,7 @@ class MainService extends cds.ApplicationService {
 }
 ```
 
-`MyEntity`
-
-- `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+`MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Example` HandleClass
 
@@ -199,9 +197,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ```
 
-`MyEntity`
-
-- `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+`MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -362,7 +358,7 @@ This method allows you to find and retrieve a `list of items with optional pagin
 
 `Return value`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+- `Promise<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
   - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Example 1` : Retrieve the first 10 items
