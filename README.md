@@ -546,11 +546,13 @@ You can specify which columns you want to retrieve from the database using the g
 
 `Parameters`
 
-- `name` `(optional, string)`: The name of the column to expand, if `name` is provided then only the `name` association / composition will be fetched. If no `argument` provided then the method will get all associations / compositions
+- `associations` `(optional, string[])`: The optional columns to expand, if `associations` argument is provided then only the specified `associations / compositions` will be fetched.
+  - If `NO` `associations argument` provided then the method will fetch all `associations / compositions` present on the entity.
 
 ```ts
-const results = await this.findBuilder({ name: 'A company name' }).getExpand('orders').execute()
-// OR
+const results = await this.findBuilder({ name: 'A company name' }).getExpand(['orders']).execute()
+
+// OR GET ALL Associations and Compositions
 const resultsAndAllExpandedEntities = await this.findBuilder({ name: 'A company name' }).getExpand().execute()
 ```
 
