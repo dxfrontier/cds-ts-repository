@@ -108,18 +108,18 @@ class MainService extends cds.ApplicationService {
 }
 ```
 
-`MyInterface`
+`MyEntity`
 
-- `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Example` HandleClass
 
 ```ts
 import { Service, Request } from '@sap/cds'
 import BaseRepository from 'cds-ts-repository'
-import { MyInterface } from 'LOCATION_OF_YOUR_TYPE'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
-class HandleClass extends BaseRepository<MyInterface> {
+class HandleClass extends BaseRepository<MyEntity> {
 
   protected srv : Service
 
@@ -131,7 +131,7 @@ class HandleClass extends BaseRepository<MyInterface> {
   public aMethod(req : Request) {
 
     // BaseRepository predefined methods using the 'MyEntity' entity
-    // All methods parameters will allow only parameters of type 'MyInterface'
+    // All methods parameters will allow only parameters of type 'MyEntity'
 
     const result1 = await this.create(...)
     const result2 = await this.createAll(...)
@@ -165,10 +165,10 @@ All defined methods in the `BaseRepository` can be accessed in the class using t
 
 import { Repository } from 'cds-ts-dispatcher'
 import BaseRepository from 'cds-ts-repository'
-import { MyInterface } from 'LOCATION_OF_YOUR_TYPE'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // MyService.MyEntity CDS entity
@@ -177,7 +177,7 @@ class MyRepository extends BaseRepository<MyInterface> {
   aMethod() {
 
     // BaseRepository predefined methods using the 'MyEntity' entity
-    // All methods parameters will allow only parameters of type 'MyInterface'
+    // All methods parameters will allow only parameters of type 'MyEntity'
 
     const result1 = await this.create(...)
     const result2 = await this.createAll(...)
@@ -199,9 +199,9 @@ class MyRepository extends BaseRepository<MyInterface> {
 
 ```
 
-`MyInterface`
+`MyEntity`
 
-- `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -215,8 +215,8 @@ This method allows you to create a new entry in the database.
 
 `Parameters`
 
-- `entry (Object)`: An object representing the entry to be created. The object should match the structure expected by `MyInterface`
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `entry (Object)`: An object representing the entry to be created. The object should match the structure expected by `MyEntity`
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -226,7 +226,7 @@ This method allows you to create a new entry in the database.
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -253,8 +253,8 @@ This method allows you to add multiple entries in the database.
 
 `Parameters`
 
-- `entries (Array)`: An array of objects representing the entries to be created. Each object should match the structure expected by `MyInterface`.
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `entries (Array)`: An array of objects representing the entries to be created. Each object should match the structure expected by `MyEntity`.
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -264,7 +264,7 @@ This method allows you to add multiple entries in the database.
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -296,14 +296,14 @@ This method will return all database `entries`.
 
 `Return value`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyInterface`.
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Example`
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -326,14 +326,14 @@ This method will return all database `entries`.
 
 `Return value`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyInterface`.
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Example`
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -362,14 +362,14 @@ This method allows you to find and retrieve a `list of items with optional pagin
 
 `Return value`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyInterface`.
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Example 1` : Retrieve the first 10 items
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -386,7 +386,7 @@ class MyRepository extends BaseRepository<MyInterface> {
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -409,18 +409,18 @@ The method allows you to find and `retrieve entries` from the database that matc
 
 `Parameters`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyInterface`, and the values should match the filter criteria.
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyInterface`.
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
 
 `Example`
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -443,18 +443,18 @@ The method allows you to find and `retrieve a single entry` from the database th
 
 `Parameters`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyInterface`, and the values should match the filter criteria.
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
-- `Promise<T>`: This method returns a Promise with an `single entry of type T`, where `T` is `MyInterface`.
+- `Promise<T>`: This method returns a Promise with an `single entry of type T`, where `T` is `MyEntity`.
 
 `Example`
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -477,8 +477,8 @@ The method allows you to create a `SelectBuilder` instance for building database
 
 `Parameters`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyInterface`, and the values should match the filter criteria.
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -566,7 +566,7 @@ const resultsAndAllExpandedEntities = await this.findBuilder({ name: 'A company 
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -591,8 +591,8 @@ The method allows you to update entries in the data store that match the specifi
 
 `Parameters`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyInterface`, and the values should match the filter criteria.
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 - `fieldsToUpdate (Object)`: An object representing the fields and their updated values for the matching entries.
 
 `Return value`
@@ -603,7 +603,7 @@ The method allows you to update entries in the data store that match the specifi
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -630,8 +630,8 @@ The method in this class allows you to update `multiple database entries` based 
 
 - `entries (Array[Object])`
 
-  - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyInterface`, and the values should match the filter criteria.
-    - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+  - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+    - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
   - `fieldsToUpdate (Object)`: An object representing the fields and their updated values for the matching entries.
 
 - `Promise<boolean>`: This method returns :
@@ -642,7 +642,7 @@ The method in this class allows you to update `multiple database entries` based 
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -667,8 +667,8 @@ The method allows you to update entries in the data store that match the specifi
 `Parameters`
 
 - `key (string)`: A string representing the language code to filter the entries, example `'en', 'de', 'fr', 'ro' ...`
-- `fieldsToUpdate (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyInterface`, and the values should match the filter criteria.
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `fieldsToUpdate (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -680,7 +680,7 @@ The method allows you to update entries in the data store that match the specifi
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -703,8 +703,8 @@ The method allows you to delete entries from the database that match the specifi
 
 `Parameters`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyInterface`, and the values should match the filter criteria.
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -714,7 +714,7 @@ The method allows you to delete entries from the database that match the specifi
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -739,8 +739,8 @@ The method allows you to `multiple entries` from the database that match the spe
 `Parameters`
 
 - `entries (Array[Object])`
-  - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyInterface`, and the values should match the filter criteria.
-    - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+  - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+    - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -752,7 +752,7 @@ The method allows you to `multiple entries` from the database that match the spe
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -778,8 +778,8 @@ The method allows you to check whether entries exist in the database that match 
 
 `Parameters`
 
-- `fieldsToUpdate (Object)`: Each key should correspond to a property in the `MyInterface`, and the values should match the filter criteria.
-  - `MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `fieldsToUpdate (Object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -789,7 +789,7 @@ The method allows you to check whether entries exist in the database that match 
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -818,7 +818,7 @@ The method allows to count all items from the database.
 
 ```ts
 @Repository()
-class MyRepository extends BaseRepository<MyInterface> {
+class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
     super('MyEntity') // a CDS entity name
@@ -831,7 +831,7 @@ class MyRepository extends BaseRepository<MyInterface> {
 }
 ```
 
-`MyInterface` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+`MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 ### Example
 
