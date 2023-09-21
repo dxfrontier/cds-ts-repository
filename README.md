@@ -73,6 +73,12 @@ npx @cap-js/cds-typer ./srv/controller/mainService --outputDirectory ./srv/util/
 2. `Service` - Contains business logic implementations
 3. `Repository` - Will contain manipulation of entities through the utilization of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** out of the box actions.
 
+`Controller-Service-Repository` suggested folder structure
+
+![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/cds-ts-dispatcher/architecture_folder_structure.png?raw=true) <= expanded folders => ![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/cds-ts-dispatcher/architecture_folder_structure_expanded.png?raw=true)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher](https://google.com) : TODO
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
