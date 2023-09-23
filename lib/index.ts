@@ -1,2 +1,2 @@
 export * from './BaseRepository'
-export { InsertResult } from './types/types'
+export type { InsertResult } from './types/types'
