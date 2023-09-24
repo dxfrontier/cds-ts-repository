@@ -1,22 +1,22 @@
-import { type RepositoryPredefinedMethods, type KeyValueType, type InsertResult, type Locale } from './types/types'
-import SelectBuilder from './util/SelectBuilder'
-import { DELETE, INSERT, SELECT, UPDATE } from '@sap/cds/apis/ql'
-import { type Service } from '@sap/cds'
-import { type entity } from '@sap/cds/apis/reflect'
-import { type Definition } from '@sap/cds/apis/csn'
+import { type RepositoryPredefinedMethods, type KeyValueType, type InsertResult, type Locale } from './types/types';
+import SelectBuilder from './util/SelectBuilder';
+import { DELETE, INSERT, SELECT, UPDATE } from '@sap/cds/apis/ql';
+import { type Service } from '@sap/cds';
+import { type entity } from '@sap/cds/apis/reflect';
+import { type Definition } from '@sap/cds/apis/csn';
 abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
-  protected abstract srv: Service
+  protected abstract srv: Service;
 
-  constructor (private readonly entity: Definition) {
-    this.entity = entity
+  constructor(private readonly entity: Definition) {
+    this.entity = entity;
   }
 
-  private isAllSuccess (items: number[]): boolean {
+  private isAllSuccess(items: number[]): boolean {
     if (items.includes(0)) {
-      return false
+      return false;
     }
 
-    return true
+    return true;
   }
 
   // Public routines
@@ -26,8 +26,8 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>} entry - The entry to insert.
    * @returns {Promise<InsertResult<T>>} - A promise that resolves to the insert result.
    */
-  public async create (entry: KeyValueType<T>): Promise<InsertResult<T>> {
-    return await INSERT.into(this.entity).values(entry)
+  public async create(entry: KeyValueType<T>): Promise<InsertResult<T>> {
+    return await INSERT.into(this.entity).values(entry);
   }
 
   /**
@@ -35,24 +35,24 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>[]} entries - The entries to insert.
    * @returns {Promise<InsertResult<T>>} - A promise that resolves to the insert result.
    */
-  public async createAll (entries: Array<KeyValueType<T>>): Promise<InsertResult<T>> {
-    return await INSERT.into(this.entity).values(entries)
+  public async createAll(entries: Array<KeyValueType<T>>): Promise<InsertResult<T>> {
+    return await INSERT.into(this.entity).values(entries);
   }
 
   /**
    * Retrieves all records from the database.
    * @returns {Promise<T[]>} - A promise that resolves to an array of records.
    */
-  public async getAll (): Promise<T[]> {
-    return await SELECT.from(this.entity)
+  public async getAll(): Promise<T[]> {
+    return await SELECT.from(this.entity);
   }
 
   /**
    * Retrieves all distinct records from the database.
    * @returns {Promise<T[]>} - A promise that resolves to an array of distinct records.
    */
-  public async getAllDistinct (): Promise<T[]> {
-    return await SELECT.distinct.from(this.entity)
+  public async getAllDistinct(): Promise<T[]> {
+    return await SELECT.distinct.from(this.entity);
   }
 
   /**
@@ -62,12 +62,12 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {number|undefined} [props.offset] - The optional offset for the result set.
    * @returns {Promise<T[]>} - A promise that resolves to an array of records.
    */
-  public async getAllAndLimit (props: { limit: number, offset?: number | undefined }): Promise<T[]> {
-    const query = SELECT.from(this.entity)
+  public async getAllAndLimit(props: { limit: number; offset?: number | undefined }): Promise<T[]> {
+    const query = SELECT.from(this.entity);
 
-    if (props.offset !== undefined) return await query.limit(props.limit, props.offset)
+    if (props.offset !== undefined) return await query.limit(props.limit, props.offset);
 
-    return await query.limit(props.limit)
+    return await query.limit(props.limit);
   }
 
   /**
@@ -76,10 +76,10 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @returns {Promise<T[]>} - A promise that resolves to an array of matching records.
    */
 
-  public async find (keys: KeyValueType<T>): Promise<T[]> {
+  public async find(keys: KeyValueType<T>): Promise<T[]> {
     // before on every CQL action I can do a exclude of the properties which are virtual based on the entity ...
     // if you use a virtual field throw an error ...
-    return await SELECT.from(this.entity).where(keys)
+    return await SELECT.from(this.entity).where(keys);
   }
 
   /**
@@ -87,8 +87,8 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>} keys - The keys to search for.
    * @returns {Promise<T>} - A promise that resolves to a single matching record.
    */
-  public async findOne (keys: KeyValueType<T>): Promise<T> {
-    return await SELECT.one.from(this.entity).where(keys)
+  public async findOne(keys: KeyValueType<T>): Promise<T> {
+    return await SELECT.one.from(this.entity).where(keys);
   }
 
   /**
@@ -96,8 +96,8 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>} keys - The keys to search for.
    * @returns {SelectBuilder<T>} - A select builder instance.
    */
-  public findBuilder (keys: KeyValueType<T>): SelectBuilder<T> {
-    return new SelectBuilder<T>(this.entity as entity, keys)
+  public findBuilder(keys: KeyValueType<T>): SelectBuilder<T> {
+    return new SelectBuilder<T>(this.entity as entity, keys);
   }
 
   /**
@@ -106,9 +106,9 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>} fieldsToUpdate - The fields to update.
    * @returns {Promise<boolean>} - A promise that resolves to `true` if the update is successful.
    */
-  public async update (keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>): Promise<boolean> {
-    const updated = await UPDATE.entity(this.entity).where(keys).set(fieldsToUpdate)
-    return updated === 1
+  public async update(keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>): Promise<boolean> {
+    const updated = await UPDATE.entity(this.entity).where(keys).set(fieldsToUpdate);
+    return updated === 1;
   }
 
   /**
@@ -116,17 +116,22 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {Array<{ keys: KeyValueType<T>; fieldsToUpdate: KeyValueType<T> }>} entries - The entries to update.
    * @returns {Promise<boolean>} - A promise that resolves to `true` if all updates are successful.
    */
-  async updateAllBy (entries: Array<{ keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T> }>): Promise<boolean> {
-    const allPromises: Array<UPDATE<T>> = []
+  async updateAllBy(
+    entries: Array<{
+      keys: KeyValueType<T>;
+      fieldsToUpdate: KeyValueType<T>;
+    }>,
+  ): Promise<boolean> {
+    const allPromises: Array<UPDATE<T>> = [];
 
     entries.forEach((instance) => {
-      const update = UPDATE.entity(this.entity).where(instance.keys).set(instance.fieldsToUpdate)
-      allPromises.push(update)
-    })
+      const update = UPDATE.entity(this.entity).where(instance.keys).set(instance.fieldsToUpdate);
+      allPromises.push(update);
+    });
 
-    const allUpdated: number[] = await Promise.all(allPromises)
+    const allUpdated: number[] = await Promise.all(allPromises);
 
-    return this.isAllSuccess(allUpdated)
+    return this.isAllSuccess(allUpdated);
   }
 
   /**
@@ -135,9 +140,9 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>} fieldsToUpdate - The fields to update.
    * @returns {Promise<boolean>} - A promise that resolves to `true` if the update is successful.
    */
-  public async updateLocaleTexts (keys: Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean> {
-    const updated = await UPDATE.entity(this.entity).set(fieldsToUpdate).where(keys)
-    return updated === 1
+  public async updateLocaleTexts(keys: Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean> {
+    const updated = await UPDATE.entity(this.entity).set(fieldsToUpdate).where(keys);
+    return updated === 1;
   }
 
   /**
@@ -145,9 +150,9 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>} keys - The keys to search for.
    * @returns {Promise<boolean>} - A promise that resolves to `true` if the deletion is successful.
    */
-  public async delete (keys: KeyValueType<T>): Promise<boolean> {
-    const deleted = await DELETE.from(this.entity).where(keys)
-    return deleted === 1
+  public async delete(keys: KeyValueType<T>): Promise<boolean> {
+    const deleted = await DELETE.from(this.entity).where(keys);
+    return deleted === 1;
   }
 
   /**
@@ -155,17 +160,17 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>[]} entries - The entries to delete.
    * @returns {Promise<boolean>} - A promise that resolves to `true` if all deletions are successful.
    */
-  public async deleteAll (entries: Array<KeyValueType<T>>): Promise<boolean> {
-    const allPromises: Array<DELETE<T>> = []
+  public async deleteAll(entries: Array<KeyValueType<T>>): Promise<boolean> {
+    const allPromises: Array<DELETE<T>> = [];
 
     entries.forEach((instance) => {
-      const itemDelete = DELETE.from(this.entity).where(instance)
-      allPromises.push(itemDelete)
-    })
+      const itemDelete = DELETE.from(this.entity).where(instance);
+      allPromises.push(itemDelete);
+    });
 
-    const deletedItems: number[] = await Promise.all(allPromises)
+    const deletedItems: number[] = await Promise.all(allPromises);
 
-    return this.isAllSuccess(deletedItems)
+    return this.isAllSuccess(deletedItems);
   }
 
   /**
@@ -173,19 +178,19 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>} keys - The keys to search for.
    * @returns {Promise<boolean>} - A promise that resolves to `true` if at least one record exists.
    */
-  public async exists (keys: KeyValueType<T>): Promise<boolean> {
-    const found = await SELECT.from(this.entity).where(keys)
-    return found.length > 0
+  public async exists(keys: KeyValueType<T>): Promise<boolean> {
+    const found = await SELECT.from(this.entity).where(keys);
+    return found.length > 0;
   }
 
   /**
    * Counts the total number of records in the database.
    * @returns {Promise<number>} - A promise that resolves to the count of records.
    */
-  public async count (): Promise<number> {
-    const found = await SELECT.from(this.entity)
-    return found.length
+  public async count(): Promise<number> {
+    const found = await SELECT.from(this.entity);
+    return found.length;
   }
 }
 
-export default BaseRepository
+export default BaseRepository;

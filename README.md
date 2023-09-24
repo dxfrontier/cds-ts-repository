@@ -97,19 +97,19 @@ If you want to use `BaseRepository` with the `SAP CDS-TS` without using the [CDS
 
 ```ts
 class MainService extends cds.ApplicationService {
-  private handleClass: HandleClass
+  private handleClass: HandleClass;
   // ...
 
   init() {
-    const { MyEntity } = this.entities
+    const { MyEntity } = this.entities;
 
-    this.handleClass = new HandleClass(this)
+    this.handleClass = new HandleClass(this);
     // ...
 
-    this.before('READ', MyEntity, (req: Request) => this.handleClass.aMethod(req))
-    this.after('READ', MyEntity, (req: Request) => this.handleClass.anotherMethod(req))
+    this.before('READ', MyEntity, (req: Request) => this.handleClass.aMethod(req));
+    this.after('READ', MyEntity, (req: Request) => this.handleClass.anotherMethod(req));
 
-    return super.init()
+    return super.init();
   }
 }
 ```
@@ -501,7 +501,11 @@ To order the `ASC` selected columns, you can use the `orderAsc` methods. Pass an
 - `name` `Array` name of the columns to order.
 
 ```ts
-const results = await this.findBuilder({ name: 'A company name' }).orderAsc(['name']).execute()
+const results = await this.findBuilder({
+  name: 'A company name',
+})
+  .orderAsc(['name'])
+  .execute();
 ```
 
 ###### orderDesc
@@ -513,7 +517,11 @@ To order the `DESC` selected columns, you can use the `orderDesc` methods. Pass 
 - `name` `Array` name of the columns to order.
 
 ```ts
-const results = await this.findBuilder({ name: 'A company name' }).orderDesc(['name']).execute()
+const results = await this.findBuilder({
+  name: 'A company name',
+})
+  .orderDesc(['name'])
+  .execute();
 ```
 
 ###### groupBy
@@ -525,7 +533,11 @@ If you want to group the selected columns, use the groupBy method. Pass an array
 - `name` `Array` name of the columns to group.
 
 ```ts
-const results = await this.findBuilder({ name: 'A company name' }).groupBy(['name']).execute()
+const results = await this.findBuilder({
+  name: 'A company name',
+})
+  .groupBy(['name'])
+  .execute();
 ```
 
 ###### limit
@@ -539,7 +551,11 @@ This method allows retrieve a list of items with optional pagination.
   - `offset` `(optional, number)`: The optional offset to skip a certain number of items (default: 0).
 
 ```ts
-const results = await this.findBuilder({ name: 'A company name' }).limit({ limit: 1 }).execute()
+const results = await this.findBuilder({
+  name: 'A company name',
+})
+  .limit({ limit: 1 })
+  .execute();
 ```
 
 ###### getExpand
@@ -552,10 +568,18 @@ You can specify which columns you want to retrieve from the database using the g
   - If `NO` `associations argument` provided then the method will fetch all `associations / compositions` present on the entity.
 
 ```ts
-const results = await this.findBuilder({ name: 'A company name' }).getExpand(['orders']).execute()
+const results = await this.findBuilder({
+  name: 'A company name',
+})
+  .getExpand(['orders'])
+  .execute();
 
 // OR GET ALL Associations and Compositions
-const resultsAndAllExpandedEntities = await this.findBuilder({ name: 'A company name' }).getExpand().execute()
+const resultsAndAllExpandedEntities = await this.findBuilder({
+  name: 'A company name',
+})
+  .getExpand()
+  .execute();
 ```
 
 ###### execute
@@ -563,7 +587,9 @@ const resultsAndAllExpandedEntities = await this.findBuilder({ name: 'A company 
 Finally, to execute the constructed query and retrieve the results as an array of objects, use the execute method. It returns a promise that resolves to the query result.
 
 ```ts
-const resultsAndAllExpandedEntities = await this.findBuilder({ name: 'A company name' }).execute()
+const resultsAndAllExpandedEntities = await this.findBuilder({
+  name: 'A company name',
+}).execute();
 ```
 
 `Example`
