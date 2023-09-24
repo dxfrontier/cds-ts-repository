@@ -4,10 +4,6 @@ type KeyValueType<T> = {
   [K in keyof T]?: T[K];
 };
 
-interface InsertResult<T> {
-  query: { INSERT: { entries: T[] } };
-}
-
 type Locale = string;
 
 interface RepositoryPredefinedMethods<T> {
@@ -39,4 +35,4 @@ interface RepositoryPredefinedMethods<T> {
   count: () => Promise<number>;
 }
 
-export type { RepositoryPredefinedMethods, KeyValueType, InsertResult, Locale };
+export type { RepositoryPredefinedMethods, KeyValueType, Locale };
