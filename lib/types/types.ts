@@ -11,15 +11,15 @@ interface InsertResult<T> {
 type Locale = string;
 
 interface RepositoryPredefinedMethods<T> {
-  create: (entry: KeyValueType<T>) => Promise<InsertResult<T>>;
-  createAll: (entries: Array<KeyValueType<T>>) => Promise<InsertResult<T>>;
+  create: (entry: KeyValueType<T>) => INSERT<T>;
+  createAll: (entries: Array<KeyValueType<T>>) => INSERT<T>;
 
-  getAll: () => Promise<T[]>;
-  getAllDistinct: () => Promise<T[]>;
-  getAllAndLimit: (props: { limit: number; offset?: number }) => Promise<T[]>;
+  getAll: () => SELECT<T[]>;
+  getAllDistinct: () => SELECT<T[]>;
+  getAllAndLimit: (props: { limit: number; offset?: number }) => SELECT<T[]>;
 
-  find: (keys: KeyValueType<T>) => Promise<T[]>;
-  findOne: (keys: KeyValueType<T>) => Promise<T>;
+  find: (keys: KeyValueType<T>) => SELECT<T[]>;
+  findOne: (keys: KeyValueType<T>) => SELECT<T>;
   findBuilder: (keys: KeyValueType<T>) => SelectBuilder<T>;
 
   update: (keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>) => Promise<boolean>;
@@ -29,7 +29,7 @@ interface RepositoryPredefinedMethods<T> {
       fieldsToUpdate: KeyValueType<T>;
     }>,
   ) => Promise<boolean>;
-  // updateLocaleTexts: (keys: Locale, fieldsToUpdate: KeyValueType<T>) => Promise<boolean>
+  updateLocaleTexts: (keys: Locale, fieldsToUpdate: KeyValueType<T>) => Promise<boolean>;
 
   delete: (keys: KeyValueType<T>) => Promise<boolean>;
   deleteAll: (entries: Array<KeyValueType<T>>) => Promise<boolean>;

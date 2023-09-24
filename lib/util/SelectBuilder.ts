@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SELECT } from '@sap/cds/apis/ql';
+
 import { type entity } from '@sap/cds/apis/csn';
 import { type KeyValueType } from '../types/types';
+import { SELECT } from '@sap/cds/apis/ql';
 
 class SelectBuilder<T> {
   private readonly select: SELECT<T>;
@@ -104,7 +105,7 @@ class SelectBuilder<T> {
    * @returns {this} - Returns the instance of the current object.
    */
   public limit(props: { limit: number; offset?: number }): this {
-    if (props.offset != null) {
+    if (props.offset !== null) {
       void this.select.limit(props.limit, props.offset);
       return this;
     }
