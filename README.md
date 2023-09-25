@@ -114,7 +114,7 @@ class MainService extends cds.ApplicationService {
 }
 ```
 
-`MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Example` HandleClass
 
@@ -203,7 +203,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ```
 
-`MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -256,7 +256,6 @@ This method allows you to add multiple entries in the database.
 `Parameters`
 
 - `entries (Array)`: An array of objects representing the entries to be created. Each object should match the structure expected by `MyEntity`.
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -288,6 +287,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### getAll
@@ -299,7 +300,6 @@ This method will return all database `entries`.
 `Return value`
 
 - `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Example`
 
@@ -318,6 +318,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### getAllDistinct
@@ -329,7 +331,6 @@ This method will return all database `entries`.
 `Return value`
 
 - `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Example`
 
@@ -348,6 +349,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### getAllAndLimit
@@ -365,7 +368,6 @@ This method allows you to find and retrieve a `list of items with optional pagin
 `Return value`
 
 - `Promise<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Example 1` : Retrieve the first 10 items
 
@@ -383,6 +385,8 @@ class MyRepository extends BaseRepository<MyEntity> {
   ...
 }
 ```
+
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Example 2` : Retrieve items starting from the 20th item, limit to 5 items
 
@@ -412,7 +416,6 @@ The method allows you to find and `retrieve entries` from the database that matc
 `Parameters`
 
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -435,6 +438,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### findOne
@@ -446,7 +451,6 @@ The method allows you to find and `retrieve a single entry` from the database th
 `Parameters`
 
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -469,6 +473,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### findBuilder
@@ -480,7 +486,6 @@ The method allows you to create a `SelectBuilder` instance for building database
 `Parameters`
 
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -491,6 +496,8 @@ The method allows you to create a `SelectBuilder` instance for building database
   - [limit](#limit)
   - [getExpand](#getexpand)
   - [execute](#execute)
+
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 ###### orderAsc
 
@@ -622,7 +629,6 @@ The method allows you to update entries in the data store that match the specifi
 `Parameters`
 
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 - `fieldsToUpdate (Object)`: An object representing the fields and their updated values for the matching entries.
 
 `Return value`
@@ -648,6 +654,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### updateAllBy
@@ -661,7 +669,6 @@ The method in this class allows you to update `multiple database entries` based 
 - `entries (Array[Object])`
 
   - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-    - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
   - `fieldsToUpdate (Object)`: An object representing the fields and their updated values for the matching entries.
 
 - `Promise<boolean>`: This method returns :
@@ -688,6 +695,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
 ##### updateLocaleTexts
 
 `updateLocaleTexts(keys: Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
@@ -698,7 +707,6 @@ The method allows you to update entries in the data store that match the specifi
 
 - `key (string)`: A string representing the language code to filter the entries, example `'en', 'de', 'fr', 'ro' ...`
 - `fieldsToUpdate (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -723,6 +731,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### delete
@@ -734,7 +744,6 @@ The method allows you to delete entries from the database that match the specifi
 `Parameters`
 
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -758,6 +767,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### deleteAll
@@ -770,7 +781,6 @@ The method allows you to `multiple entries` from the database that match the spe
 
 - `entries (Array[Object])`
   - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-    - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -798,6 +808,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### exists
@@ -809,7 +821,6 @@ The method allows you to check whether entries exist in the database that match 
 `Parameters`
 
 - `fieldsToUpdate (Object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return value`
 
@@ -831,6 +842,8 @@ class MyRepository extends BaseRepository<MyEntity> {
   ...
 }
 ```
+
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -861,7 +874,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-`MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 ### Example
 
