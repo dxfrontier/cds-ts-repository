@@ -878,6 +878,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 > `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### Example
 
 TODO
@@ -900,4 +902,3 @@ Please make sure to update tests as appropriate.
 - [@ABS GmbH](https://www.abs-gmbh.de/) team
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-```
