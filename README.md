@@ -245,6 +245,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### createAll
@@ -386,8 +388,6 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
 `Example 2` : Retrieve items starting from the 20th item, limit to 5 items
 
 ```ts
@@ -404,6 +404,8 @@ class MyRepository extends BaseRepository<MyEntity> {
   ...
 }
 ```
+
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -496,8 +498,6 @@ The method allows you to create a `SelectBuilder` instance for building database
   - [limit](#limit)
   - [getExpand](#getexpand)
   - [execute](#execute)
-
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 ###### orderAsc
 
@@ -617,6 +617,8 @@ class MyRepository extends BaseRepository<MyEntity> {
   ...
 }
 ```
+
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
