@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { type entity } from '@sap/cds/apis/csn';
 import { type KeyValueType } from '../types/types';
 import { SELECT } from '@sap/cds/apis/ql';
@@ -36,7 +34,7 @@ class SelectBuilder<T> {
       const linkedEntities: string[] = this.findAssociationsAndCompositions();
 
       linkedEntities.forEach((association: string) => {
-        column[association]((linkedEntity: Function) => {
+        column[association]((linkedEntity: (...args: unknown[]) => unknown) => {
           linkedEntity('*');
         });
       });
@@ -44,7 +42,7 @@ class SelectBuilder<T> {
 
     const _buildAssociatedNamedEntity = (column: any): void => {
       associations?.forEach((association) => {
-        column[association]((linkedEntity: Function) => {
+        column[association]((linkedEntity: (...args: unknown[]) => unknown) => {
           linkedEntity('*');
         });
       });
@@ -52,7 +50,6 @@ class SelectBuilder<T> {
 
     const hasNamedAssociations = associations != null && associations.length > 0;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     void this.select.columns((column: any) => {
       column('*');
       if (hasNamedAssociations ?? false) {
