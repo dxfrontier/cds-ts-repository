@@ -60,8 +60,8 @@ The following command should be used to generate typed entity classes
 npx @cap-js/cds-typer ./srv/controller/mainService --outputDirectory ./srv/util/types/entities
 ```
 
-- Source folder : `./srv/controller/mainService` - Change to your location folder
-- Target folder :`./srv/util/types/entities` - Change to your location folder
+- Source folder : `./srv/controller/mainService` - Change to your location cds folder.
+- Target folder :`./srv/util/types/entities` - Change to your location destination folder.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -103,11 +103,11 @@ class MainService extends cds.ApplicationService {
   init() {
     const { MyEntity } = this.entities;
 
-    this.handleClass = new HandleClass(this);
+    this.handleClass = new HandleClass();
     // ...
 
     this.before('READ', MyEntity, (req: Request) => this.handleClass.aMethod(req));
-    this.after('READ', MyEntity, (req: Request) => this.handleClass.anotherMethod(req));
+    this.after('READ', MyEntity, (results: MyEntity[], req: Request) => this.handleClass.anotherMethod(req));
 
     return super.init();
   }
@@ -119,20 +119,17 @@ class MainService extends cds.ApplicationService {
 `Example` HandleClass
 
 ```ts
-import { Service, Request } from '@sap/cds'
+import { Request } from '@sap/cds'
 import BaseRepository from 'cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class HandleClass extends BaseRepository<MyEntity> {
 
-  protected srv : Service
-
-  constructor(srv : Service) {
+  constructor() {
     super(MyEntity)
-    this.srv = srv;
   }
 
-  public aMethod(req : Request) {
+  public aMethod(req: Request) {
 
     // BaseRepository predefined methods using the MyEntity entity
     // All methods parameters will allow only parameters of type MyEntity
@@ -150,8 +147,8 @@ class HandleClass extends BaseRepository<MyEntity> {
     const result13 = await this.count()
   }
 
-    public anotherMethod(req : Request) {
-      // ...
+  public anotherMethod(req: Request) {
+    // ...
   }
 }
 
@@ -211,7 +208,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### create
 
-`(method) this.create(entry: KeyValueType<T>) : Promise<InsertResult<T>>`.
+`(method) this.create(entry: KeyValueType<T>) : INSERT<T>`.
 
 This method allows you to create a new entry in the database.
 
@@ -222,7 +219,7 @@ This method allows you to create a new entry in the database.
 
 `Return value`
 
-- `Promise<InsertResult<T>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
+- `INSERT<T>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
 
 `Example`
 
@@ -251,7 +248,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### createAll
 
-`(method) this.createAll(entries: KeyValueType<T>[]) : Promise<InsertResult<T>>`.
+`(method) this.createAll(entries: KeyValueType<T>[]) : INSERT<T>`.
 
 This method allows you to add multiple entries in the database.
 
@@ -261,7 +258,7 @@ This method allows you to add multiple entries in the database.
 
 `Return value`
 
-- `Promise<InsertResult<T>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
+- `INSERT<T>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
 
 `Example`
 
@@ -295,13 +292,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### getAll
 
-`(method) this.getAll(): Promise<T[]>`
+`(method) this.getAll(): SELECT<T[]>`
 
 This method will return all database `entries`.
 
 `Return value`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+- `SELECT<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
 
 `Example`
 
@@ -326,13 +323,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### getAllDistinct
 
-`(method) this.getAllDistinct(): Promise<T[]>`
+`(method) this.getAllDistinct(): SELECT<T[]>`
 
 This method will return all database `entries`.
 
 `Return value`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+- `SELECT<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
 
 `Example`
 
@@ -357,7 +354,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### getAllAndLimit
 
-`(method) this.getAllAndLimit(props: { limit: number; offset?: number | undefined }): Promise<T[]>`
+`(method) this.getAllAndLimit(props: { limit: number; offset?: number | undefined }): SELECT<T[]>`
 
 This method allows you to find and retrieve a `list of items with optional pagination.`
 
@@ -369,7 +366,7 @@ This method allows you to find and retrieve a `list of items with optional pagin
 
 `Return value`
 
-- `Promise<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
+- `SELECT<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
 
 `Example 1` : Retrieve the first 10 items
 
@@ -411,7 +408,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### find
 
-`find(keys: KeyValueType<T>): Promise<T[]>`
+`find(keys: KeyValueType<T>): SELECT<T[]>`
 
 The method allows you to find and `retrieve entries` from the database that match the `specified keys`.
 
@@ -421,7 +418,7 @@ The method allows you to find and `retrieve entries` from the database that matc
 
 `Return value`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+- `SELECT<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
 
 `Example`
 
@@ -446,7 +443,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### findOne
 
-`findOne(keys: KeyValueType<T>): Promise<T>`
+`findOne(keys: KeyValueType<T>): SELECT<T>`
 
 The method allows you to find and `retrieve a single entry` from the database that matches the specified keys.
 
@@ -456,7 +453,7 @@ The method allows you to find and `retrieve a single entry` from the database th
 
 `Return value`
 
-- `Promise<T>`: This method returns a Promise with an `single entry of type T`, where `T` is `MyEntity`.
+- `SELECT<T>`: This method returns a Promise with an `single entry of type T`, where `T` is `MyEntity`.
 
 `Example`
 

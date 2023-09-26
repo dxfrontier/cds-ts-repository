@@ -1,12 +1,11 @@
 import { type RepositoryPredefinedMethods, type KeyValueType, type Locale } from './types/types';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 import { type entity } from '@sap/cds/apis/reflect';
 import { type Definition } from '@sap/cds/apis/csn';
 import SelectBuilder from './util/SelectBuilder';
 
 abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
-  protected abstract srv: Service;
-
   constructor(private readonly entity: Definition) {
     this.entity = entity;
   }
