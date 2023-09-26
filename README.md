@@ -106,8 +106,10 @@ class MainService extends cds.ApplicationService {
     this.handleClass = new HandleClass();
     // ...
 
-    this.before('READ', MyEntity, (req: Request) => this.handleClass.aMethod(req));
-    this.after('READ', MyEntity, (results: MyEntity[], req: Request) => this.handleClass.anotherMethod(req));
+    this.before('READ', MyEntity, (req: TypedRequest<MyEntity>) => this.handleClass.aMethod(req));
+    this.after('READ', MyEntity, (results: MyEntity[], req: TypedRequest<MyEntity>) =>
+      this.handleClass.anotherMethod(req),
+    );
 
     return super.init();
   }
@@ -119,8 +121,7 @@ class MainService extends cds.ApplicationService {
 `Example` HandleClass
 
 ```ts
-import { Request } from '@sap/cds'
-import BaseRepository from 'cds-ts-repository'
+import { BaseRepository, TypedRequest } from 'cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class HandleClass extends BaseRepository<MyEntity> {
@@ -129,7 +130,7 @@ class HandleClass extends BaseRepository<MyEntity> {
     super(MyEntity)
   }
 
-  public aMethod(req: Request) {
+  public aMethod(req: TypedRequest<MyEntity>) {
 
     // BaseRepository predefined methods using the MyEntity entity
     // All methods parameters will allow only parameters of type MyEntity
@@ -147,7 +148,7 @@ class HandleClass extends BaseRepository<MyEntity> {
     const result13 = await this.count()
   }
 
-  public anotherMethod(req: Request) {
+  public anotherMethod(req: TypedRequest<MyEntity>) {
     // ...
   }
 }
