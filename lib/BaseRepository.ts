@@ -23,7 +23,7 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
   /**
    * Inserts a single entry into the database.
    * @param {KeyValueType<T>} entry - The entry to insert.
-   * @returns {INSERT<InsertResult<T>>} - A promise that resolves to the insert result.
+   * @returns {INSERT<T>} - A promise that resolves to the insert result.
    */
   public create(entry: KeyValueType<T>): INSERT<T> {
     return INSERT.into(this.entity).entries(entry);
@@ -32,7 +32,7 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
   /**
    * Inserts multiple entries into the database.
    * @param {KeyValueType<T>[]} entries - The entries to insert.
-   * @returns {INSERT<InsertResult<T>>} - A promise that resolves to the insert result.
+   * @returns {INSERT<T>} - A promise that resolves to the insert result.
    */
   public createAll(entries: Array<KeyValueType<T>>): INSERT<T> {
     return INSERT.into(this.entity).entries(entries);
@@ -72,7 +72,7 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
   /**
    * Finds records based on the provided keys.
    * @param {KeyValueType<T>} keys - The keys to search for.
-   * @returns {Promise<T[]>} - A promise that resolves to an array of matching records.
+   * @returns {SELECT<T[]>} - A promise that resolves to an array of matching records.
    */
 
   public find(keys: KeyValueType<T>): SELECT<T[]> {
@@ -84,7 +84,7 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
   /**
    * Finds a single record based on the provided keys.
    * @param {KeyValueType<T>} keys - The keys to search for.
-   * @returns {Promise<T>} - A promise that resolves to a single matching record.
+   * @returns {SELECT<T>} - A promise that resolves to a single matching record.
    */
   public findOne(keys: KeyValueType<T>): SELECT<T> {
     return SELECT.one.from(this.entity).where(keys);
