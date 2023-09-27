@@ -1,2 +1,2 @@
 export * from './BaseRepository';
-export type { InsertResult } from './types/types';
+export type { KeyValueType, Locale } from './types/types';
