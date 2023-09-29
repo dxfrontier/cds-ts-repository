@@ -1,11 +1,8 @@
-import { Book } from './bookshop/srv/util/types/entities/sap/capire/bookshop';
-import BaseRepository from '../lib/BaseRepository';
 import { connectTest, getCustomerRepository } from './util/util';
 
 const cds = connectTest(__dirname, 'bookshop');
 
 describe('SELECT', () => {
-
 
   describe('.getAll()', () => {
     
@@ -20,8 +17,9 @@ describe('SELECT', () => {
   });
 
   describe('.getAllDistinct()', () => {
-    it('It should RETURN : response > 0 AND response not EQUAL to .getAll response', async () => {
+    it('TODO', async () => {
 
+      // TODO
       // ! TODO
       // const customerRepository = await getCustomerRepository(cds);
       // const getAll : Book[] = await customerRepository.getAll()
@@ -69,7 +67,8 @@ describe('SELECT', () => {
   });
 
   describe('.findBuilder()', () => {
-    describe('===> .getExpand()', () => {
+
+    describe('======> .getExpand()', () => {
       it('It should RETURN : .getExpand(["genre"]) should return the original object + expanded "genre" property', async() => {
         const customerRepository = await getCustomerRepository(cds);
         const expandGenre = await customerRepository.findBuilder({ID: 201}).getExpand(['genre']).execute()
@@ -78,8 +77,9 @@ describe('SELECT', () => {
         expect(expandGenre[0]).toHaveProperty('genre')
       });
     });
-    describe('===> .orderDesc()', () => {
-      it('It should RETURN : .orderDesc() should find all values with "USD" value and make them "DESC" over "stock" property', async () => {
+
+    describe('======> .orderDesc()', () => {
+      it('It should RETURN : .orderDesc(["stock"]) should find all values with "USD" value and make them "DESC" over "stock" property', async () => {
         const customerRepository = await getCustomerRepository(cds);
         const getAllByCurrencyCode = await customerRepository.findBuilder({currency_code: 'USD'}).execute()
         const orderItemsDesc = await customerRepository.findBuilder({currency_code: 'USD'}).orderDesc(['stock']).execute()
@@ -87,8 +87,9 @@ describe('SELECT', () => {
         expect(orderItemsDesc[0]).not.toMatchObject(getAllByCurrencyCode[0])
       });
     });
-    describe('===> .orderAsc()', () => {
-      it('It should RETURN : .orderDesc() should find all values with "USD" value and make them "ASC" over "stock" property', async () => {
+
+    describe('======> .orderAsc()', () => {
+      it('It should RETURN : .orderDesc(["stock"]) should find all values with "USD" value and make them "ASC" over "stock" property', async () => {
         const customerRepository = await getCustomerRepository(cds);
         const orderItemsDesc = await customerRepository.findBuilder({currency_code: 'USD'}).orderDesc(['stock']).execute()
         const orderItemsAsc = await customerRepository.findBuilder({currency_code: 'USD'}).orderAsc(['stock']).execute()
@@ -96,19 +97,44 @@ describe('SELECT', () => {
         expect(orderItemsAsc[0]).not.toMatchObject(orderItemsDesc[0])
       });
     });
-    describe('===> .groupBy()', () => {
-      it('2 + 2 is 4', () => {
-        expect(2 + 2).toBe(4);
+    
+    describe('======> .groupBy()', () => {
+      it('It should RETURN : groupBy(["author"]) should group by column "author"', async () => {
+        const customerRepository = await getCustomerRepository(cds);
+        const groupBy = await customerRepository.findBuilder({currency_code: 'USD'}).groupBy(['author']).execute()
+
+        expect(groupBy[0]).toBeDefined()
+
       });
     });
-    describe('===> .limit()', () => {
-      it('2 + 2 is 4', () => {
-        expect(2 + 2).toBe(4);
+    
+    describe('======> .limit()', () => {
+      it('It should RETURN : .limit({limit: 1}) should return only 1 item', async () => {
+        const customerRepository = await getCustomerRepository(cds);
+        const limit = await customerRepository.findBuilder({currency_code: 'GBP'}).limit({limit : 1}).execute();
+
+        expect(limit).toHaveLength(1);
       });
     });
-    describe('===> .execute()', () => {
-      it('2 + 2 is 4', () => {
-        expect(2 + 2).toBe(4);
+    
+    describe('======> .limit()', () => {
+      it('It should RETURN : .limit({limit: 2, skip: 1}) should return only 1 item', async () => {
+        const customerRepository = await getCustomerRepository(cds);
+        const all = await customerRepository.findBuilder({currency_code: 'GBP'}).execute();
+        const limit = await customerRepository.findBuilder({currency_code: 'GBP'}).limit({limit : 2, skip: 1}).execute();
+
+        expect(limit).toHaveLength(2);
+        expect(limit).not.toContain(all[0])
+      });
+    });
+
+    describe('======> .execute()', () => {
+      it('It should RETURN : .execute should execute the Promise and return results', async () => {
+        const customerRepository = await getCustomerRepository(cds);
+        const all = await customerRepository.findBuilder({currency_code: 'GBP'}).execute();
+
+        expect(all).toBeDefined();
+
       });
     });
   });
@@ -116,18 +142,18 @@ describe('SELECT', () => {
   describe('.exists()', () => {
     it('It should RETURN : "true" in case "1" item was found', async () => {
       const customerRepository = await getCustomerRepository(cds);
-      const _exists = await customerRepository.exists({ID : 201});
+      const exists = await customerRepository.exists({ID : 201});
       
-      expect(_exists).toBe(true);
+      expect(exists).toBe(true);
     });
   });
 
   describe('.count()', () => {
     it('It should RETURN : a count number larger than "0"', async () => {
       const customerRepository = await getCustomerRepository(cds);
-      const _count = await customerRepository.count();
+      const count = await customerRepository.count();
       
-      expect(_count).toBeGreaterThan(0);
+      expect(count).toBeGreaterThan(0);
     });
   });
 });

@@ -1,21 +1,35 @@
-// import cds from '@sap/cds';
-import cds from '@sap/cds';
-import path from 'path';
+import { connectTest, getCustomerRepository } from './util/util';
 
-// const project = path.join(__dirname, '..', 'project');
-
-// cds.test(project).verbose(true);
+const cds = connectTest(__dirname, 'bookshop');
 
 describe('INSERT', () => {
+
   describe('.create()', () => {
-    test('2 + 2 is 4', () => {
-      expect(2 + 2).toBe(4);
+    
+    test('It should RETURN : .create() which will create a new record in the database', async () => {
+      const customerRepository = await getCustomerRepository(cds);
+      const getAll = await customerRepository.getAll()
+      const create = await customerRepository.create({ ID: 432, title: 'Wonderful Neighborhood', descr: 'A notorious but beautiful neighborhood!', stock: 123, author_ID: 101, price: 23, currency_code: 'USD', genre_ID: 11 });
+      const getAllAfter = await customerRepository.getAll()
+
+      expect(getAllAfter.length).toBeGreaterThan(getAll.length)
+      expect(create.query.INSERT.entries).toHaveLength(1);
     });
+
   });
 
   describe('.createAll()', () => {
-    test('2 + 2 is 4', () => {
-      expect(2 + 2).toBe(4);
+    
+    test('It should RETURN : .createAll() which will create "multiple records" record in the database', async () => {
+      const customerRepository = await getCustomerRepository(cds);
+      const getAll = await customerRepository.getAll()
+      const createAll = await customerRepository.createAll([{ ID: 542, title: 'Thieves Boulevard', descr: 'The neighborhood where everything gets stolen!', stock: 23, author_ID: 101, price: 53, currency_code: 'GBP', genre_ID: 11 }, { ID: 896, title: 'Thieves Boulevard Part II', descr: 'The neighborhood where everything gets stolen, PART 2!', stock: 53, author_ID: 101, price: 32, currency_code: 'GBP', genre_ID: 11 }]);
+      const getAllAfter = await customerRepository.getAll()
+
+      expect(getAllAfter.length).toBeGreaterThan(getAll.length)
+      expect(createAll.query.INSERT.entries).toHaveLength(2);
     });
+
   });
+
 });
