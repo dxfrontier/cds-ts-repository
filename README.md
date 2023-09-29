@@ -209,7 +209,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### create
 
-`(method) this.create(entry: KeyValueType<T>) : INSERT<T>`.
+`(method) this.create(entry: KeyValueType<T>) : Promise<InsertResult<T>>`.
 
 This method allows you to create a new entry in the database.
 
@@ -220,7 +220,7 @@ This method allows you to create a new entry in the database.
 
 `Return value`
 
-- `INSERT<T>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
+- `Promise<InsertResult<T>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
 
 `Example`
 
@@ -249,7 +249,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### createAll
 
-`(method) this.createAll(entries: KeyValueType<T>[]) : INSERT<T>`.
+`(method) this.createAll(entries: KeyValueType<T>[]) : Promise<InsertResult<T>>`.
 
 This method allows you to add multiple entries in the database.
 
@@ -259,7 +259,7 @@ This method allows you to add multiple entries in the database.
 
 `Return value`
 
-- `INSERT<T>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
+- `Promise<InsertResult<T>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
 
 `Example`
 
