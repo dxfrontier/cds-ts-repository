@@ -33,7 +33,7 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **Ba
           - [getExpand](#getexpand)
           - [execute](#execute)
         - [update](#update)
-        - [updateAllBy](#updateallby)
+        - [updateAll](#updateallby)
         - [updateLocaleTexts](#updatelocaletexts)
         - [delete](#delete)
         - [deleteAll](#deleteall)
@@ -363,7 +363,7 @@ This method allows you to find and retrieve a `list of items with optional pagin
 
 - `props` `(Object)`: An object containing the following properties:
   - `limit` `(number)`: The maximum number of items to retrieve.
-  - `skip?` `(optional, number)`: The optional skip to skip a certain number of items (default: 0).
+  - `skip?` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
 
 `Return value`
 
@@ -553,7 +553,7 @@ This method allows retrieve a list of items with optional pagination.
 
 - `props` `(Object)`: An object containing the following properties:
   - `limit` `(number)`: The maximum number of items to retrieve.
-  - `skip` `(optional, number)`: The optional skip to skip a certain number of items (default: 0).
+  - `skip` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
 
 ```ts
 const results = await this.findBuilder({
@@ -658,9 +658,9 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-##### updateAllBy
+##### updateAll
 
-`updateAllBy(entries : { keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T> }[]): Promise<boolean>`
+`updateAll(entries : { keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T> }[]): Promise<boolean>`
 
 The method in this class allows you to update `multiple database entries` based on specified keys and the fields to update.
 
@@ -686,7 +686,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const updateAll = await this.updateAllBy([
+    const updateAll = await this.updateAll([
       { keys: { name: 'Company 1' }, fieldsToUpdate: { name: 'Company 1 new name' } },
       { keys: { name: 'Company 2' }, fieldsToUpdate: { name: 'Company 2 new name' } },
     ])
@@ -699,9 +699,9 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### updateLocaleTexts
 
-`updateLocaleTexts(keys: Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
+`updateLocaleTexts(localeCodeKey: Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
 
-The method allows you to update entries in the data store that match the specified keys with new values for specific fields.
+The method allows you to update entries in the data store that match the specified localeCodeKey with new values for specific fields.
 
 `Parameters`
 
