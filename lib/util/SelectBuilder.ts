@@ -99,12 +99,12 @@ class SelectBuilder<T> {
    * Limits the result set with an optional offset.
    * @param {Object} props - The limit and optional offset.
    * @param {number} props.limit - The limit for the result set.
-   * @param {number} [props.offset] - The optional offset for the result set.
+   * @param {number} [props.skip] - The optional 'skip', this will skip number of items for the result set.
    * @returns {this} - Returns the instance of the current object.
    */
-  public limit(props: { limit: number; offset?: number }): this {
-    if (props.offset !== null) {
-      void this.select.limit(props.limit, props.offset);
+  public limit(props: { limit: number; skip?: number }): this {
+    if (props.skip !== null) {
+      void this.select.limit(props.limit, props.skip);
       return this;
     }
 
