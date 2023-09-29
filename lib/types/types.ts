@@ -6,15 +6,23 @@ type KeyValueType<T> = {
 
 type Locale = string;
 
+interface InsertResult<T> {
+  query: {
+    INSERT: {
+      entries: T[];
+    };
+  };
+}
+
 interface RepositoryPredefinedMethods<T> {
-  create: (entry: KeyValueType<T>) => INSERT<T>;
-  createAll: (entries: Array<KeyValueType<T>>) => INSERT<T>;
+  create: (entry: KeyValueType<T>) => Promise<InsertResult<T>>;
+  createAll: (entries: Array<KeyValueType<T>>) => Promise<InsertResult<T>>;
 
-  getAll: () => SELECT<T[]>;
-  getAllDistinct: () => SELECT<T[]>;
-  getAllAndLimit: (props: { limit: number; offset?: number }) => SELECT<T[]>;
+  getAll: () => Promise<T[]>;
+  getAllDistinct: () => Promise<T[]>;
+  getAllAndLimit: (props: { limit: number; offset?: number }) => Promise<T[]>;
 
-  find: (keys: KeyValueType<T>) => SELECT<T[]>;
+  find: (keys: KeyValueType<T>) => Promise<T[]>;
   findOne: (keys: KeyValueType<T>) => SELECT<T>;
   findBuilder: (keys: KeyValueType<T>) => SelectBuilder<T>;
 
@@ -35,4 +43,4 @@ interface RepositoryPredefinedMethods<T> {
   count: () => Promise<number>;
 }
 
-export type { RepositoryPredefinedMethods, KeyValueType, Locale };
+export type { KeyValueType, Locale, InsertResult, RepositoryPredefinedMethods };

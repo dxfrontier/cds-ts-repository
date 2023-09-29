@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type entity } from '@sap/cds/apis/csn';
 import { type KeyValueType } from '../types/types';
-import { SELECT } from '@sap/cds/apis/ql';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { type Service } from '@sap/cds';
 
 class SelectBuilder<T> {
   private readonly select: SELECT<T>;

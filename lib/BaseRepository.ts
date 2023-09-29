@@ -1,8 +1,9 @@
-import { type RepositoryPredefinedMethods, type KeyValueType, type Locale } from './types/types';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type Service } from '@sap/cds';
 import { type entity } from '@sap/cds/apis/reflect';
 import { type Definition } from '@sap/cds/apis/csn';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { type Service } from '@sap/cds';
+
+import { type RepositoryPredefinedMethods, type KeyValueType, type Locale, type InsertResult } from './types/types';
 import SelectBuilder from './util/SelectBuilder';
 
 abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
@@ -25,8 +26,8 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>} entry - The entry to insert.
    * @returns {INSERT<T>} - A promise that resolves to the insert result.
    */
-  public create(entry: KeyValueType<T>): INSERT<T> {
-    return INSERT.into(this.entity).entries(entry);
+  public async create(entry: KeyValueType<T>): Promise<InsertResult<T>> {
+    return await INSERT.into(this.entity).entries(entry);
   }
 
   /**
@@ -34,24 +35,24 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>[]} entries - The entries to insert.
    * @returns {INSERT<T>} - A promise that resolves to the insert result.
    */
-  public createAll(entries: Array<KeyValueType<T>>): INSERT<T> {
-    return INSERT.into(this.entity).entries(entries);
+  public async createAll(entries: Array<KeyValueType<T>>): Promise<InsertResult<T>> {
+    return await INSERT.into(this.entity).entries(entries);
   }
 
   /**
    * Retrieves all records from the database.
-   * @returns {SELECT<T[]>} - A promise that resolves to an array of records.
+   * @returns {Promise<T[]>} - A promise that resolves to an array of records.
    */
-  public getAll(): SELECT<T[]> {
-    return SELECT.from(this.entity);
+  public async getAll(): Promise<T[]> {
+    return await SELECT.from(this.entity);
   }
 
   /**
    * Retrieves all distinct records from the database.
-   * @returns {SELECT<T[]>} - A promise that resolves to an array of distinct records.
+   * @returns {Promise<T[]>} - A promise that resolves to an array of distinct records.
    */
-  public getAllDistinct(): SELECT<T[]> {
-    return SELECT.distinct.from(this.entity);
+  public async getAllDistinct(): Promise<T[]> {
+    return await SELECT.distinct.from(this.entity);
   }
 
   /**
@@ -59,26 +60,26 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {Object} props - The limit and optional offset.
    * @param {number} props.limit - The limit for the result set.
    * @param {number|undefined} [props.offset] - The optional offset for the result set.
-   * @returns {SELECT<T[]>} - A promise that resolves to an array of records.
+   * @returns {Promise<T[]>} - A promise that resolves to an array of records.
    */
-  public getAllAndLimit(props: { limit: number; offset?: number | undefined }): SELECT<T[]> {
+  public async getAllAndLimit(props: { limit: number; offset?: number | undefined }): Promise<T[]> {
     const query = SELECT.from(this.entity);
 
-    if (props.offset !== undefined) return query.limit(props.limit, props.offset);
+    if (props.offset !== undefined) return await query.limit(props.limit, props.offset);
 
-    return query.limit(props.limit);
+    return await query.limit(props.limit);
   }
 
   /**
    * Finds records based on the provided keys.
    * @param {KeyValueType<T>} keys - The keys to search for.
-   * @returns {SELECT<T[]>} - A promise that resolves to an array of matching records.
+   * @returns {Promise<T[]>} - A promise that resolves to an array of matching records.
    */
 
-  public find(keys: KeyValueType<T>): SELECT<T[]> {
+  public async find(keys: KeyValueType<T>): Promise<T[]> {
     // before on every CQL action I can do a exclude of the properties which are virtual based on the entity ...
     // if you use a virtual field throw an error ...
-    return SELECT.from(this.entity).where(keys);
+    return await SELECT.from(this.entity).where(keys);
   }
 
   /**
