@@ -59,13 +59,13 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * Retrieves all records from the database with optional limit and offset.
    * @param {Object} props - The limit and optional offset.
    * @param {number} props.limit - The limit for the result set.
-   * @param {number|undefined} [props.offset] - The optional offset for the result set.
+   * @param {number|undefined} [props.skip] - The optional 'skip', this will skip number of items for the result set.
    * @returns {Promise<T[]>} - A promise that resolves to an array of records.
    */
-  public async getAllAndLimit(props: { limit: number; offset?: number | undefined }): Promise<T[]> {
+  public async getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[]> {
     const query = SELECT.from(this.entity);
 
-    if (props.offset !== undefined) return await query.limit(props.limit, props.offset);
+    if (props.skip !== undefined) return await query.limit(props.limit, props.skip);
 
     return await query.limit(props.limit);
   }
