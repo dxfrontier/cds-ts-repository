@@ -355,7 +355,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### getAllAndLimit
 
-`(method) this.getAllAndLimit(props: { limit: number; offset?: number | undefined }): Promise<T[]>`
+`(method) this.getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[]>`
 
 This method allows you to find and retrieve a `list of items with optional pagination.`
 
@@ -363,7 +363,7 @@ This method allows you to find and retrieve a `list of items with optional pagin
 
 - `props` `(Object)`: An object containing the following properties:
   - `limit` `(number)`: The maximum number of items to retrieve.
-  - `offset?` `(optional, number)`: The optional offset to skip a certain number of items (default: 0).
+  - `skip?` `(optional, number)`: The optional skip to skip a certain number of items (default: 0).
 
 `Return value`
 
@@ -397,7 +397,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const resultsWithOffset = await this.getAllAndLimit({ limit: 5, offset: 20 })
+    const resultsWithskip = await this.getAllAndLimit({ limit: 5, skip: 20 })
   }
   ...
 }
@@ -553,7 +553,7 @@ This method allows retrieve a list of items with optional pagination.
 
 - `props` `(Object)`: An object containing the following properties:
   - `limit` `(number)`: The maximum number of items to retrieve.
-  - `offset` `(optional, number)`: The optional offset to skip a certain number of items (default: 0).
+  - `skip` `(optional, number)`: The optional skip to skip a certain number of items (default: 0).
 
 ```ts
 const results = await this.findBuilder({
