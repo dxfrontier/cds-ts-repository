@@ -293,13 +293,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### getAll
 
-`(method) this.getAll(): SELECT<T[]>`
+`(method) this.getAll(): Promise<T[]>`
 
 This method will return all database `entries`.
 
 `Return value`
 
-- `SELECT<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
 
 `Example`
 
@@ -324,13 +324,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### getAllDistinct
 
-`(method) this.getAllDistinct(): SELECT<T[]>`
+`(method) this.getAllDistinct(): Promise<T[]>`
 
 This method will return all database `entries`.
 
 `Return value`
 
-- `SELECT<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
 
 `Example`
 
@@ -355,7 +355,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### getAllAndLimit
 
-`(method) this.getAllAndLimit(props: { limit: number; offset?: number | undefined }): SELECT<T[]>`
+`(method) this.getAllAndLimit(props: { limit: number; offset?: number | undefined }): Promise<T[]>`
 
 This method allows you to find and retrieve a `list of items with optional pagination.`
 
@@ -367,7 +367,7 @@ This method allows you to find and retrieve a `list of items with optional pagin
 
 `Return value`
 
-- `SELECT<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
+- `Promise<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
 
 `Example 1` : Retrieve the first 10 items
 
@@ -409,7 +409,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### find
 
-`find(keys: KeyValueType<T>): SELECT<T[]>`
+`find(keys: KeyValueType<T>): Promise<T[]>`
 
 The method allows you to find and `retrieve entries` from the database that match the `specified keys`.
 
@@ -419,7 +419,7 @@ The method allows you to find and `retrieve entries` from the database that matc
 
 `Return value`
 
-- `SELECT<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
 
 `Example`
 
