@@ -1,4 +1,4 @@
-import { connectTest, getBookRepository } from './util/util';
+import { connectTest, getBookRepository } from '../util/util';
 
 const cds = connectTest(__dirname, 'bookshop');
 

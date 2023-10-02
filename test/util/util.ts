@@ -4,7 +4,7 @@ import BaseRepository from '../../lib/BaseRepository';
 import { type Book } from '../bookshop/srv/util/types/entities/sap/capire/bookshop';
 
 export const connectTest = (dirName: string, projectName: string) => {
-  const project = path.join(dirName, projectName);
+  const project = path.join(dirName, '..', projectName);
   cds.test(project);
 
   return cds;
