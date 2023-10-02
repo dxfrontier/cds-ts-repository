@@ -48,11 +48,12 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
   }
 
   /**
-   * Retrieves all distinct records from the database.
-   * @returns {Promise<T[]>} - A promise that resolves to an array of distinct records.
+   * Retrieves distinct records based on specific columns from the database.
+   * @param {Array<keyof T>} columns - An array of column names to retrieve distinct records for.
+   * @returns {Promise<T[]>} A promise that resolves to an array of distinct records.
    */
-  public async getAllDistinct(): Promise<T[]> {
-    return await SELECT.distinct.from(this.entity);
+  public async getDistinctColumns(columns: Array<keyof T>): Promise<T[]> {
+    return await SELECT.distinct.from(this.entity).columns(...columns);
   }
 
   /**
@@ -71,14 +72,19 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
   }
 
   /**
+   * Retrieves and updates localized texts for records based on the provided keys and fields to update.
+   * @returns {Promise<T>} - A promise that resolves to an array of matching records.
+   */
+  public async getAllLocaleTexts(): Promise<T[]> {
+    return await SELECT.from(`${this.entity.name}.texts`);
+  }
+
+  /**
    * Finds records based on the provided keys.
    * @param {KeyValueType<T>} keys - The keys to search for.
    * @returns {Promise<T[]>} - A promise that resolves to an array of matching records.
    */
-
   public async find(keys: KeyValueType<T>): Promise<T[]> {
-    // before on every CQL action I can do a exclude of the properties which are virtual based on the entity ...
-    // if you use a virtual field throw an error ...
     return await SELECT.from(this.entity).where(keys);
   }
 
@@ -116,7 +122,7 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {Array<{ keys: KeyValueType<T>; fieldsToUpdate: KeyValueType<T> }>} entries - The entries to update.
    * @returns {Promise<boolean>} - A promise that resolves to `true` if all updates are successful.
    */
-  async updateAllBy(
+  async updateAll(
     entries: Array<{
       keys: KeyValueType<T>;
       fieldsToUpdate: KeyValueType<T>;
@@ -136,12 +142,15 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Updates locale texts for records based on the provided keys and fields to update.
-   * @param {Locale} keys - The keys to search for.
+   * @param {KeyValueType<T> & Locale} localeCodeKeys - The localeCodeKeys to search for.
    * @param {KeyValueType<T>} fieldsToUpdate - The fields to update.
    * @returns {Promise<boolean>} - A promise that resolves to `true` if the update is successful.
    */
-  public async updateLocaleTexts(keys: Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean> {
-    const updated = await UPDATE.entity(this.entity).set(fieldsToUpdate).where(keys);
+  public async updateLocaleTexts(
+    localeCodeKeys: KeyValueType<T> & Locale,
+    fieldsToUpdate: KeyValueType<T>,
+  ): Promise<boolean> {
+    const updated = await UPDATE.entity(`${this.entity.name}.texts`).with(fieldsToUpdate).where(localeCodeKeys);
     return updated === 1;
   }
 
