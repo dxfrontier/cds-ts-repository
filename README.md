@@ -23,6 +23,7 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **Ba
         - [getAll](#getall)
         - [getAllDistinct](#getalldistinct)
         - [getAllAndLimit](#getallandlimit)
+        - [getAllLocaleTexts](#getalllocaletexts)
         - [find](#find)
         - [findOne](#findone)
         - [findBuilder](#findbuilder)
@@ -33,7 +34,7 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **Ba
           - [getExpand](#getexpand)
           - [execute](#execute)
         - [update](#update)
-        - [updateAll](#updateallby)
+        - [updateAll](#updateall)
         - [updateLocaleTexts](#updatelocaletexts)
         - [delete](#delete)
         - [deleteAll](#deleteall)
@@ -398,6 +399,38 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
     const resultsWithskip = await this.getAllAndLimit({ limit: 5, skip: 20 })
+  }
+  ...
+}
+```
+
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+##### getAllLocaleTexts
+
+`(method) this.getAllLocaleTexts(): Promise<T[]>`
+
+The `getAllLocaleTexts` method is designed to retrieve a list of items with localized text.
+
+`Return value`
+
+- `Promise<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
+
+`Example`
+
+```ts
+@Repository()
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS entity name
+  }
+
+  public async aMethod() {
+    const results = await this.getAllLocaleTests()
   }
   ...
 }
