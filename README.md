@@ -58,10 +58,9 @@ npm install cds-ts-respository
 The following command should be used to generate typed entity classes
 
 ```bash
-npx @cap-js/cds-typer ./srv/controller/mainService --outputDirectory ./srv/util/types/entities
+npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 ```
 
-- Source folder : `./srv/controller/mainService` - Change to your location cds folder.
 - Target folder :`./srv/util/types/entities` - Change to your location destination folder.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -407,7 +406,6 @@ class MyRepository extends BaseRepository<MyEntity> {
 > `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 ##### getAllLocaleTexts
 
