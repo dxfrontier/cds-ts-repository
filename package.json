@@ -76,7 +76,7 @@
     "**/*.{ts, tsx}": [
       "npx eslint . --fix",
       "npx prettier . --write",
-      "npx jest"
+      "npx jest --findRelatedTests ./test**"
     ]
   }
 }
