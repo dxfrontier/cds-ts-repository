@@ -26,9 +26,11 @@ describe('SELECT', () => {
       const bookRepository = await getBookRepository(cds);
       const getAll = await bookRepository.getAll();
       const getAllAndLimit = await bookRepository.getAllAndLimit({ limit: 1 });
+      const getAllAndLimitAndSkip = await bookRepository.getAllAndLimit({ limit: 2, skip: 1 });
 
       expect(getAllAndLimit.length).toBeGreaterThan(0);
       expect(getAllAndLimit.length).toBeLessThan(getAll.length);
+      expect(getAllAndLimitAndSkip).not.toContain(getAll[0]);
     });
   });
 
