@@ -4,7 +4,7 @@ const cds = connectTest(__dirname, 'bookshop');
 
 describe('SELECT', () => {
   describe('.getAll()', () => {
-    it('It should RETURN : response > 0', async () => {
+    it('It should RETURN : all items from the database', async () => {
       const bookRepository = await getBookRepository(cds);
       const getAll = await bookRepository.getAll();
 
@@ -13,7 +13,7 @@ describe('SELECT', () => {
   });
 
   describe('.getDistinctColumns()', () => {
-    it('It should RETURN : .getDistinctColumns() distinct columns by provided columns', async () => {
+    it('It should RETURN : distinct columns found in the database', async () => {
       const bookRepository = await getBookRepository(cds);
       const getDistinctColumns = await bookRepository.getDistinctColumns(['currency_code', 'ID']);
 
@@ -22,7 +22,7 @@ describe('SELECT', () => {
   });
 
   describe('.getAllAndLimit()', () => {
-    it('It should RETURN : .getAllAndLimit() length smaller than .getAll length', async () => {
+    it('It should RETURN : .getAllAndLimit() should have length smaller than .getAll length', async () => {
       const bookRepository = await getBookRepository(cds);
       const getAll = await bookRepository.getAll();
       const getAllAndLimit = await bookRepository.getAllAndLimit({ limit: 1 });
@@ -35,27 +35,33 @@ describe('SELECT', () => {
   });
 
   describe('.getLocaleTexts()', () => {
-    test('It should RETURN : getLocaleTexts() will return all "Locale" languages text', async () => {
+    test('It should RETURN : all "Locale" languages text', async () => {
       const bookRepository = await getBookRepository(cds);
       const texts = await bookRepository.getLocaleTexts();
 
       expect(texts).toBeDefined();
+      expect(texts.length).toBeGreaterThan(0);
     });
   });
 
   describe('.find()', () => {
-    it('It should RETURN : .find({ID: 201}) should find "1" item AND .find({currency_code : "GBP"}) should find "multiple" items', async () => {
+    it('It should RETURN : .find({currency_code : "GBP"}) should find "multiple" items', async () => {
       const bookRepository = await getBookRepository(cds);
       const findOneResult = await bookRepository.find({ ID: 201 });
+
+      expect(findOneResult).toHaveLength(1);
+    });
+
+    it('It should RETURN : .find({ID: 201}) should find one item ', async () => {
+      const bookRepository = await getBookRepository(cds);
       const findMultipleResult = await bookRepository.find({ currency_code: 'GBP' });
 
       expect(findMultipleResult.length).toBeGreaterThanOrEqual(1);
-      expect(findOneResult).toHaveLength(1);
     });
   });
 
   describe('.findOne()', () => {
-    it('It should RETURN : .findOne({currency_code : "GBP"}) should return only "1" item', async () => {
+    it('It should RETURN : .findOne({currency_code : "GBP"}) should return only one item', async () => {
       const bookRepository = await getBookRepository(cds);
       const findOne = await bookRepository.findOne({ currency_code: 'GBP' });
 
