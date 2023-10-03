@@ -347,7 +347,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const results = await this.getDistinctColumns()
+    const results = await this.getDistinctColumns(['currency_code', 'ID', 'name']);
   }
   ...
 }
