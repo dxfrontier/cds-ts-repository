@@ -19,7 +19,7 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **Ba
     - [Option 2 : BaseRepository using (CDS-TS-Dispatcher)](#option-2--baserepository-using-cds-ts-dispatcher)
       - [Methods](#methods)
         - [create](#create)
-        - [createAll](#createall)
+        - [createMany](#createall)
         - [getAll](#getall)
         - [getAllDistinct](#getalldistinct)
         - [getAllAndLimit](#getallandlimit)
@@ -34,10 +34,10 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **Ba
           - [getExpand](#getexpand)
           - [execute](#execute)
         - [update](#update)
-        - [updateAll](#updateall)
+        - [updateMany](#updateall)
         - [updateLocaleTexts](#updatelocaletexts)
         - [delete](#delete)
-        - [deleteAll](#deleteall)
+        - [deleteMany](#deleteall)
         - [exists](#exists)
         - [count](#count)
     - [Example](#example)
@@ -136,7 +136,7 @@ class HandleClass extends BaseRepository<MyEntity> {
     // All methods parameters will allow only parameters of type MyEntity
 
     const result1 = await this.create(...)
-    const result2 = await this.createAll(...)
+    const result2 = await this.createMany(...)
     const result5 = await this.getAll()
     const result6 = await this.getAllAndLimit(...)
     const result7 = await this.find(...)
@@ -182,7 +182,7 @@ class MyRepository extends BaseRepository<MyEntity> {
     // All methods parameters will allow only parameters of type MyEntity
 
     const result1 = await this.create(...)
-    const result2 = await this.createAll(...)
+    const result2 = await this.createMany(...)
     const result5 = await this.getAll()
     const result6 = await this.getAllAndLimit(...)
     const result7 = await this.find(...)
@@ -247,9 +247,9 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-##### createAll
+##### createMany
 
-`(method) this.createAll(entries: KeyValueType<T>[]) : Promise<InsertResult<T>>`.
+`(method) this.createMany(entries: KeyValueType<T>[]) : Promise<InsertResult<T>>`.
 
 This method allows you to add multiple entries in the database.
 
@@ -272,7 +272,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const createdInstance = await this.createAll([
+    const createdInstance = await this.createMany([
     {
       name: 'Customer 1',
       description : 'Customer 1 description'
@@ -689,9 +689,9 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-##### updateAll
+##### updateMany
 
-`updateAll(entries : { keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T> }[]): Promise<boolean>`
+`updateMany(entries : { keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T> }[]): Promise<boolean>`
 
 The method in this class allows you to update `multiple database entries` based on specified keys and the fields to update.
 
@@ -717,7 +717,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const updateAll = await this.updateAll([
+    const updateMany = await this.updateMany([
       { keys: { name: 'Company 1' }, fieldsToUpdate: { name: 'Company 1 new name' } },
       { keys: { name: 'Company 2' }, fieldsToUpdate: { name: 'Company 2 new name' } },
     ])
@@ -802,9 +802,9 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-##### deleteAll
+##### deleteMany
 
-`deleteAll(entries : { keys: KeyValueType<T> }[]): Promise<boolean>`
+`deleteMany(entries : { keys: KeyValueType<T> }[]): Promise<boolean>`
 
 The method allows you to `multiple entries` from the database that match the specified keys.
 
@@ -830,7 +830,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const deleted = await this.deleteAll([
+    const deleted = await this.deleteMany([
       { ID : '2f12d711-b09e-4b57-b035-2cbd0a02ba19'},
       { ID : 'a51ab5c8-f366-460f-8f28-0eda2e41d6db'}
     ])
