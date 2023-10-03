@@ -15,11 +15,11 @@ describe('DELETE', () => {
     });
   });
 
-  describe('.deleteAll()', () => {
-    test('It should RETURN : .deleteAll() deletion of "multiple" items from the DB', async () => {
+  describe('.deleteMany()', () => {
+    test('It should RETURN : .deleteMany() deletion of "multiple" items from the DB', async () => {
       const bookRepository = await getBookRepository(cds);
       const getAll = await bookRepository.getAll();
-      const deleteAllOperation = await bookRepository.deleteAll([{ ID: 207 }, { ID: 251 }]);
+      const deleteAllOperation = await bookRepository.deleteMany([{ ID: 207 }, { ID: 251 }]);
       const getAllAfter = await bookRepository.getAll();
 
       expect(deleteAllOperation).toBe(true);
