@@ -18,19 +18,19 @@ interface Locale {
 
 interface RepositoryPredefinedMethods<T> {
   create: (entry: KeyValueType<T>) => Promise<InsertResult<T>>;
-  createAll: (entries: Array<KeyValueType<T>>) => Promise<InsertResult<T>>;
+  createMany: (entries: Array<KeyValueType<T>>) => Promise<InsertResult<T>>;
 
   getAll: () => Promise<T[]>;
   getDistinctColumns: (columns: Array<keyof T>) => Promise<T[]>;
   getAllAndLimit: (props: { limit: number; offset?: number }) => Promise<T[]>;
-  getAllLocaleTexts: () => Promise<T[]>;
+  getLocaleTexts: () => Promise<T[]>;
 
   find: (keys: KeyValueType<T>) => Promise<T[]>;
-  findOne: (keys: KeyValueType<T>) => SELECT<T>;
+  findOne: (keys: KeyValueType<T>) => Promise<T>;
   findBuilder: (keys: KeyValueType<T>) => SelectBuilder<T>;
 
   update: (keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>) => Promise<boolean>;
-  updateAll: (
+  updateMany: (
     entries: Array<{
       keys: KeyValueType<T>;
       fieldsToUpdate: KeyValueType<T>;
@@ -39,7 +39,7 @@ interface RepositoryPredefinedMethods<T> {
   updateLocaleTexts: (keys: KeyValueType<T> & Locale, fieldsToUpdate: KeyValueType<T>) => Promise<boolean>;
 
   delete: (keys: KeyValueType<T>) => Promise<boolean>;
-  deleteAll: (entries: Array<KeyValueType<T>>) => Promise<boolean>;
+  deleteMany: (entries: Array<KeyValueType<T>>) => Promise<boolean>;
 
   exists: (keys: KeyValueType<T>) => Promise<boolean>;
 
