@@ -15,14 +15,14 @@ describe('UPDATE', () => {
     });
   });
 
-  describe('.updateAll()', () => {
-    test('It should RETURN : updateAll() multiple items from the db', async () => {
+  describe('.updateMany()', () => {
+    test('It should RETURN : updateMany() multiple items from the db', async () => {
       const bookRepository = await getBookRepository(cds);
 
       const findAnItem = await bookRepository.find({ ID: 271 });
       const findTheOtherItem = await bookRepository.find({ ID: 252 });
 
-      const updatedItem = await bookRepository.updateAll([
+      const updatedItem = await bookRepository.updateMany([
         { keys: { ID: 271 }, fieldsToUpdate: { currency_code: 'RON' } },
         { keys: { ID: 252 }, fieldsToUpdate: { descr: 'UPDATED DESCRIPTION !' } },
       ]);

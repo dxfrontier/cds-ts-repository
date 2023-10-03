@@ -32,10 +32,10 @@ describe('SELECT', () => {
     });
   });
 
-  describe('.getAllLocaleTexts()', () => {
+  describe('.getLocaleTexts()', () => {
     test('It should RETURN : getLocaleTexts() will return all "Locale" languages text', async () => {
       const bookRepository = await getBookRepository(cds);
-      const texts = await bookRepository.getAllLocaleTexts();
+      const texts = await bookRepository.getLocaleTexts();
 
       expect(texts).toBeDefined();
     });

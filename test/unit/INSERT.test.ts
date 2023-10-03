@@ -24,11 +24,11 @@ describe('INSERT', () => {
     });
   });
 
-  describe('.createAll()', () => {
-    test('It should RETURN : .createAll() which will create "multiple records" record in the database', async () => {
+  describe('.createMany()', () => {
+    test('It should RETURN : .createMany() which will create "multiple records" record in the database', async () => {
       const bookRepository = await getBookRepository(cds);
       const getAll = await bookRepository.getAll();
-      const createAll = await bookRepository.createAll([
+      const createMany = await bookRepository.createMany([
         {
           ID: 542,
           title: 'Thieves Boulevard',
@@ -53,7 +53,7 @@ describe('INSERT', () => {
       const getAllAfter = await bookRepository.getAll();
 
       expect(getAllAfter.length).toBeGreaterThan(getAll.length);
-      expect(createAll.query.INSERT.entries).toHaveLength(2);
+      expect(createMany.query.INSERT.entries).toHaveLength(2);
     });
   });
 });
