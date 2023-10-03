@@ -21,9 +21,9 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **Ba
         - [create](#create)
         - [createMany](#createmany)
         - [getAll](#getall)
-        - [getAllDistinct](#getalldistinct)
+        - [getDistinctColumns](#getdistinctcolumns)
         - [getAllAndLimit](#getallandlimit)
-        - [getAllLocaleTexts](#getalllocaletexts)
+        - [getLocaleTexts](#getlocaletexts)
         - [find](#find)
         - [findOne](#findone)
         - [findBuilder](#findbuilder)
@@ -322,11 +322,15 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-##### getAllDistinct
+##### getDistinctColumns
 
-`(method) this.getAllDistinct(): Promise<T[]>`
+`(method) this.getDistinctColumns(columns: Array<keyof T>): Promise<T[]>`
 
 This method will return all database `entries`.
+
+`Parameters`
+
+- `columns` `(Array<keyof T>)`: An array of column names to retrieve distinct records for. Each column name should be of a type that matches the entity's schema.
 
 `Return value`
 
@@ -343,7 +347,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const results = await this.getAllDistinct()
+    const results = await this.getDistinctColumns()
   }
   ...
 }
@@ -407,11 +411,11 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-##### getAllLocaleTexts
+##### getLocaleTexts
 
-`(method) this.getAllLocaleTexts(): Promise<T[]>`
+`(method) this.getLocaleTexts(): Promise<T[]>`
 
-The `getAllLocaleTexts` method is designed to retrieve a list of items with localized text.
+The `getLocaleTexts` method is designed to retrieve a list of items with localized text.
 
 `Return value`
 
