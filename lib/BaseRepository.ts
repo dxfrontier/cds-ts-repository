@@ -200,4 +200,4 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
   }
 }
 
-export default BaseRepository;
+export { BaseRepository };
