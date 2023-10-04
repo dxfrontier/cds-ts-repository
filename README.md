@@ -216,7 +216,6 @@ This method allows you to create a new entry in the database.
 `Parameters`
 
 - `entry (Object)`: An object representing the entry to be created. The object should match the structure expected by `MyEntity`
-  - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 `Return`
 
@@ -249,7 +248,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### createMany
 
-`(method) this.createMany(entries: KeyValueType<T>[]) : Promise<InsertResult<T>>`.
+`(method) this.createMany(entries: Array<KeyValueType<T>>) : Promise<InsertResult<T>>`.
 
 This method allows you to add multiple entries in the database.
 
@@ -259,7 +258,7 @@ This method allows you to add multiple entries in the database.
 
 `Return`
 
-- `Promise<InsertResult<T>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
+- `Promise<InsertResult<T>>`: This method returns a `Promise` that resolves when the insertion operation is completed successfully.
 
 `Example`
 
@@ -330,7 +329,7 @@ This method will return all database `entries`.
 
 `Parameters`
 
-- `columns` `(Array<keyof T>)`: An array of column names to retrieve distinct records for. Each column name should be of a type that matches the entity's schema.
+- `columns` `(Array)`: An array of column names to retrieve distinct records for. Each column name should be of a type that matches the entity's schema.
 
 `Return`
 
@@ -401,7 +400,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const resultsWithskip = await this.getAllAndLimit({ limit: 5, skip: 20 })
+    const resultsWithSkip = await this.getAllAndLimit({ limit: 5, skip: 20 })
   }
   ...
 }
@@ -432,7 +431,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const results = await this.getAllLocaleTests()
+    const results = await this.getLocaleTexts()
   }
   ...
 }
@@ -479,7 +478,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### findOne
 
-`findOne(keys: KeyValueType<T>): SELECT<T>`
+`findOne(keys: KeyValueType<T>): Promise<T>`
 
 The method allows you to find and `retrieve a single entry` from the database that matches the specified keys.
 
@@ -489,7 +488,7 @@ The method allows you to find and `retrieve a single entry` from the database th
 
 `Return`
 
-- `SELECT<T>`: This method returns a Promise with an `single entry of type T`, where `T` is `MyEntity`.
+- `Promise<T>`: This method returns a Promise with an `single entry of type T`, where `T` is `MyEntity`.
 
 `Example`
 
@@ -538,7 +537,7 @@ To order the `ASC` selected columns, you can use the `orderAsc` methods. Pass an
 
 `Parameters`
 
-- `name` `Array` name of the columns to order.
+- `columns (Array)` : An array of name of the columns to order by.
 
 ```ts
 const results = await this.findBuilder({
@@ -554,7 +553,7 @@ To order the `DESC` selected columns, you can use the `orderDesc` methods. Pass 
 
 `Parameters`
 
-- `name` `Array` name of the columns to order.
+- `columns (Array)` : An array of name of the columns to order by.
 
 ```ts
 const results = await this.findBuilder({
@@ -570,7 +569,7 @@ If you want to group the selected columns, use the groupBy method. Pass an array
 
 `Parameters`
 
-- `name` `Array` name of the columns to group.
+- `columns (Array)` : An array of name of the columns to group by.
 
 ```ts
 const results = await this.findBuilder({
@@ -608,13 +607,14 @@ You can specify which columns you want to retrieve from the database using the g
   - If `NO` `associations argument` provided then the method will fetch all `associations / compositions` present on the entity.
 
 ```ts
+// Expand only 'orders' association
 const results = await this.findBuilder({
   name: 'A company name',
 })
   .getExpand(['orders'])
   .execute();
 
-// OR GET ALL Associations and Compositions
+// OR expand all Associations and Compositions
 const resultsAndAllExpandedEntities = await this.findBuilder({
   name: 'A company name',
 })
@@ -847,13 +847,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### exists
 
-`exists(fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
+`exists(keys: KeyValueType<T>): Promise<boolean>`
 
 The method allows you to check whether entries exist in the database that match the specified fields.
 
 `Parameters`
 
-- `fieldsToUpdate (Object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `keys (Object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
