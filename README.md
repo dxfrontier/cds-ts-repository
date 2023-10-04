@@ -807,14 +807,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### deleteMany
 
-`deleteMany(entries : { keys: KeyValueType<T> }[]): Promise<boolean>`
+`deleteMany(entries: Array<KeyValueType<T>>): Promise<boolean>`
 
 The method allows you to `multiple entries` from the database that match the specified keys.
 
 `Parameters`
 
-- `entries (Array[Object])`
-  - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `entries (Array[Object])` - An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
