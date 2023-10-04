@@ -218,7 +218,7 @@ This method allows you to create a new entry in the database.
 - `entry (Object)`: An object representing the entry to be created. The object should match the structure expected by `MyEntity`
   - `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-`Return value`
+`Return`
 
 - `Promise<InsertResult<T>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
 
@@ -257,7 +257,7 @@ This method allows you to add multiple entries in the database.
 
 - `entries (Array)`: An array of objects representing the entries to be created. Each object should match the structure expected by `MyEntity`.
 
-`Return value`
+`Return`
 
 - `Promise<InsertResult<T>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
 
@@ -297,7 +297,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 This method will return all database `entries`.
 
-`Return value`
+`Return`
 
 - `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
 
@@ -332,7 +332,7 @@ This method will return all database `entries`.
 
 - `columns` `(Array<keyof T>)`: An array of column names to retrieve distinct records for. Each column name should be of a type that matches the entity's schema.
 
-`Return value`
+`Return`
 
 - `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
 
@@ -369,7 +369,7 @@ This method allows you to find and retrieve a `list of items with optional pagin
   - `limit` `(number)`: The maximum number of items to retrieve.
   - `skip?` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
 
-`Return value`
+`Return`
 
 - `Promise<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
 
@@ -417,7 +417,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 The `getLocaleTexts` method is designed to retrieve a list of items with localized text.
 
-`Return value`
+`Return`
 
 - `Promise<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
 
@@ -452,7 +452,7 @@ The method allows you to find and `retrieve entries` from the database that matc
 
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
-`Return value`
+`Return`
 
 - `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
 
@@ -487,7 +487,7 @@ The method allows you to find and `retrieve a single entry` from the database th
 
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
-`Return value`
+`Return`
 
 - `SELECT<T>`: This method returns a Promise with an `single entry of type T`, where `T` is `MyEntity`.
 
@@ -522,7 +522,7 @@ The method allows you to create a `SelectBuilder` instance for building database
 
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
-`Return value`
+`Return`
 
 - `SelectBuilder<T>`: A `SelectBuilder` instance that provides access to the following methods for constructing a `SELECT`:
   - [orderAsc](#orderasc)
@@ -666,7 +666,7 @@ The method allows you to update entries in the data store that match the specifi
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 - `fieldsToUpdate (Object)`: An object representing the fields and their updated values for the matching entries.
 
-`Return value`
+`Return`
 
 - `Promise<boolean>`: This method returns a `Promise of true / false`
 
@@ -695,16 +695,15 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### updateMany
 
-`updateMany(entries : { keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T> }[]): Promise<boolean>`
+`updateMany(entries: Array<KeyValueType<T>>): Promise<boolean>`
 
 The method in this class allows you to update `multiple database entries` based on specified keys and the fields to update.
 
 `Parameters`
 
-- `entries (Array[Object])`
+- `entries (Array[Object])` - An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
-  - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-  - `fieldsToUpdate (Object)`: An object representing the fields and their updated values for the matching entries.
+`Returns`
 
 - `Promise<boolean>`: This method returns :
   - `true` if all instances where successfully updated.
@@ -722,8 +721,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
     const updateMany = await this.updateMany([
-      { keys: { name: 'Company 1' }, fieldsToUpdate: { name: 'Company 1 new name' } },
-      { keys: { name: 'Company 2' }, fieldsToUpdate: { name: 'Company 2 new name' } },
+      { name: 'Company 1' }, { currency_code: 'EUR' },
+      { name: 'Company 2' }, { currency_code: 'JPN' },
     ])
   }
   ...
@@ -743,7 +742,7 @@ The method allows you to update entries in the data store that match the specifi
 - `key (string)`: A string representing the language code to filter the entries, example `'en', 'de', 'fr', 'ro' ...`
 - `fieldsToUpdate (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
-`Return value`
+`Return`
 
 - `Promise<boolean>`: This method returns :
   - `true` if all instances where successfully updated.
@@ -780,7 +779,7 @@ The method allows you to delete entries from the database that match the specifi
 
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
-`Return value`
+`Return`
 
 - `Promise<boolean>`: This method returns a `Promise of true / false`
 
@@ -817,7 +816,7 @@ The method allows you to `multiple entries` from the database that match the spe
 - `entries (Array[Object])`
   - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
-`Return value`
+`Return`
 
 - `Promise<boolean>`: This method returns :
   - `true` if all instances where successfully deleted.
@@ -857,7 +856,7 @@ The method allows you to check whether entries exist in the database that match 
 
 - `fieldsToUpdate (Object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
-`Return value`
+`Return`
 
 - `Promise<boolean>`: This method returns a `Promise of true / false`
 
@@ -888,7 +887,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 The method allows to count all items from the database.
 
-`Return value`
+`Return`
 
 - `Promise<number>`: This method returns a `Promise number of items from MyEntity`
 

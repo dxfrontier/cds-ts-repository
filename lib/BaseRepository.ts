@@ -119,23 +119,21 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Updates multiple records based on the provided keys and fields to update.
-   * @param {Array<{ keys: KeyValueType<T>; fieldsToUpdate: KeyValueType<T> }>} entries - The entries to update.
+   * @param {Array<KeyValueType<T>>} entries - The entries to update.
    * @returns {Promise<boolean>} - A promise that resolves to `true` if all updates are successful.
    */
-  async updateMany(
-    entries: Array<{
-      keys: KeyValueType<T>;
-      fieldsToUpdate: KeyValueType<T>;
-    }>,
-  ): Promise<boolean> {
-    const allPromises: Array<UPDATE<T>> = [];
+  async updateMany(entries: Array<KeyValueType<T>>): Promise<boolean> {
+    const allPromises = [];
 
-    entries.forEach((instance) => {
-      const update = UPDATE.entity(this.entity).where(instance.keys).set(instance.fieldsToUpdate);
+    for (let i = 0; i < entries.length; i += 2) {
+      const keys = entries[i];
+      const fieldsToUpdate = entries[i + 1];
+
+      const update = UPDATE.entity(this.entity).where(keys).set(fieldsToUpdate);
       allPromises.push(update);
-    });
+    }
 
-    const allUpdated: number[] = await Promise.all(allPromises);
+    const allUpdated = await Promise.all(allPromises);
 
     return this.isAllSuccess(allUpdated);
   }

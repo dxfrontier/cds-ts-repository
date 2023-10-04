@@ -23,8 +23,10 @@ describe('UPDATE', () => {
       const findTheOtherItem = await bookRepository.find({ ID: 252 });
 
       const updatedItem = await bookRepository.updateMany([
-        { keys: { ID: 271 }, fieldsToUpdate: { currency_code: 'RON' } },
-        { keys: { ID: 252 }, fieldsToUpdate: { descr: 'UPDATED DESCRIPTION !' } },
+        { ID: 271 },
+        { currency_code: 'RON' },
+        { ID: 252 },
+        { currency_code: 'JPN' },
       ]);
       const findAnItemAfterUpdate = await bookRepository.find({ ID: 271 });
       const findTheOtherItemAfterUpdate = await bookRepository.find({ ID: 252 });
