@@ -701,7 +701,7 @@ The method in this class allows you to update `multiple database entries` based 
 
 `Parameters`
 
-- `entries (Array[Object])` - An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `entries (Array(filterKeys, fieldsToUpdate))` - An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Returns`
 
