@@ -30,7 +30,7 @@ interface RepositoryPredefinedMethods<T> {
   findBuilder: (keys: KeyValueType<T>) => SelectBuilder<T>;
 
   update: (keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>) => Promise<boolean>;
-  updateMany: (entries: Array<KeyValueType<T>>) => Promise<boolean>;
+  // updateMany: (entries: Array<KeyValueType<T>>) => Promise<boolean>;
 
   updateLocaleTexts: (keys: KeyValueType<T> & Locale, fieldsToUpdate: KeyValueType<T>) => Promise<boolean>;
 

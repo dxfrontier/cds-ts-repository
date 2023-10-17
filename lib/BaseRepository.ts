@@ -117,26 +117,26 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
     return updated === 1;
   }
 
-  /**
-   * Updates multiple records based on the provided keys and fields to update.
-   * @param {Array<KeyValueType<T>>} entries - The entries to update.
-   * @returns {Promise<boolean>} - A promise that resolves to `true` if all updates are successful.
-   */
-  async updateMany(entries: Array<KeyValueType<T>>): Promise<boolean> {
-    const allPromises = [];
+  // /**
+  //  * Updates multiple records based on the provided keys and fields to update.
+  //  * @param {Array<KeyValueType<T>>} entries - The entries to update.
+  //  * @returns {Promise<boolean>} - A promise that resolves to `true` if all updates are successful.
+  //  */
+  // async updateMany(entries: Array<KeyValueType<T>>): Promise<boolean> {
+  //   const allPromises = [];
 
-    for (let i = 0; i < entries.length; i += 2) {
-      const keys = entries[i];
-      const fieldsToUpdate = entries[i + 1];
+  //   for (let i = 0; i < entries.length; i += 2) {
+  //     const keys = entries[i];
+  //     const fieldsToUpdate = entries[i + 1];
 
-      const update = UPDATE.entity(this.entity).where(keys).set(fieldsToUpdate);
-      allPromises.push(update);
-    }
+  //     const update = UPDATE.entity(this.entity).where(keys).set(fieldsToUpdate);
+  //     allPromises.push(update);
+  //   }
 
-    const allUpdated = await Promise.all(allPromises);
+  //   const allUpdated = await Promise.all(allPromises);
 
-    return this.isAllSuccess(allUpdated);
-  }
+  //   return this.isAllSuccess(allUpdated);
+  // }
 
   /**
    * Updates locale texts for records based on the provided keys and fields to update.
