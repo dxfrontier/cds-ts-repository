@@ -34,7 +34,6 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **Ba
           - [getExpand](#getexpand)
           - [execute](#execute)
         - [update](#update)
-        - [updateMany](#updatemany)
         - [updateLocaleTexts](#updatelocaletexts)
         - [delete](#delete)
         - [deleteMany](#deletemany)
@@ -692,44 +691,6 @@ class MyRepository extends BaseRepository<MyEntity> {
 > `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-##### updateMany
-
-`updateMany(entries: Array<KeyValueType<T>>): Promise<boolean>`
-
-The method in this class allows you to update `multiple database entries` based on specified keys and the fields to update.
-
-`Parameters`
-
-- `entries (Array(filterKeys, fieldsToUpdate))` - An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-
-`Returns`
-
-- `Promise<boolean>`: This method returns :
-  - `true` if all instances where successfully updated.
-  - `false` if at least `one` instance was not successfully updated.
-
-`Example`
-
-```ts
-@Repository()
-class MyRepository extends BaseRepository<MyEntity> {
-  ...
-  constructor() {
-    super(MyEntity) // a CDS entity name
-  }
-
-  public async aMethod() {
-    const updateMany = await this.updateMany([
-      { name: 'Company 1' }, { currency_code: 'EUR' },
-      { name: 'Company 2' }, { currency_code: 'JPN' },
-    ])
-  }
-  ...
-}
-```
-
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 ##### updateLocaleTexts
 
