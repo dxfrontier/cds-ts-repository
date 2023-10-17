@@ -68,9 +68,9 @@ npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 
 **We recommend adhering** to the **Controller-Service-Repository**.
 
-1. `Controller` - Manages the REST interface to the business logic `Service`
+1. `Controller` - Responsible for managing the REST interface to the core business logic implemented in `ServiceLogic`.
 2. `Service` - Contains business logic implementations
-3. `Repository` - Will contain manipulation of entities through the utilization of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** out of the box actions.
+3. `Repository` - This component is dedicated to handling entity manipulation operations by leveraging the power of [CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql).
 
 `Controller-Service-Repository` suggested folder structure
 

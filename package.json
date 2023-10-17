@@ -16,7 +16,7 @@
     "prettier:fix": "npx prettier . --write",
     "check": "npm run eslint && npm run prettier",
     "fix": "npm run eslint:fix && npm run prettier:fix",
-    "test": "jest",
+    "test": "npm run build:entities --prefix test/bookshop && jest",
     "prepare": "husky install"
   },
   "dependencies": {
