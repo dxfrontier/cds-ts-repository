@@ -164,11 +164,9 @@ All defined methods in the `BaseRepository` can be accessed in the class using t
 
 ```ts
 
-import { Repository } from 'cds-ts-dispatcher'
 import BaseRepository from 'cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
-@Repository()
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -223,7 +221,10 @@ This method allows you to create a new entry in the database.
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -262,7 +263,10 @@ This method allows you to add multiple entries in the database.
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -302,7 +306,10 @@ This method will return all database `entries`.
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -337,7 +344,10 @@ This method will return all database `entries`.
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -374,7 +384,10 @@ This method allows you to find and retrieve a `list of items with optional pagin
 `Example 1` : Retrieve the first 10 items
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -391,7 +404,10 @@ class MyRepository extends BaseRepository<MyEntity> {
 `Example 2` : Retrieve items starting from the 20th item, limit to 5 items
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -422,7 +438,10 @@ The `getLocaleTexts` method is designed to retrieve a list of items with localiz
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -457,7 +476,10 @@ The method allows you to find and `retrieve entries` from the database that matc
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -492,7 +514,10 @@ The method allows you to find and `retrieve a single entry` from the database th
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -672,7 +697,10 @@ The method allows you to update entries in the data store that match the specifi
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -712,7 +740,10 @@ The method allows you to update entries in the data store that match the specifi
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -747,7 +778,10 @@ The method allows you to delete entries from the database that match the specifi
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -785,7 +819,10 @@ The method allows you to `multiple entries` from the database that match the spe
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -823,7 +860,10 @@ The method allows you to check whether entries exist in the database that match 
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -854,7 +894,10 @@ The method allows to count all items from the database.
 `Example`
 
 ```ts
-@Repository()
+
+import BaseRepository from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
