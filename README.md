@@ -95,20 +95,18 @@ If you want to use `BaseRepository` with the `SAP CDS-TS` without using the [CDS
 `Example` main class
 
 ```ts
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE';
+
 class MainService extends cds.ApplicationService {
   private handleClass: HandleClass;
   // ...
 
   init() {
-    const { MyEntity } = this.entities;
-
     this.handleClass = new HandleClass();
     // ...
 
-    this.before('READ', MyEntity, (req: TypedRequest<MyEntity>) => this.handleClass.aMethod(req));
-    this.after('READ', MyEntity, (results: MyEntity[], req: TypedRequest<MyEntity>) =>
-      this.handleClass.anotherMethod(req),
-    );
+    this.before('READ', MyEntity, (req) => this.handleClass.aMethod(req));
+    this.after('READ', MyEntity, (results, req) => this.handleClass.anotherMethod(results, req));
 
     return super.init();
   }
@@ -120,7 +118,10 @@ class MainService extends cds.ApplicationService {
 `Example` HandleClass
 
 ```ts
-import { BaseRepository, TypedRequest } from 'cds-ts-repository'
+
+import { Request } from '@sap/cap';
+
+import { BaseRepository } from 'cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class HandleClass extends BaseRepository<MyEntity> {
@@ -129,7 +130,7 @@ class HandleClass extends BaseRepository<MyEntity> {
     super(MyEntity)
   }
 
-  public aMethod(req: TypedRequest<MyEntity>) {
+  public aMethod(req: Request) {
 
     // BaseRepository predefined methods using the MyEntity entity
     // All methods parameters will allow only parameters of type MyEntity
@@ -147,7 +148,9 @@ class HandleClass extends BaseRepository<MyEntity> {
     const result13 = await this.count()
   }
 
-  public anotherMethod(req: TypedRequest<MyEntity>) {
+  public anotherMethod(results : MyEntity[], req: Request) {
+    const result123 = await this.exists(...)
+    const result143 = await this.count()
     // ...
   }
 }
