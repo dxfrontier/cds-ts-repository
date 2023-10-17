@@ -1,7 +1,7 @@
 {
   "name": "@capire/orders",
   "version": "1.0.0",
-   "scripts": {
+  "scripts": {
     "start": "cds watch",
     "build:entities": "cds-typer '*' --outputDirectory ./srv/util/entities && npm run clean",
     "clean": "npx rimraf ./srv/util/entities/{*.js,**/*.js,**/**/*.js,**/**/**/*.js}"
