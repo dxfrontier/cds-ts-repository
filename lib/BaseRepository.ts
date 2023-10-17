@@ -75,7 +75,7 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * Retrieves and updates localized texts for records based on the provided keys and fields to update.
    * @returns {Promise<T>} - A promise that resolves to an array of matching records.
    */
-  public async getLocaleTexts(): Promise<T[]> {
+  public async getLocaleTexts(): Promise<Array<T & Locale>> {
     return await SELECT.from(`${this.entity.name}.texts`);
   }
 
@@ -116,27 +116,6 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
     const updated = await UPDATE.entity(this.entity).where(keys).set(fieldsToUpdate);
     return updated === 1;
   }
-
-  // /**
-  //  * Updates multiple records based on the provided keys and fields to update.
-  //  * @param {Array<KeyValueType<T>>} entries - The entries to update.
-  //  * @returns {Promise<boolean>} - A promise that resolves to `true` if all updates are successful.
-  //  */
-  // async updateMany(entries: Array<KeyValueType<T>>): Promise<boolean> {
-  //   const allPromises = [];
-
-  //   for (let i = 0; i < entries.length; i += 2) {
-  //     const keys = entries[i];
-  //     const fieldsToUpdate = entries[i + 1];
-
-  //     const update = UPDATE.entity(this.entity).where(keys).set(fieldsToUpdate);
-  //     allPromises.push(update);
-  //   }
-
-  //   const allUpdated = await Promise.all(allPromises);
-
-  //   return this.isAllSuccess(allUpdated);
-  // }
 
   /**
    * Updates locale texts for records based on the provided keys and fields to update.

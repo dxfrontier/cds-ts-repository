@@ -23,14 +23,13 @@ interface RepositoryPredefinedMethods<T> {
   getAll: () => Promise<T[]>;
   getDistinctColumns: (columns: Array<keyof T>) => Promise<T[]>;
   getAllAndLimit: (props: { limit: number; offset?: number }) => Promise<T[]>;
-  getLocaleTexts: () => Promise<T[]>;
+  getLocaleTexts: () => Promise<Array<T & Locale>>;
 
   find: (keys: KeyValueType<T>) => Promise<T[]>;
   findOne: (keys: KeyValueType<T>) => Promise<T>;
   findBuilder: (keys: KeyValueType<T>) => SelectBuilder<T>;
 
   update: (keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>) => Promise<boolean>;
-  // updateMany: (entries: Array<KeyValueType<T>>) => Promise<boolean>;
 
   updateLocaleTexts: (keys: KeyValueType<T> & Locale, fieldsToUpdate: KeyValueType<T>) => Promise<boolean>;
 
