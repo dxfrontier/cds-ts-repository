@@ -662,7 +662,7 @@ const resultsAndAllExpandedEntities = await this.findBuilder({
 
 ```ts
 
-import BaseRepository from 'cds-ts-repository'
+import { BaseRepository } from 'cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
