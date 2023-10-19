@@ -2,7 +2,7 @@
 
 <img src="https://img.shields.io/badge/SAP-0FAAFF?style=for-the-badge&logo=sap&logoColor=white" /> <img src="https://img.shields.io/badge/ts--node-3178C6?style=for-the-badge&logo=ts-node&logoColor=white" /> <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" /> <img src="https://img.shields.io/badge/Express%20js-000000?style=for-the-badge&logo=express&logoColor=white" /> <img src="https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white" /> <img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white" /> <img src="https://img.shields.io/badge/Cloud%20Foundry-0C9ED5?style=for-the-badge&logo=Cloud%20Foundry&logoColor=white" /> <img src="https://img.shields.io/badge/kubernetes-326ce5.svg?&style=for-the-badge&logo=kubernetes&logoColor=white" />
 
-The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`
+The goal of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`
 
 <a name="readme-top"></a>
 
@@ -39,7 +39,6 @@ The goal of SAP CAP **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **Ba
         - [deleteMany](#deletemany)
         - [exists](#exists)
         - [count](#count)
-    - [Example](#example)
   - [Contributing](#contributing)
   - [License](#license)
   - [Authors](#authors)
@@ -78,7 +77,7 @@ npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher](https://google.com) : TODO
+A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -917,10 +916,6 @@ class MyRepository extends BaseRepository<MyEntity> {
 > `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Example
-
-TODO
 
 ## Contributing
 
