@@ -166,7 +166,8 @@ class MainService extends cds.ApplicationService {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 ### Option 2 : Using `BaseRepository` with [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
 
@@ -210,7 +211,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -254,7 +256,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -301,7 +304,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -335,7 +339,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -373,7 +378,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -433,7 +439,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -467,7 +474,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -505,7 +513,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -543,7 +552,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -690,7 +700,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -731,7 +742,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -772,7 +784,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -813,7 +826,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -856,7 +870,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -896,7 +911,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -930,7 +946,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
