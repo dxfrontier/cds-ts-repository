@@ -141,9 +141,11 @@ class HandleClass extends BaseRepository<MyEntity> {
 
 Now that you have your `HandleClass`, you can integrate it into your `main service`. Here's an example of how to do this:
 
-- Create a new private field `private HandleClass: HandleClass`
-- Create a new handler class `class HandleClass extends BaseRepository<T> { ... `
-- Use the handler on the `callback` of the `events` `this.before('READ', MyEntity, (req) => this.HandleClass.aMethod(req))`
+1. Create a new private field `private handleClass: HandleClass`
+2. Initalize the handleClass `this.handleClass = new HandleClass();`
+3. Use the handler on the `callback` of the `events` :
+   1. `this.before('READ', MyEntity, (req) => this.HandleClass.aMethod(req))`
+   2. `this.after('READ', MyEntity, (results, req) => this.handleClass.anotherMethod(results, req))`
 
 `Example` main class
 
