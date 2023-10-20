@@ -182,7 +182,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // MyService.MyEntity CDS entity
+    super(MyEntity) // a CDS entity
   }
 
   aMethod() {
@@ -240,7 +240,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -282,7 +282,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -325,7 +325,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -363,7 +363,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -403,7 +403,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -423,7 +423,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -457,7 +457,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -495,7 +495,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -533,7 +533,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -678,7 +678,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -719,7 +719,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -762,7 +762,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -802,7 +802,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -843,7 +843,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -886,7 +886,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
@@ -920,7 +920,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity name
+    super(MyEntity) // a CDS Typer entity type
   }
 
   public async aMethod() {
