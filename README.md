@@ -85,7 +85,7 @@ A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher]
 
 ### Option 1 : BaseRepository using (CDS-TS)
 
-If you want to use `BaseRepository` with the `SAP CDS-TS` without using the [CDS-TS-Dispatcher](#baserepository-cds-ts-dispatcher--option-2) the following steps needs to be performed :
+If you want to use `BaseRepository` with the `SAP CDS-TS` without using the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher) the following steps needs to be performed :
 
 - Create a new private field `private HandleClass: HandleClass`
 - Create a new handler class `class HandleClass extends BaseRepository<T> { ... `
@@ -158,7 +158,7 @@ class HandleClass extends BaseRepository<MyEntity> {
 
 ### Option 2 : BaseRepository using (CDS-TS-Dispatcher)
 
-If you want to use `BaseRepository` with the [CDS-TS-Dispatcher](#baserepository-cds-ts-dispatcher--option-2) the following steps needs to be performed :
+If you want to use `BaseRepository` with the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher) the following steps needs to be performed :
 
 All defined methods in the `BaseRepository` can be accessed in the class using the `this.` keyword.
 
@@ -688,7 +688,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `update(keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
 
-The method allows you to update entries in the data store that match the specified keys with new values for specific fields.
+The method allows you to update entries in the database that match the specified keys with new values for specific fields.
 
 `Parameters`
 
@@ -729,18 +729,18 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `updateLocaleTexts(localeCodeKey: Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
 
-The method allows you to update entries in the data store that match the specified localeCodeKey with new values for specific fields.
+The method allows you to update entries in the database that match the specified `localeCodeKey` with new values for specific fields.
 
 `Parameters`
 
-- `key (string)`: A string representing the language code to filter the entries, example `'en', 'de', 'fr', 'ro' ...`
+- `localeCodeKey (string)`: A string representing the language code to filter the entries, example `'en', 'de', 'fr', 'ro' ...`
 - `fieldsToUpdate (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
 - `Promise<boolean>`: This method returns :
-  - `true` if all instances where successfully updated.
-  - `false` if at least `one` instance was not successfully updated.
+  - `true` if language was updated.
+  - `false` if language was not updated.
 
 `Example`
 
@@ -778,7 +778,9 @@ The method allows you to delete entries from the database that match the specifi
 
 `Return`
 
-- `Promise<boolean>`: This method returns a `Promise of true / false`
+- `Promise<boolean>`: This method returns :
+  - `true` if item was deleted.
+  - `false` if item was not deleted.
 
 `Example`
 
@@ -809,7 +811,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `deleteMany(entries: Array<KeyValueType<T>>): Promise<boolean>`
 
-The method allows you to `multiple entries` from the database that match the specified keys.
+The method allows you to delete `multiple entries` from the database that match the specified keys.
 
 `Parameters`
 
@@ -819,7 +821,7 @@ The method allows you to `multiple entries` from the database that match the spe
 
 - `Promise<boolean>`: This method returns :
   - `true` if all instances where successfully deleted.
-  - `false` if at least `one` instance was not deleted successfully.
+  - `false` if at least `one` instance was not deleted.
 
 `Example`
 
@@ -860,7 +862,9 @@ The method allows you to check whether entries exist in the database that match 
 
 `Return`
 
-- `Promise<boolean>`: This method returns a `Promise of true / false`
+- `Promise<boolean>`: This method returns :
+  - `true` if item exists in the database.
+  - `false` if the item does not exists in the database.
 
 `Example`
 
@@ -894,7 +898,7 @@ The method allows to count all items from the database.
 
 `Return`
 
-- `Promise<number>`: This method returns a `Promise number of items from MyEntity`
+- `Promise<number>`: This method returns the `count of items from MyEntity`
 
 `Example`
 
