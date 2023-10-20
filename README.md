@@ -15,8 +15,10 @@ The goal of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **BaseReposi
     - [Generate CDS Typed entities](#generate-cds-typed-entities)
   - [Architecture](#architecture)
   - [Usage](#usage)
-    - [Option 1 : BaseRepository using (CDS-TS)](#option-1--baserepository-using-cds-ts)
-    - [Option 2 : BaseRepository using (CDS-TS-Dispatcher)](#option-2--baserepository-using-cds-ts-dispatcher)
+    - [Option 1 : Using `BaseRepository` with Standard SAP CDS-TS](#option-1--using-baserepository-with-standard-sap-cds-ts)
+      - [Step 1: Create a HandleClass](#step-1-create-a-handleclass)
+      - [Step 2 : Integrate HandleClass](#step-2--integrate-handleclass)
+    - [Option 2 : Using `BaseRepository` with CDS-TS-Dispatcher](#option-2--using-baserepository-with-cds-ts-dispatcher)
       - [Methods](#methods)
         - [create](#create)
         - [createMany](#createmany)
@@ -83,36 +85,15 @@ A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher]
 
 ## Usage
 
-### Option 1 : BaseRepository using (CDS-TS)
+### Option 1 : Using `BaseRepository` with Standard SAP CDS-TS
 
-If you want to use `BaseRepository` with the `SAP CDS-TS` without using the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher) the following steps needs to be performed :
+This guide explains how to use the BaseRepository with the Standard SAP CDS-TS, allowing you to work with your entities without the need for the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher).
 
-- Create a new private field `private HandleClass: HandleClass`
-- Create a new handler class `class HandleClass extends BaseRepository<T> { ... `
-- Use the handler on the `callback` of the `events` `this.before('READ', MyEntity, (req) => this.HandleClass.aMethod(req))`
+<!-- If you want to use `BaseRepository` with the `SAP CDS-TS` without using the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher) the following steps needs to be performed : -->
 
-`Example` main class
+#### Step 1: Create a HandleClass
 
-```ts
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE';
-
-class MainService extends cds.ApplicationService {
-  private handleClass: HandleClass;
-  // ...
-
-  init() {
-    this.handleClass = new HandleClass();
-    // ...
-
-    this.before('READ', MyEntity, (req) => this.handleClass.aMethod(req));
-    this.after('READ', MyEntity, (results, req) => this.handleClass.anotherMethod(results, req));
-
-    return super.init();
-  }
-}
-```
-
-> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+Start by creating a `HandleClass`, which will extend the `BaseRepository<T>` to handle operations for your entity. Here's an example of how to set it up:
 
 `Example` HandleClass
 
@@ -147,7 +128,7 @@ class HandleClass extends BaseRepository<MyEntity> {
     const result13 = await this.count()
   }
 
-  public anotherMethod(results : MyEntity[], req: Request) {
+  public anotherMethod(results: MyEntity[], req: Request) {
     const result123 = await this.exists(...)
     const result143 = await this.count()
     // ...
@@ -156,11 +137,40 @@ class HandleClass extends BaseRepository<MyEntity> {
 
 ```
 
-### Option 2 : BaseRepository using (CDS-TS-Dispatcher)
+#### Step 2 : Integrate HandleClass
 
-If you want to use `BaseRepository` with the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher) the following steps needs to be performed :
+Now that you have your `HandleClass`, you can integrate it into your `main service`. Here's an example of how to do this:
 
-All defined methods in the `BaseRepository` can be accessed in the class using the `this.` keyword.
+- Create a new private field `private HandleClass: HandleClass`
+- Create a new handler class `class HandleClass extends BaseRepository<T> { ... `
+- Use the handler on the `callback` of the `events` `this.before('READ', MyEntity, (req) => this.HandleClass.aMethod(req))`
+
+`Example` main class
+
+```ts
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE';
+
+class MainService extends cds.ApplicationService {
+  private handleClass: HandleClass;
+  // ...
+
+  init() {
+    this.handleClass = new HandleClass();
+    // ...
+
+    this.before('READ', MyEntity, (req) => this.handleClass.aMethod(req));
+    this.after('READ', MyEntity, (results, req) => this.handleClass.anotherMethod(results, req));
+
+    return super.init();
+  }
+}
+```
+
+> `MyEntity` was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+### Option 2 : Using `BaseRepository` with [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
+
+Start by creating a `MyRepository` class, which will extend the `BaseRepository<T>` to handle operations for your entity. Here's an example of how to set it up:
 
 `Example`
 
