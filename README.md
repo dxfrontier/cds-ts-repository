@@ -182,7 +182,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
-    super(MyEntity) // a CDS entity
+    super(MyEntity) // a CDS Typer entity type
   }
 
   aMethod() {
