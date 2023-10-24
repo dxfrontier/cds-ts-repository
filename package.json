@@ -26,7 +26,7 @@
     
     "prepare": "husky install",
     
-    "build": "tsup",
+    "build": "npm run-s clean:build tsup",
     
     "clean:build": "npx rimraf ./dist/{*.js,*.map,*.ts,*.mts,*.mjs}"
   },
