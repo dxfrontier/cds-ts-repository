@@ -19,26 +19,28 @@ The goal of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **BaseReposi
       - [Step 1: Create a HandleClass](#step-1-create-a-handleclass)
       - [Step 2 : Integrate HandleClass](#step-2--integrate-handleclass)
     - [Option 2 : Using `BaseRepository` with CDS-TS-Dispatcher](#option-2--using-baserepository-with-cds-ts-dispatcher)
-      - [createMany](#createmany)
-      - [getAll](#getall)
-      - [getDistinctColumns](#getdistinctcolumns)
-      - [getAllAndLimit](#getallandlimit)
-      - [getLocaleTexts](#getlocaletexts)
-      - [find](#find)
-      - [findOne](#findone)
-      - [findBuilder](#findbuilder)
-        - [orderAsc](#orderasc)
-        - [orderDesc](#orderdesc)
-        - [groupBy](#groupby)
-        - [limit](#limit)
-        - [getExpand](#getexpand)
-        - [execute](#execute)
-      - [update](#update)
-      - [updateLocaleTexts](#updatelocaletexts)
-      - [delete](#delete)
-      - [deleteMany](#deletemany)
-      - [exists](#exists)
-      - [count](#count)
+      - [Methods](#methods)
+        - [create](#create)
+        - [createMany](#createmany)
+        - [getAll](#getall)
+        - [getDistinctColumns](#getdistinctcolumns)
+        - [getAllAndLimit](#getallandlimit)
+        - [getLocaleTexts](#getlocaletexts)
+        - [find](#find)
+        - [findOne](#findone)
+        - [findBuilder](#findbuilder)
+          - [orderAsc](#orderasc)
+          - [orderDesc](#orderdesc)
+          - [groupBy](#groupby)
+          - [limit](#limit)
+          - [getExpand](#getexpand)
+          - [execute](#execute)
+        - [update](#update)
+        - [updateLocaleTexts](#updatelocaletexts)
+        - [delete](#delete)
+        - [deleteMany](#deletemany)
+        - [exists](#exists)
+        - [count](#count)
   - [Examples](#examples)
   - [Contributing](#contributing)
   - [License](#license)
@@ -100,7 +102,7 @@ Start by creating a `HandleClass`, which will extend the `BaseRepository<T>` to 
 
 import { Request } from '@sap/cap';
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class HandleClass extends BaseRepository<MyEntity> {
@@ -176,11 +178,10 @@ Start by creating a `MyRepository` class, which will extend the `BaseRepository<
 
 `Example`
 
-````ts
+```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
-
 
 class MyRepository extends BaseRepository<MyEntity> {
   ...
@@ -210,7 +211,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
   ...
 }
-
+```
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
@@ -237,7 +238,7 @@ This method allows you to create a new entry in the database.
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -255,7 +256,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
   ...
 }
-````
+```
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
@@ -280,7 +281,7 @@ This method allows you to add multiple entries in the database.
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -324,7 +325,7 @@ This method will return all database `entries`.
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -363,7 +364,7 @@ This method will return all database `entries`.
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -404,7 +405,7 @@ This method allows you to find and retrieve a `list of items with optional pagin
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -424,7 +425,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -459,7 +460,7 @@ The `getLocaleTexts` method is designed to retrieve a list of items with localiz
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -498,7 +499,7 @@ The method allows you to find and `retrieve entries` from the database that matc
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -537,7 +538,7 @@ The method allows you to find and `retrieve a single entry` from the database th
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -683,7 +684,7 @@ const resultsAndAllExpandedEntities = await this.findBuilder({
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -725,7 +726,7 @@ The method allows you to update entries in the database that match the specified
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -769,7 +770,7 @@ The method allows you to update entries in the database that match the specified
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -810,7 +811,7 @@ The method allows you to delete entries from the database that match the specifi
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -852,7 +853,7 @@ The method allows you to delete `multiple entries` from the database that match 
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -896,7 +897,7 @@ The method allows you to check whether entries exist in the database that match 
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -931,7 +932,7 @@ The method allows to count all items from the database.
 
 ```ts
 
-import { BaseRepository } from 'cds-ts-repository'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
