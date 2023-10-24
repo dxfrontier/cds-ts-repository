@@ -1,160 +1,62 @@
-# CDS-TS Dispatcher
+# CDS-TS Dispatcher - BaseRepository
 
 <img src="https://img.shields.io/badge/SAP-0FAAFF?style=for-the-badge&logo=sap&logoColor=white" /> <img src="https://img.shields.io/badge/ts--node-3178C6?style=for-the-badge&logo=ts-node&logoColor=white" /> <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" /> <img src="https://img.shields.io/badge/Express%20js-000000?style=for-the-badge&logo=express&logoColor=white" /> <img src="https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white" /> <img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white" />
 
-The goal of CDS-TS-Dispatcher is to significantly reduce the boilerplate code required to implement TS handlers provided by the SAP CAP framework.
+The goal of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`
 
 <a name="readme-top"></a>
 
 ## Table of Contents
 
-- [CDS-TS Dispatcher](#cds-ts-dispatcher)
+- [CDS-TS Dispatcher - BaseRepository](#cds-ts-dispatcher---baserepository)
   - [Table of Contents](#table-of-contents)
-  - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-    - [Install CDS-TS-Dispatcher - New project](#install-cds-ts-dispatcher---new-project)
-    - [Install CDS-TS-Dispatcher - Existing project](#install-cds-ts-dispatcher---existing-project)
+    - [Install CDS-TS-Repository](#install-cds-ts-repository)
     - [Generate CDS Typed entities](#generate-cds-typed-entities)
   - [Architecture](#architecture)
-  - [`[Optional]` - BaseRepository](#optional---baserepository)
   - [Usage](#usage)
-    - [CDSDispatcher](#cdsdispatcher)
-    - [Decorators](#decorators)
-      - [Class](#class)
-        - [EntityHandler](#entityhandler)
-        - [ServiceLogic](#servicelogic)
-        - [Repository](#repository)
-          - [Optional BaseRepository](#optional-baserepository)
-        - [UnboundActions](#unboundactions)
-      - [Fields](#fields)
-        - [Inject](#inject)
-        - [Inject SRV](#inject-srv)
+    - [Option 1 : Using `BaseRepository` with Standard SAP CDS-TS](#option-1--using-baserepository-with-standard-sap-cds-ts)
+      - [Step 1: Create a HandleClass](#step-1-create-a-handleclass)
+      - [Step 2 : Integrate HandleClass](#step-2--integrate-handleclass)
+    - [Option 2 : Using `BaseRepository` with CDS-TS-Dispatcher](#option-2--using-baserepository-with-cds-ts-dispatcher)
       - [Methods](#methods)
-        - [Before](#before)
-          - [BeforeCreate](#beforecreate)
-          - [BeforeRead](#beforeread)
-          - [BeforeUpdate](#beforeupdate)
-          - [BeforeDelete](#beforedelete)
-        - [After](#after)
-          - [AfterCreate](#aftercreate)
-          - [AfterRead](#afterread)
-          - [AfterUpdate](#afterupdate)
-          - [AfterDelete](#afterdelete)
-        - [On](#on)
-          - [OnCreate](#oncreate)
-          - [OnRead](#onread)
-          - [OnUpdate](#onupdate)
-          - [OnDelete](#ondelete)
-          - [OnAction](#onaction)
-          - [OnFunction](#onfunction)
-          - [OnBoundAction](#onboundaction)
-          - [OnBoundFunction](#onboundfunction)
-        - [Fiori draft](#fiori-draft)
-          - [Draft](#draft)
-          - [OnNewDraft](#onnewdraft)
-          - [OnCancelDraft](#oncanceldraft)
-          - [OnEditDraft](#oneditdraft)
-          - [OnSaveDraft](#onsavedraft)
-        - [SingleInstanceCapable](#singleinstancecapable)
-          - [Usage](#usage-1)
+        - [create](#create)
+        - [createMany](#createmany)
+        - [getAll](#getall)
+        - [getDistinctColumns](#getdistinctcolumns)
+        - [getAllAndLimit](#getallandlimit)
+        - [getLocaleTexts](#getlocaletexts)
+        - [find](#find)
+        - [findOne](#findone)
+        - [findBuilder](#findbuilder)
+          - [orderAsc](#orderasc)
+          - [orderDesc](#orderdesc)
+          - [groupBy](#groupby)
+          - [limit](#limit)
+          - [getExpand](#getexpand)
+          - [execute](#execute)
+        - [update](#update)
+        - [updateLocaleTexts](#updatelocaletexts)
+        - [delete](#delete)
+        - [deleteMany](#deletemany)
+        - [exists](#exists)
+        - [count](#count)
   - [Examples](#examples)
   - [Contributing](#contributing)
   - [License](#license)
   - [Authors](#authors)
 
-## Prerequisites
-
-Install [**@sap/cds-dk**](https://cap.cloud.sap/docs/get-started/) globally:
-
-```bash
-npm i -g @sap/cds-dk
-```
-
 ## Installation
 
-### Install CDS-TS-Dispatcher - New project
-
-Use the following steps if you want to create a new **SAP CAP project.**
-
-1. Create new folder :
+### Install CDS-TS-Repository
 
 ```bash
-mkdir new-sap-cap-project
-cd new-sap-cap-project
-```
-
-2. Initialize the CDS folder structure :
-
-```bash
-cds init
-```
-
-1. Add the the following NPM packages :
-
-```bash
-npm install @sap/cds express
-npm install --save-dev @dxfrontier/cds-ts-dispatcher @types/node @cap-js/sqlite typescript
-```
-
-4. Add a **tsconfig.json** :
-
-```bash
-tsc --init
-```
-
-5. It is recommended to use the following **tsconfig.json** properties:
-
-```json
-{
-  "compilerOptions": {
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false,
-    "target": "ES2020",
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true
-  }
-}
-```
-
-6. Run the `CDS-TS` server
-
-```bash
-cds-ts watch
-```
-
-### Install CDS-TS-Dispatcher - Existing project
-
-Use the following steps if you want to add only the **@dxfrontier/cds-ts-dispatcher to an existing project :**
-
-```bash
-npm install @dxfrontier/cds-ts-dispatcher
-```
-
-It is recommended to use the following **tsconfig.json** properties:
-
-```json
-{
-  "compilerOptions": {
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false,
-    "target": "ES2020",
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true
-  }
-}
+npm install @dxfrontier/cds-ts-respository
 ```
 
 ### Generate CDS Typed entities
 
-The following command should be used to generate the typed entities.
+The following command should be used to generate typed entity classes
 
 ```bash
 npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
@@ -166,29 +68,27 @@ npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 
 ## Architecture
 
-**We recommend adhering** to the **Controller-Service-Repository** design pattern using the following folder structure:
+**We recommend adhering** to the **Controller-Service-Repository**.
 
-1. [EntityHandler](#entityhandler) `(Controller)` - Responsible for managing the REST interface to the business logic implemented in [ServiceLogic](#servicelogic)
-2. [ServiceLogic](#servicelogic) `(Service)` - Contains business logic implementations
-3. [Repository](#repository) `(Repository)` - This component is dedicated to handling entity manipulation operations by leveraging the power of [CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql).
+1. `Controller` - Responsible for managing the REST interface to the core business logic implemented in `ServiceLogic`.
+2. `Service` - Contains business logic implementations
+3. `Repository` - This component is dedicated to handling entity manipulation operations by leveraging the power of [CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql).
 
 `Controller-Service-Repository` suggested folder structure
 
 ![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/cds-ts-dispatcher/architecture_folder_structure.png?raw=true) <= expanded folders => ![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/cds-ts-dispatcher/architecture_folder_structure_expanded.png?raw=true)
 
-## `[Optional]` - BaseRepository
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-Simplify Entity Manipulation with CDS-QL: [BaseRepository](https://github.com/dxfrontier/cds-ts-repository)
-
-It offers a simplified interface for common database actions such as `create(), createMany(), getAll(), find(), update(), updateLocaleTexts(), getLocaleTexts(), count(), exists(), delete(), deleteMany() ... ` and many other actions.
+A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Usage
 
-### CDSDispatcher
+### Option 1 : Using `BaseRepository` with Standard SAP CDS-TS
 
-**CDSDispatcher**(`entities` : `Constructable[]`)
+This guide explains how to use the BaseRepository with the Standard SAP CDS-TS, allowing you to work with your entities without the need for the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher).
 
 The `CDSDispatcher` constructor allows you to create an instance for dispatching and managing entities.
 
@@ -201,7 +101,7 @@ The `CDSDispatcher` constructor allows you to create an instance for dispatching
 `Example`
 
 ```typescript
-import { CDSDispatcher } from '@dxfrontier/cds-ts-dispatcher';
+import { CDSDispatcher } from 'cds-ts-dispatcher';
 
 module.exports = new CDSDispatcher([BookHandler, ReviewHandler, UnboundActionsHandler, ...]).initialize();
 ```
@@ -229,7 +129,7 @@ The `@EntityHandler` decorator is utilized at the `class-level` to annotate a cl
 `Example`
 
 ```typescript
-import { EntityHandler } from '@dxfrontier/cds-ts-dispatcher';
+import { EntityHandler } from 'cds-ts-dispatcher';
 import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
 
 @EntityHandler(MyEntity)
@@ -255,7 +155,7 @@ When applying `ServiceLogic` decorator, the class becomes eligible to be used wi
 `Example`
 
 ```typescript
-import { ServiceLogic } from '@dxfrontier/cds-ts-dispatcher';
+import { ServiceLogic } from 'cds-ts-dispatcher';
 
 @ServiceLogic()
 class CustomerService {
@@ -275,7 +175,7 @@ The `@Repository` decorator is utilized as a `class-level` annotation that desig
 When applying `Repository` decorator, the class becomes eligible to be used with [Inject](#inject) decorator for `Dependency injection`
 
 ```typescript
-import { Repository } from '@dxfrontier/cds-ts-dispatcher';
+import { Repository } from 'cds-ts-dispatcher';
 
 @Repository()
 class CustomerRepository {
@@ -302,7 +202,7 @@ To get started, refer to the official documentation **[BaseRepository](https://g
 `Example`
 
 ```typescript
-import { Repository } from '@dxfrontier/cds-ts-dispatcher';
+import { Repository } from 'cds-ts-dispatcher';
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
 
@@ -335,7 +235,7 @@ The `@UnboundActions` decorator is utilized at the `class-level` to annotate a `
 `Example`
 
 ```typescript
-import { UnboundActions } from '@dxfrontier/cds-ts-dispatcher';
+import { UnboundActions } from 'cds-ts-dispatcher';
 
 @UnboundActions()
 class UnboundActionsHandler {
@@ -348,73 +248,9 @@ class UnboundActionsHandler {
 `Imported it in the CDSDispatcher`
 
 ```typescript
-import { CDSDispatcher } from '@dxfrontier/cds-ts-dispatcher';
+import { CDSDispatcher } from 'cds-ts-dispatcher';
 
 module.exports = new CDSDispatcher([UnboundActionsHandler, ...]).initialize();
-```
-
-> [!NOTE]
-> The reason behind introducing a distinct decorator for `Unbound actions` stems from the fact that these actions are not associated with any specific `Entity` but instead these actions belongs to the Service itself.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### Fields
-
-##### Inject
-
-**@Inject**(`serviceIdentifier: ServiceIdentifierOrFunc<unknown>`)
-
-The `@Inject` decorator is utilized as a `field-level` decorator and allows you to inject dependencies into your classes.
-
-`Parameters`
-
-- `serviceIdentifier(ServiceIdentifierOrFunc<unknown>)`: A Class representing the service to inject.
-
-`Example`
-
-```typescript
-import { Service } from "@sap/cds";
-
-import { EntityHandler, Inject, ServiceHelper } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@EntityHandler(MyEntity)
-class CustomerHandler {
-  ...
-  @Inject(CustomerService) private customerService: CustomerService
-  @Inject(ServiceHelper.SRV) private srv: Service
-  ...
-  constructor() {}
-  ...
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-##### Inject SRV
-
-**@Inject**(`ServiceHelper.SRV`) `private srv: CdsService`
-
-This specialized `@Inject` can be used as a `constant` in `@ServiceLogic, @Repository, @EntityHandler and @UnboundActions` classes, It can be accessed trough `this.srv` and contains the `CDS srv` for further enhancements.
-
-`Example`
-
-```typescript
-import { Service } from "@sap/cds";
-import { EntityHandler, Inject, ServiceHelper } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@EntityHandler(MyEntity)
-// OR @ServiceLogic()
-// OR @Repository()
-class CustomerHandler { // OR CustomerService, CustomerRepository
-  ...
-  @Inject(ServiceHelper.SRV) private srv: Service
-  ...
-  constructor() {}
-  ...
 ```
 
 > [!NOTE]
@@ -424,886 +260,731 @@ class CustomerHandler { // OR CustomerService, CustomerRepository
 
 #### Methods
 
-##### Before
+##### create
 
-Use `@BeforeCreate(), @BeforeRead(), @BeforeUpdate(), @BeforeDelete()` to register handlers to run before `.on` handlers, frequently used for `validating user input.`
+`(method) this.create(entry: KeyValueType<T>) : Promise<InsertResult<T>>`.
 
-The handlers receive one argument:
-
-- `req` of type `TypedRequest`
-
-See also the official SAP JS **[CDS-Before](https://cap.cloud.sap/docs/node.js/core-services#srv-before-request) event**
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### BeforeCreate
-
-**@BeforeCreate**()
-
-It is important to note that decorator `@BeforeCreate()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { BeforeCreate, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@BeforeCreate()
-public async beforeCreateMethod(req: TypedRequest<MyEntity>) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.before('CREATE', MyEntity, async (req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### BeforeRead
-
-**@BeforeRead**()
-
-It is important to note that decorator `@BeforeRead()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { BeforeRead, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@BeforeRead()
-public async beforeReadMethod(req: TypedRequest<MyEntity>) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.before('READ', MyEntity, async (req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### BeforeUpdate
-
-**@BeforeUpdate**()
-
-It is important to note that decorator `@BeforeUpdate()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { BeforeUpdate, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@BeforeUpdate()
-public async beforeUpdateMethod(req: TypedRequest<MyEntity>) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.before('UPDATE', MyEntity, async (req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### BeforeDelete
-
-**@BeforeDelete**()
-
-It is important to note that decorator `@BeforeDelete()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { BeforeDelete, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@BeforeDelete()
-public async beforeDeleteMethod(req: TypedRequest<MyEntity>) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.before('DELETE', MyEntity, async (req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-##### After
-
-Use `@AfterCreate(), @AfterRead(), @AfterUpdate(), @AfterDelete()` register handlers to run after the `.on` handlers, frequently used to `enrich outbound data.` The handlers receive two arguments:
-
-The results from the preceding `.on` handler, with the following types:
-
-- `results` (of type `MyEntity[]`) for `@AfterRead`
-- `results` (of type `MyEntity`) for `@AfterUpdate` and `@AfterCreate`
-- `deleted` (of type `boolean`) for `@AfterDelete`
-
-- `req` of type `TypedRequest`
-
-See also the official SAP JS **[CDS-After](https://cap.cloud.sap/docs/node.js/core-services#srv-after-request) event**
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### AfterCreate
-
-**@AfterCreate**()
-
-It is important to note that decorator `@AfterCreate()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { AfterCreate, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@AfterCreate()
-public async afterCreateMethod(results: MyEntity, req: TypedRequest<MyEntity>) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.after('CREATE', MyEntity, async (req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### AfterRead
-
-**@AfterRead**()
-
-`Example`
-
-It is important to note that decorator `@AfterRead()` will be triggered based on the [EntityHandler](#entityhandler) `argument` `MyEntity`
-
-```typescript
-import { AfterRead, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@AfterRead()
-public async afterReadMethod(results: MyEntity[], req: TypedRequest<MyEntity>) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.after('READ', MyEntity, async (req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### AfterUpdate
-
-**@AfterUpdate**()
-
-It is important to note that decorator `@AfterUpdate()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { AfterUpdate, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@AfterUpdate()
-public async afterUpdateMethod(result: MyEntity, req: TypedRequest<MyEntity>) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.after('UPDATE', MyEntity, async (result, req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### AfterDelete
-
-**@AfterDelete**()
-
-It is important to note that decorator `@AfterDelete()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { Request } from "@sap/cds";
-import { AfterDelete } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@AfterDelete()
-public async afterDeleteMethod(deleted: boolean, req: Request) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.after('DELETE', MyEntity, async (deleted, req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-##### On
-
-Use `@OnCreate(), @OnRead(), @OnUpdate(), @OnDelete(), OnAction(), @OnFunction(), @OnBoundAction(), @OnBoundFunction()` handlers to fulfill requests, e.g. by reading/writing data from/to databases handlers.
-
-The handlers receive one argument:
-
-- `req` of type `TypedRequest`
-- `next` of type `Function`
-
-See also the official SAP JS **[CDS-On](https://cap.cloud.sap/docs/node.js/core-services#srv-on-request) event**
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnCreate
-
-**@OnCreate**()
-
-It is important to note that decorator `@OnCreate()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { OnCreate, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnCreate()
-public async onCreateMethod(req: TypedRequest<MyEntity>, next: Function) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on('CREATE', MyEntity, async (req, next) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnRead
-
-**@OnRead**()
-
-It is important to note that decorator `@OnRead()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { OnRead, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnRead()
-public async onReadMethod(req: TypedRequest<MyEntity>, next: Function) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on('READ', MyEntity, async (req, next) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnUpdate
-
-**@OnUpdate**()
-
-It is important to note that decorator `@OnUpdate()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-
-import { OnUpdate, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnUpdate()
-public async onUpdateMethod(req: TypedRequest<MyEntity>, next: Function) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on('UPDATE', MyEntity, async (req, next) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnDelete
-
-**@OnDelete**()
-
-It is important to note that decorator `@OnDelete()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { OnDelete, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnDelete()
-public async onDeleteMethod(req: TypedRequest<MyEntity>, next: Function) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on('DELETE', MyEntity, async (req, next) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnAction
-
-**@OnAction**(`name` : CdsAction)
+This method allows you to create a new entry in the database.
 
 `Parameters`
 
-- `name (CdsAction)` : Representing the `CDS action` defined in the `CDS file`, generated using the [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+- `entry (Object)`: An object representing the entry to be created. The object should match the structure expected by `MyEntity`
+
+`Return`
+
+- `Promise<InsertResult<T>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
 
 `Example`
 
-```typescript
-
-import { OnAction, ActionRequest, ActionReturn } from "@dxfrontier/cds-ts-dispatcher";
-import { AnAction } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnAction(AnAction)
-public async onActionMethod(req: ActionRequest<typeof AnAction>, next: Function): ActionReturn<typeof AnAction> {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on(AnAction, async (req, next) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> AnAction was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnFunction
-
-**@OnFunction**(`name` : CdsFunction)
-
-`Parameters`
-
-- `name (CdsFunction)` : Representing the `CDS action` defined in the `CDS file`, generated using the [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-`Example`
-
-```typescript
-import { OnFunction, ActionRequest, ActionReturn } from "@dxfrontier/cds-ts-dispatcher";
-import { AFunction } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnFunction(AFunction)
-public async onFunctionMethod(req: ActionRequest<typeof AFunction>, next: Function): ActionReturn<typeof AFunction> {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on(AFunction, async (req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> AFunction was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnBoundAction
-
-**@OnBoundAction**(`name` : CdsAction)
-
-It is important to note that decorator `@OnBoundAction()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Parameters`
-
-- `name (CdsAction)` : Representing the `CDS action` defined in the `CDS file`, generated using the [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-`Example`
-
-```typescript
-import { OnBoundAction, ActionRequest, ActionReturn } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnBoundAction(MyEntity.actions.AnAction)
-public async onActionMethod(req: ActionRequest<typeof MyEntity.actions.AnAction>, next: Function): ActionReturn<typeof MyEntity.actions.AnAction>
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on(MyEntity.actions.AnAction, MyEntity, async (req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnBoundFunction
-
-**@OnBoundFunction**(`name` : CdsFunction)
-
-It is important to note that decorator `@OnBoundFunction()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Parameters`
-
-- `name (CdsFunction)` : Representing the `CDS action` defined in the `CDS file`, generated using the [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-`Example`
-
-```typescript
-import { OnBoundFunction, ActionRequest, ActionReturn } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnBoundFunction(MyEntity.actions.AFunction)
-public async onFunctionMethod(req: ActionRequest<typeof MyEntity.actions.AFunction>, next: Function): ActionReturn<typeof MyEntity.actions.AFunction> {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on(MyEntity.actions.AFunction, MyEntity, async (req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-##### Fiori draft
-
-Use `@OnNewDraft(), @OnCancelDraft(), @OnEditDraft(), OnSaveDraft()` handlers to support for both, `active and draft entities`.
-
-The handlers receive one argument:
-
-- `req` of type `TypedRequest`
-
-See also the official SAP JS **[CDS-Fiori-draft](https://cap.cloud.sap/docs/node.js/fiori#draft-support)**
-
-###### Draft
-
-**@Draft()**
-
-The `@Draft()` decorator is utilized at the `method-level` to annotate a method that this method and all decorators which are used along with this `Draft()` decorator, will be marked as a `Draft`.
-
-`Important`
-
-When utilizing the `@Draft()` decorator, the `placement of the @Draft() decorator` within your TypeScript class is very important factor to consider. It determines the scope of the `draft` mode within the methods that precede it.
-
-`@Draft` can be used together with the following decorator actions :
-
-- `@BeforeCreate, @BeforeRead, @BeforeUpdate, @BeforeDelete`
-- `@AfterCreate, @AfterRead, @AfterUpdate, @AfterDelete`
-- `@OnBoundAction, @OnBoundFunction`
-
-`Example 1`
-
-```typescript
-import { AfterRead, AfterUpdate, AfterDelete, OnBoundAction, Draft, TypedRequest} from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@AfterUpdate() // Will be marked as draft
-@AfterDelete() // Will be marked as draft
-@AfterRead() // Will be marked as draft
-@Draft() // All methods above '@Draft()' will be triggered on 'MyEntity.drafts'
-public async draftMethod(results: MyEntity[], req: TypedRequest<MyEntity>) {
-  // ...
-}
-
-@OnBoundAction(MyEntity.actions.AnAction)
-@Draft()
-public async onActionMethod(req: ActionRequest<typeof MyEntity.actions.AnAction>, next: Function): ActionReturn<typeof MyEntity.actions.AnAction>
-  // ...
-}
-
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.after(['UPDATE, CREATE, READ'], MyEntity.drafts, async (req) => {
-  // ...
-});
-
-this.on(MyEntity.actions.AnAction, MyEntity.drafts, async (req, next) => {
-  // ...
-});
-```
-
-`Example 2`
-
-When using `@Draft()` in-between other `Decorators`. The above decorators of the `@Draft()` will be placed `only as Draft`.
-The rest `Decorators` below `@Draft()` will be work on active entities.
-
-```typescript
-import { AfterCreate, AfterUpdate, AfterRead, OnBoundAction, Draft, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@AfterUpdate() // Marked as a draft
-@Draft() // Draft is in-between 'after', this means that only '@AfterUpdate' will me marked as draft
-@AfterCreate() // Will work on active entity
-@AfterRead() // Will work on active entity
-public async draftMethodAndNonDraft(results: MyEntity[], req: TypedRequest<MyEntity>) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-// FOR DRAFT
-this.after('UPDATE', MyEntity.drafts, async (results, req) => {
-  // ...
-});
-
-// FOR ACTIVE ENTITIES
-this.after(['CREATE', 'READ'], MyEntity, async (results, req) => {
-  // ...
-});
-```
-
-`Example 3`
-
-`Alternative to all above is to split between` `@Draft` and `Active entities`.
-
-```typescript
-import { BeforeUpdate, BeforeCreate, Draft, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@BeforeUpdate()
-@BeforeCreate()
-@Draft() // All above decorators will be marked AS DRAFT
-public async draftMethod(req: TypedRequest<MyEntity>) {
-  // ...
-}
-
-// All decorators will work only FOR ACTIVE ENTITIES
-@BeforeUpdate()
-@BeforeCreate()
-public async methodWithoutDraft(req: TypedRequest<MyEntity>) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-// FOR DRAFT
-this.before(['UPDATE', 'CREATE'], MyEntity.drafts, async (req) => {
-  // ...
-});
-
-// FOR ACTIVE ENTITIES
-this.before(['UPDATE', 'CREATE'], MyEntity, async (req) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnNewDraft
-
-**@OnNewDraft()**
-
-This decorator will be triggered when `a new draft is created`.
-
-It is important to note that decorator `@OnNewDraft()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { OnNewDraft, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnNewDraft()
-public async onNewDraft(req: TypedRequest<MyEntity>, next: Function) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on('NEW', MyEntity.drafts, async (req, next) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnCancelDraft
-
-**@OnCancelDraft()**
-
-This decorator will be triggered when `a draft is cancelled`.
-
-It is important to note that decorator `@OnCancelDraft()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { OnCancelDraft, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnCancelDraft()
-public async onCancelDraft(req: TypedRequest<MyEntity>, next: Function) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on('CANCEL', MyEntity.drafts, async (req, next) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnEditDraft
-
-**@OnEditDraft()**
-
-This decorator will be triggered when `a new draft is created from an active instance`
-
-It is important to note that decorator `@OnEditDraft()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-import { OnEditDraft, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnEditDraft()
-public async onEditDraft(req: TypedRequest<MyEntity>, next: Function) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on('EDIT', MyEntity, async (req, next) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-###### OnSaveDraft
-
-**@OnSaveDraft()**
-
-This decorator will be triggered when `the active entity is changed`
-
-It is important to note that decorator `@OnSaveDraft()` will be triggered based on the [EntityHandler](#entityhandler) `argument` => `MyEntity`
-
-`Example`
-
-```typescript
-
-import { OnSaveDraft, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@OnSaveDraft()
-public async onSaveDraft(req: TypedRequest<MyEntity>, next: Function) {
-  // ...
-}
-```
-
-`Equivalent to 'JS'`
-
-```typescript
-this.on('SAVE', MyEntity, async (req, next) => {
-  // ...
-});
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-##### SingleInstanceCapable
-
-**@SingleInstanceCapable()**
-
-The `@SingleInstanceCapable()` decorator is utilized at the `method-level` to annotate a method that all decorators which are used along with this `@SingleInstanceCapable()` decorator, will handle also single `instance Request`.
-
-###### Usage
-
-When `@SingleInstanceCapable` is applied to a method, a `3td parameter` should be added for example : `isSingleInstance: boolean`.
-
-- This parameter allows you to differentiate between `single instance requests` and `entity set requests` and adjust the behavior accordingly.
-
-When utilizing the `@SingleInstanceCapable()` decorator, the `placement of the @SingleInstanceCapable() decorator` within your TypeScript class is very important factor to consider. It defines the scope of the `single instance` mode within the methods that precede it.
-
-`@SingleInstanceCapable` can be used together with the following decorator actions :
-
-- `@AfterRead`
-- `@BeforeRead`
-- `@OnRead`
-
-`Example 1` : Handling both single instance and entity set requests
-
-All methods `AfterRead() 'BeforeRead()', 'OnRead()'` will be executed on single instance when `isSingleInstance => true` request and `isSingleInstance => false` when entity set is requested.
-
-- Example single request : http://localhost:4004/odata/v4/main/ `MyEntity(ID=2f12d711-b09e-4b57-b035-2cbd0a023a09)`
-- Example entity set request : http://localhost:4004/odata/v4/main/ `MyEntity`
-
-```typescript
-
-import { AfterRead, SingleInstanceCapable, TypedRequest } from "@dxfrontier/cds-ts-dispatcher";
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@AfterRead() // Will handle single instance and entity set
-@SingleInstanceCapable() // All methods above '@SingleInstanceCapable()' will be triggered when single instance is requested and entity set
-public async singeInstanceMethodAndEntitySet(results : MyEntity[], req: TypedRequest<MyEntity>, isSingleInstance: boolean) {
-  if(isSingleInstance) {
-    return this.customerService.handleSingleInstance(req)
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
   }
 
-  return this.customerService.handleEntitySet(req)
+  public async aMethod() {
+    const createdInstance = await this.create({
+      name: 'Customer 1',
+      description : 'Customer 1 description'
+    })
+
+  }
+  ...
 }
 ```
 
-`Example 2` : Differing behavior for single instance and entity set requests
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-Method `AfterRead()` will be executed on single instance request and entity set
-Method `BeforeRead()` will be executed only on entity set request.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-- Example single request : http://localhost:4004/odata/v4/main/ `MyEntity(ID=2f12d711-b09e-4b57-b035-2cbd0a023a09)`
-- Example entity set request : http://localhost:4004/odata/v4/main/ `MyEntity`
+##### createMany
 
-```typescript
-@AfterRead() //  Will handle single instance and entity set
-@SingleInstanceCapable() // All methods above '@SingleInstanceCapable()' will be triggered when single instance is requested and entity set
-@BeforeRead() // Will handle only entity set
-public async singeInstanceMethodAndEntitySet(results : MyEntity[], req: TypedRequest<MyEntity>, isSingleInstance: boolean) {
-  if(isSingleInstance) {
-    return this.customerService.handleSingleInstance(req)
+`(method) this.createMany(entries: Array<KeyValueType<T>>) : Promise<InsertResult<T>>`.
+
+This method allows you to add multiple entries in the database.
+
+`Parameters`
+
+- `entries (Array)`: An array of objects representing the entries to be created. Each object should match the structure expected by `MyEntity`.
+
+`Return`
+
+- `Promise<InsertResult<T>>`: This method returns a `Promise` that resolves when the insertion operation is completed successfully.
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
   }
 
-  return this.customerService.handleEntitySet(req)
+  public async aMethod() {
+    const createdInstance = await this.createMany([
+    {
+      name: 'Customer 1',
+      description : 'Customer 1 description'
+    },
+    {
+      name: 'Customer 2',
+      description : 'Customer 2 description'
+    }])
+
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### getAll
+
+`(method) this.getAll(): Promise<T[]>`
+
+This method will return all database `entries`.
+
+`Return`
+
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const results = await this.getAll()
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### getDistinctColumns
+
+`(method) this.getDistinctColumns(columns: Array<keyof T>): Promise<T[]>`
+
+This method will return all database `entries`.
+
+`Parameters`
+
+- `columns` `(Array)`: An array of column names to retrieve distinct records for. Each column name should be of a type that matches the entity's schema.
+
+`Return`
+
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const results = await this.getDistinctColumns(['currency_code', 'ID', 'name']);
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### getAllAndLimit
+
+`(method) this.getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[]>`
+
+This method allows you to find and retrieve a `list of items with optional pagination.`
+
+`Parameters`
+
+- `props` `(Object)`: An object containing the following properties:
+  - `limit` `(number)`: The maximum number of items to retrieve.
+  - `skip?` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
+
+`Return`
+
+- `Promise<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
+
+`Example 1` : Retrieve the first 10 items
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const results = await this.getAllAndLimit({limit : 10})
+  }
+  ...
+}
+```
+
+`Example 2` : Retrieve items starting from the 20th item, limit to 5 items
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const resultsWithSkip = await this.getAllAndLimit({ limit: 5, skip: 20 })
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### getLocaleTexts
+
+`(method) this.getLocaleTexts(): Promise<T[]>`
+
+The `getLocaleTexts` method is designed to retrieve a list of items with localized text.
+
+`Return`
+
+- `Promise<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const results = await this.getLocaleTexts()
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### find
+
+`find(keys: KeyValueType<T>): Promise<T[]>`
+
+The method allows you to find and `retrieve entries` from the database that match the `specified keys`.
+
+`Parameters`
+
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+
+`Return`
+
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const results = await this.find({ name : 'Customer', description : 'description'})
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### findOne
+
+`findOne(keys: KeyValueType<T>): Promise<T>`
+
+The method allows you to find and `retrieve a single entry` from the database that matches the specified keys.
+
+`Parameters`
+
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+
+`Return`
+
+- `Promise<T>`: This method returns a Promise with an `single entry of type T`, where `T` is `MyEntity`.
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const results = await this.findOne({ name : 'Customer', description : 'description'})
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### findBuilder
+
+`(method) this.findBuilder(keys: KeyValueType<T>): SelectBuilder<T>`
+
+The method allows you to create a `SelectBuilder` instance for building database `SELECT` queries based on specified keys.
+
+`Parameters`
+
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+
+`Return`
+
+- `SelectBuilder<T>`: A `SelectBuilder` instance that provides access to the following methods for constructing a `SELECT`:
+  - [orderAsc](#orderasc)
+  - [orderDesc](#orderdesc)
+  - [groupBy](#groupby)
+  - [limit](#limit)
+  - [getExpand](#getexpand)
+  - [execute](#execute)
+
+###### orderAsc
+
+To order the `ASC` selected columns, you can use the `orderAsc` methods. Pass an array of column names to specify the order.
+
+`Parameters`
+
+- `columns (Array)` : An array of name of the columns to order by.
+
+```ts
+const results = await this.findBuilder({
+  name: 'A company name',
+})
+  .orderAsc(['name'])
+  .execute();
+```
+
+###### orderDesc
+
+To order the `DESC` selected columns, you can use the `orderDesc` methods. Pass an array of column names to specify the order.
+
+`Parameters`
+
+- `columns (Array)` : An array of name of the columns to order by.
+
+```ts
+const results = await this.findBuilder({
+  name: 'A company name',
+})
+  .orderDesc(['name'])
+  .execute();
+```
+
+###### groupBy
+
+If you want to group the selected columns, use the groupBy method. Pass an array of column names to group by.
+
+`Parameters`
+
+- `columns (Array)` : An array of name of the columns to group by.
+
+```ts
+const results = await this.findBuilder({
+  name: 'A company name',
+})
+  .groupBy(['name'])
+  .execute();
+```
+
+###### limit
+
+This method allows retrieve a list of items with optional pagination.
+
+`Parameters`
+
+- `props` `(Object)`: An object containing the following properties:
+  - `limit` `(number)`: The maximum number of items to retrieve.
+  - `skip` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
+
+```ts
+const results = await this.findBuilder({
+  name: 'A company name',
+})
+  .limit({ limit: 1 })
+  .execute();
+```
+
+###### getExpand
+
+You can specify which columns you want to retrieve from the database using the getExpand method. It also allows you to expand associated entities.
+
+`Parameters`
+
+- `associations` `(optional, string[])`: The optional columns to expand, if `associations` argument is provided then only the specified `associations / compositions` will be fetched.
+  - If `NO` `associations argument` provided then the method will fetch all `associations / compositions` present on the entity.
+
+```ts
+// Expand only 'orders' association
+const results = await this.findBuilder({
+  name: 'A company name',
+})
+  .getExpand(['orders'])
+  .execute();
+
+// OR expand all Associations and Compositions
+const resultsAndAllExpandedEntities = await this.findBuilder({
+  name: 'A company name',
+})
+  .getExpand()
+  .execute();
+```
+
+###### execute
+
+Finally, to execute the constructed query and retrieve the results as an array of objects, use the execute method. It returns a promise that resolves to the query result.
+
+```ts
+const resultsAndAllExpandedEntities = await this.findBuilder({
+  name: 'A company name',
+}).execute();
+```
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+
+    const results = await this.findBuilder({ name: 'A company name' }).orderAsc(['name']).limit({ limit: 1 }).getExpand().execute()
+
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### update
+
+`update(keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
+
+The method allows you to update entries in the database that match the specified keys with new values for specific fields.
+
+`Parameters`
+
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `fieldsToUpdate (Object)`: An object representing the fields and their updated values for the matching entries.
+
+`Return`
+
+- `Promise<boolean>`: This method returns a `Promise of true / false`
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+     const updated = await this.update(
+      { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
+      { name: 'a new name', 'description' : 'a new description' })
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### updateLocaleTexts
+
+`updateLocaleTexts(localeCodeKey: Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
+
+The method allows you to update entries in the database that match the specified `localeCodeKey` with new values for specific fields.
+
+`Parameters`
+
+- `localeCodeKey (string)`: A string representing the language code to filter the entries, example `'en', 'de', 'fr', 'ro' ...`
+- `fieldsToUpdate (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+
+`Return`
+
+- `Promise<boolean>`: This method returns :
+  - `true` if language was updated.
+  - `false` if language was not updated.
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+     const updated = await this.updateLocaleTexts('de', { name: 'ein neuer Name'})
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### delete
+
+`delete(keys: KeyValueType<T>): Promise<boolean>`
+
+The method allows you to delete entries from the database that match the specified keys.
+
+`Parameters`
+
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+
+`Return`
+
+- `Promise<boolean>`: This method returns :
+  - `true` if item was deleted.
+  - `false` if item was not deleted.
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const deleted1 = await this.delete({ name : 'Customer'})
+    const deleted2 = await this.delete({ ID : '2f12d711-b09e-4b57-b035-2cbd0a02ba19'})
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### deleteMany
+
+`deleteMany(entries: Array<KeyValueType<T>>): Promise<boolean>`
+
+The method allows you to delete `multiple entries` from the database that match the specified keys.
+
+`Parameters`
+
+- `entries (Array[Object])` - An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+
+`Return`
+
+- `Promise<boolean>`: This method returns :
+  - `true` if all instances where successfully deleted.
+  - `false` if at least `one` instance was not deleted.
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const deleted = await this.deleteMany([
+      { ID : '2f12d711-b09e-4b57-b035-2cbd0a02ba19'},
+      { ID : 'a51ab5c8-f366-460f-8f28-0eda2e41d6db'}
+    ])
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### exists
+
+`exists(keys: KeyValueType<T>): Promise<boolean>`
+
+The method allows you to check whether entries exist in the database that match the specified fields.
+
+`Parameters`
+
+- `keys (Object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+
+`Return`
+
+- `Promise<boolean>`: This method returns :
+  - `true` if item exists in the database.
+  - `false` if the item does not exists in the database.
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+     const exists = await this.exists({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba09' })
+  }
+  ...
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### count
+
+`count(): Promise<number>`
+
+The method allows to count all items from the database.
+
+`Return`
+
+- `Promise<number>`: This method returns the `count of items from MyEntity`
+
+`Example`
+
+```ts
+
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+     const numberOfItemsInMyEntity = await this.count()
+  }
+  ...
 }
 ```
 
@@ -1314,7 +995,7 @@ public async singeInstanceMethodAndEntitySet(results : MyEntity[], req: TypedReq
 
 ## Examples
 
-Find a collection of samples for the [CDS-TS-Dispatcher-Samples](https://github.com/dxfrontier/cds-ts-samples)
+Find here a collection of samples for the [CDS-TS-Dispatcher-Samples](https://github.com/dxfrontier/cds-ts-samples)
 
 ## Contributing
 
