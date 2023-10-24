@@ -85,7 +85,8 @@
     "**/*.{ts, tsx}": [
       "npm run eslint:fix",
       "npm run prettier:fix",
-      "npm run test --bail --findRelatedTests ./test"
+      "npm run test --bail --findRelatedTests ./test",
+      "npm run build"
     ]
   }
 }

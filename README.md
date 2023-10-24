@@ -41,6 +41,7 @@ The goal of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **BaseReposi
         - [deleteMany](#deletemany)
         - [exists](#exists)
         - [count](#count)
+  - [Examples](#examples)
   - [Contributing](#contributing)
   - [License](#license)
   - [Authors](#authors)
@@ -952,6 +953,10 @@ class MyRepository extends BaseRepository<MyEntity> {
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Examples
+
+Find here a collection of samples for the [CDS-TS-Dispatcher & CDS-TS-Repository](https://github.com/dxfrontier/cds-ts-samples)
 
 ## Contributing
 
