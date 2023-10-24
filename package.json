@@ -26,9 +26,9 @@
     
     "prepare": "husky install",
     
-    "build": "npm run clean:build && echo 'build cds-ts-dispatcher...' && tsup",
+    "build": "tsup",
     
-    "clean:build": "echo 'Clean dist folder' && npx rimraf ./dist/{*.js,*.map,*.ts,*.mts,*.mjs}"
+    "clean:build": "npx rimraf ./dist/{*.js,*.map,*.ts,*.mts,*.mjs}"
   },
   "dependencies": {
     "@sap/cds": "^7.3.0"
@@ -85,8 +85,7 @@
     "**/*.{ts, tsx}": [
       "npm run eslint:fix",
       "npm run prettier:fix",
-      "npm run test --bail --findRelatedTests ./test",
-      "npm run build"
+      "npm run test --bail --findRelatedTests ./test"
     ]
   }
 }
