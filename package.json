@@ -2,22 +2,33 @@
   "name": "@dxfrontier/cds-ts-repository",
   "version": "0.1.0",
   "description": "The goal of SAP CAP CDS-QL BaseRepository is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the database like .create(), .getAll(), find() ...",
-  "main": "lib/index.ts",
-  "directories": {
-    "lib": "lib"
-  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "./dist"
+  ],
   "workspaces": [
     "./test/bookshop"
   ],
   "scripts": {
     "eslint": "npx eslint .",
     "eslint:fix": "npx eslint . --fix",
+
     "prettier": "npx prettier . --check",
     "prettier:fix": "npx prettier . --write",
+    
     "check": "npm run eslint && npm run prettier",
+    
     "fix": "npm run eslint:fix && npm run prettier:fix",
+    
     "test": "npm run build:entities --prefix test/bookshop && jest",
-    "prepare": "husky install"
+    
+    "prepare": "husky install",
+    
+    "build": "echo 'build cds-ts-dispatcher...' && tsup",
+    
+    "clean:build": "echo 'Clean dist folder' && npx rimraf ./dist/{*.js,*.map,*.ts,*.mts,*.mjs}"
   },
   "dependencies": {
     "@sap/cds": "^7.3.0"
@@ -38,7 +49,8 @@
     "lint-staged": "^15.0.1",
     "prettier": "3.0.3",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "tsup": "^7.2.0"
   },
   "repository": {
     "type": "git",
@@ -73,7 +85,8 @@
     "**/*.{ts, tsx}": [
       "npx eslint . --fix",
       "npx prettier . --write",
-      "npx jest --findRelatedTests --bail ./test/**"
+      "npx jest --findRelatedTests --bail ./test/**",
+      "npm run build"
     ]
   }
 }
