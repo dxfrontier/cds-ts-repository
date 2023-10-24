@@ -1,6 +1,6 @@
 import path from 'path';
 import cds from '@sap/cds';
-import { BaseRepository } from '../../lib/BaseRepository';
+import { BaseRepository } from '../../dist';
 import { type Book } from '../bookshop/srv/util/types/entities/sap/capire/bookshop';
 
 export const connectTest = (dirName: string, projectName: string) => {
