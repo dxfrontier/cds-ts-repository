@@ -19,28 +19,26 @@ The goal of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **BaseReposi
       - [Step 1: Create a HandleClass](#step-1-create-a-handleclass)
       - [Step 2 : Integrate HandleClass](#step-2--integrate-handleclass)
     - [Option 2 : Using `BaseRepository` with CDS-TS-Dispatcher](#option-2--using-baserepository-with-cds-ts-dispatcher)
-      - [Methods](#methods)
-        - [create](#create)
-        - [createMany](#createmany)
-        - [getAll](#getall)
-        - [getDistinctColumns](#getdistinctcolumns)
-        - [getAllAndLimit](#getallandlimit)
-        - [getLocaleTexts](#getlocaletexts)
-        - [find](#find)
-        - [findOne](#findone)
-        - [findBuilder](#findbuilder)
-          - [orderAsc](#orderasc)
-          - [orderDesc](#orderdesc)
-          - [groupBy](#groupby)
-          - [limit](#limit)
-          - [getExpand](#getexpand)
-          - [execute](#execute)
-        - [update](#update)
-        - [updateLocaleTexts](#updatelocaletexts)
-        - [delete](#delete)
-        - [deleteMany](#deletemany)
-        - [exists](#exists)
-        - [count](#count)
+      - [createMany](#createmany)
+      - [getAll](#getall)
+      - [getDistinctColumns](#getdistinctcolumns)
+      - [getAllAndLimit](#getallandlimit)
+      - [getLocaleTexts](#getlocaletexts)
+      - [find](#find)
+      - [findOne](#findone)
+      - [findBuilder](#findbuilder)
+        - [orderAsc](#orderasc)
+        - [orderDesc](#orderdesc)
+        - [groupBy](#groupby)
+        - [limit](#limit)
+        - [getExpand](#getexpand)
+        - [execute](#execute)
+      - [update](#update)
+      - [updateLocaleTexts](#updatelocaletexts)
+      - [delete](#delete)
+      - [deleteMany](#deletemany)
+      - [exists](#exists)
+      - [count](#count)
   - [Examples](#examples)
   - [Contributing](#contributing)
   - [License](#license)
@@ -178,10 +176,11 @@ Start by creating a `MyRepository` class, which will extend the `BaseRepository<
 
 `Example`
 
-```ts
+````ts
 
 import { BaseRepository } from 'cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+
 
 class MyRepository extends BaseRepository<MyEntity> {
   ...
@@ -212,16 +211,6 @@ class MyRepository extends BaseRepository<MyEntity> {
   ...
 }
 
-<<<<<<< HEAD
-`Imported it in the CDSDispatcher`
-
-```typescript
-import { CDSDispatcher } from 'cds-ts-dispatcher';
-
-module.exports = new CDSDispatcher([UnboundActionsHandler, ...]).initialize();
-=======
->>>>>>> parent of 9619db2 (README changes)
-```
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
@@ -266,7 +255,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
   ...
 }
-```
+````
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
