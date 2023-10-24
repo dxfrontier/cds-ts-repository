@@ -51,7 +51,7 @@ The goal of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **BaseReposi
 ### Install CDS-TS-Repository
 
 ```bash
-npm install cds-ts-respository
+npm install @dxfrontier/cds-ts-respository
 ```
 
 ### Generate CDS Typed entities
