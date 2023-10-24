@@ -90,167 +90,137 @@ A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher]
 
 This guide explains how to use the BaseRepository with the Standard SAP CDS-TS, allowing you to work with your entities without the need for the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher).
 
-The `CDSDispatcher` constructor allows you to create an instance for dispatching and managing entities.
+<!-- If you want to use `BaseRepository` with the `SAP CDS-TS` without using the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher) the following steps needs to be performed : -->
 
-`CDSDispatcher` class will initialize all **[Entity handler](#entityhandler)(s)** and all of their `Dependencies` : [Services](#servicelogic), [Repositories](#repository).
+#### Step 1: Create a HandleClass
 
-`Parameters`
+Start by creating a `HandleClass`, which will extend the `BaseRepository<T>` to handle operations for your entity. Here's an example of how to set it up:
 
-- `entities (Array)`: An array of **[Entity handler](#entityhandler)(s)** (Constructable) that represent the different types of entities in the CDS.
+`Example` HandleClass
 
-`Example`
+```ts
 
-```typescript
-import { CDSDispatcher } from 'cds-ts-dispatcher';
+import { Request } from '@sap/cap';
 
-module.exports = new CDSDispatcher([BookHandler, ReviewHandler, UnboundActionsHandler, ...]).initialize();
-```
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
-`Visual image`
+class HandleClass extends BaseRepository<MyEntity> {
 
-<img src="https://github.com/dxfrontier/markdown-resources/blob/main/cds-ts-dispatcher/usage_cdsDispatcher.png?raw=true">
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Decorators
-
-#### Class
-
-##### EntityHandler
-
-**@EntityHandler**(`entity`: CDSTyperEntity)
-
-The `@EntityHandler` decorator is utilized at the `class-level` to annotate a class with the specific `entity` that will be used in all handlers.
-
-`Parameters`
-
-- `entity (CDSTyperEntity)`: A specialized class generated using the [CDS-Typer](#generate-cds-typed-entities).
-
-`Example`
-
-```typescript
-import { EntityHandler } from 'cds-ts-dispatcher';
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@EntityHandler(MyEntity)
-class CustomerHandler {
-  ...
-  constructor() {}
-  ...
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-##### ServiceLogic
-
-**@ServiceLogic()**
-
-The `@ServiceLogic` decorator is utilized at the `class-level` to annotate a `class` as a specialized class containing only business logic.
-
-When applying `ServiceLogic` decorator, the class becomes eligible to be used with [Inject](#inject) decorator for `Dependency injection`
-
-`Example`
-
-```typescript
-import { ServiceLogic } from 'cds-ts-dispatcher';
-
-@ServiceLogic()
-class CustomerService {
-  ...
-  constructor() {}
-  ...
-```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-##### Repository
-
-**@Repository()**
-
-The `@Repository` decorator is utilized as a `class-level` annotation that designates a particular `class` as a specialized `Repository`.
-
-When applying `Repository` decorator, the class becomes eligible to be used with [Inject](#inject) decorator for `Dependency injection`
-
-```typescript
-import { Repository } from 'cds-ts-dispatcher';
-
-@Repository()
-class CustomerRepository {
-  ...
-  constructor() {}
-  ...
-```
-
-###### Optional BaseRepository
-
-The **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **[BaseRepository](https://github.com/dxfrontier/cds-ts-repository)** was designed to reduce the boilerplate code required to implement data access layer for persistance entities.
-
-It simplifies the implementation by offering a set of ready-to-use actions for interacting with the database. These actions include:
-
-- `.create()`: Create new records in the database.
-- `.findAll()`: Retrieve all records from the database.
-- `.find()`: Query the database to find specific data.
-- `.delete()`: Remove records from the database.
-- `.exists()`: Check the existence of data in the database.
-- ... and many other actions
-
-To get started, refer to the official documentation **[BaseRepository](https://github.com/dxfrontier/cds-ts-repository)**. Explore the capabilities it offers and enhance your data access layer with ease.
-
-`Example`
-
-```typescript
-import { Repository } from 'cds-ts-dispatcher';
-import { BaseRepository } from '@dxfrontier/cds-ts-repository';
-import { MyEntity } from 'YOUR_CDS_TYPER_ENTITIES_LOCATION';
-
-@Repository()
-class CustomerRepository extends BaseRepository<MyEntity> {
   constructor() {
-    super(MyEntity);
+    super(MyEntity)
   }
 
-  public async aMethod() {
-    const created = this.create(...)
-    const createdMany = this.createMany(...)
-    const updated = this.update(...)
+  public aMethod(req: Request) {
+
+    // BaseRepository predefined methods using the MyEntity entity
+    // All methods parameters will allow only parameters of type MyEntity
+
+    const result1 = await this.create(...)
+    const result2 = await this.createMany(...)
+    const result5 = await this.getAll()
+    const result6 = await this.getAllAndLimit(...)
+    const result7 = await this.find(...)
+    const result8 = await this.findOne(...)
+    const result9 = await this.delete(...)
+    const result10 = await this.update(...)
+    const result11 = await this.updateLocaleTexts(...)
+    const result12 = await this.exists(...)
+    const result13 = await this.count()
+  }
+
+  public anotherMethod(results: MyEntity[], req: Request) {
+    const result123 = await this.exists(...)
+    const result143 = await this.count()
     // ...
+  }
+}
+
+```
+
+#### Step 2 : Integrate HandleClass
+
+Now that you have your `HandleClass`, you can integrate it into your `main service`. Here's an example of how to do this:
+
+1. Create a new private field `private handleClass: HandleClass`
+2. Initalize the handleClass `this.handleClass = new HandleClass();`
+3. Use the handler on the `callback` of the `events` :
+   1. `this.before('READ', MyEntity, (req) => this.HandleClass.aMethod(req))`
+   2. `this.after('READ', MyEntity, (results, req) => this.handleClass.anotherMethod(results, req))`
+
+`Example` main class
+
+```ts
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE';
+
+class MainService extends cds.ApplicationService {
+  private handleClass: HandleClass;
+  // ...
+
+  init() {
+    this.handleClass = new HandleClass();
+    // ...
+
+    this.before('READ', MyEntity, (req) => this.handleClass.aMethod(req));
+    this.after('READ', MyEntity, (results, req) => this.handleClass.anotherMethod(results, req));
+
+    return super.init();
   }
 }
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+### Option 2 : Using `BaseRepository` with [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
 
-##### UnboundActions
-
-**@UnboundActions()**
-
-The `@UnboundActions` decorator is utilized at the `class-level` to annotate a `class` as a specialized class which will be used only for Unbound actions.
+Start by creating a `MyRepository` class, which will extend the `BaseRepository<T>` to handle operations for your entity. Here's an example of how to set it up:
 
 `Example`
 
-```typescript
-import { UnboundActions } from 'cds-ts-dispatcher';
+```ts
 
-@UnboundActions()
-class UnboundActionsHandler {
-  ...
-  constructor() {}
-  // all unbound actions
-  ...
-```
+import { BaseRepository } from 'cds-ts-repository'
+import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
 
+class MyRepository extends BaseRepository<MyEntity> {
+  ...
+  constructor() {
+    super(MyEntity) // a CDS Typer entity type
+  }
+
+  aMethod() {
+
+    // BaseRepository predefined methods using the MyEntity entity
+    // All methods parameters will allow only parameters of type MyEntity
+
+    const result1 = await this.create(...)
+    const result2 = await this.createMany(...)
+    const result5 = await this.getAll()
+    const result6 = await this.getAllAndLimit(...)
+    const result7 = await this.find(...)
+    const result8 = await this.findOne(...)
+    const result9 = await this.delete(...)
+    const result10 = await this.update(...)
+    const result11 = await this.updateLocaleTexts(...)
+    const result12 = await this.exists(...)
+    const result13 = await this.count()
+
+    // ...
+
+  }
+  ...
+}
+
+<<<<<<< HEAD
 `Imported it in the CDSDispatcher`
 
 ```typescript
 import { CDSDispatcher } from 'cds-ts-dispatcher';
 
 module.exports = new CDSDispatcher([UnboundActionsHandler, ...]).initialize();
+=======
+>>>>>>> parent of 9619db2 (README changes)
 ```
 
 > [!NOTE]
@@ -995,7 +965,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ## Examples
 
-Find here a collection of samples for the [CDS-TS-Dispatcher-Samples](https://github.com/dxfrontier/cds-ts-samples)
+Find here a collection of samples for the [CDS-TS-Dispatcher & CDS-TS-Repository](https://github.com/dxfrontier/cds-ts-samples)
 
 ## Contributing
 
