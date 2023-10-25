@@ -26,9 +26,10 @@
     
     "prepare": "husky install",
     
-    "build": "tsup",
+    "clean:build": "echo 'Clean dist folder' && npx rimraf ./dist/{*.js,*.map,*.ts,*.mts,*.mjs}",
+
+    "build": "npm run clean:build && echo 'Build started...' && tsup"
     
-    "clean:build": "npx rimraf ./dist/{*.js,*.map,*.ts,*.mts,*.mjs}"
   },
   "dependencies": {
     "@sap/cds": "^7.3.0"
