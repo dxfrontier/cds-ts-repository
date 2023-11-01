@@ -16,7 +16,6 @@ describe('SELECT', () => {
     it('It should RETURN : distinct columns found in the database', async () => {
       const bookRepository = await getBookRepository(cds);
       const getDistinctColumns = await bookRepository.getDistinctColumns(['currency_code', 'ID']);
-
       expect(getDistinctColumns.length).toBeGreaterThan(0);
     });
   });
@@ -37,7 +36,7 @@ describe('SELECT', () => {
   describe('.getLocaleTexts()', () => {
     test('It should RETURN : all "Locale" languages text', async () => {
       const bookRepository = await getBookRepository(cds);
-      const texts = await bookRepository.getLocaleTexts();
+      const texts = await bookRepository.getLocaleTexts(['descr', 'ID']);
 
       expect(texts).toBeDefined();
       expect(texts.length).toBeGreaterThan(0);
@@ -74,6 +73,7 @@ describe('SELECT', () => {
       it('It should RETURN : .getExpand(["genre"]) should return the original object + expanded "genre" property', async () => {
         const bookRepository = await getBookRepository(cds);
         const expandGenre = await bookRepository.findBuilder({ ID: 201 }).getExpand(['genre']).execute();
+
         const expandAll = await bookRepository.findBuilder({ ID: 201 }).getExpand().execute();
 
         const findOneForExpandAll = await bookRepository.find({ ID: 201 });
