@@ -68,13 +68,13 @@ describe('SELECT', () => {
     });
   });
 
-  describe('.findBuilder()', () => {
+  describe('.builder()', () => {
     describe('======> .getExpand()', () => {
       it('It should RETURN : .getExpand(["genre"]) should return the original object + expanded "genre" property', async () => {
         const bookRepository = await getBookRepository(cds);
-        const expandGenre = await bookRepository.findBuilder({ ID: 201 }).getExpand(['genre']).execute();
+        const expandGenre = await bookRepository.builder().find({ ID: 201 }).getExpand(['genre']).execute();
 
-        const expandAll = await bookRepository.findBuilder({ ID: 201 }).getExpand().execute();
+        const expandAll = await bookRepository.builder().find({ ID: 201 }).getExpand().execute();
 
         const findOneForExpandAll = await bookRepository.find({ ID: 201 });
 
@@ -88,9 +88,10 @@ describe('SELECT', () => {
     describe('======> .orderDesc()', () => {
       it('It should RETURN : .orderDesc(["stock"]) should find all values with "USD" value and make them "DESC" over "stock" property', async () => {
         const bookRepository = await getBookRepository(cds);
-        const getAllByCurrencyCode = await bookRepository.findBuilder({ currency_code: 'USD' }).execute();
+        const getAllByCurrencyCode = await bookRepository.builder().find({ currency_code: 'USD' }).execute();
         const orderItemsDesc = await bookRepository
-          .findBuilder({ currency_code: 'USD' })
+          .builder()
+          .find({ currency_code: 'USD' })
           .orderDesc(['stock'])
           .execute();
 
@@ -102,10 +103,15 @@ describe('SELECT', () => {
       it('It should RETURN : .orderDesc(["stock"]) should find all values with "USD" value and make them "ASC" over "stock" property', async () => {
         const bookRepository = await getBookRepository(cds);
         const orderItemsDesc = await bookRepository
-          .findBuilder({ currency_code: 'USD' })
+          .builder()
+          .find({ currency_code: 'USD' })
           .orderDesc(['stock'])
           .execute();
-        const orderItemsAsc = await bookRepository.findBuilder({ currency_code: 'USD' }).orderAsc(['stock']).execute();
+        const orderItemsAsc = await bookRepository
+          .builder()
+          .find({ currency_code: 'USD' })
+          .orderAsc(['stock'])
+          .execute();
 
         expect(orderItemsAsc[0]).not.toMatchObject(orderItemsDesc[0]);
       });
@@ -114,7 +120,7 @@ describe('SELECT', () => {
     describe('======> .groupBy()', () => {
       it('It should RETURN : groupBy(["author"]) should group by column "author"', async () => {
         const bookRepository = await getBookRepository(cds);
-        const groupBy = await bookRepository.findBuilder({ currency_code: 'USD' }).groupBy(['author']).execute();
+        const groupBy = await bookRepository.builder().find({ currency_code: 'USD' }).groupBy(['author']).execute();
 
         expect(groupBy[0]).toBeDefined();
       });
@@ -123,7 +129,7 @@ describe('SELECT', () => {
     describe('======> .limit()', () => {
       it('It should RETURN : .limit({limit: 1}) should return only 1 item', async () => {
         const bookRepository = await getBookRepository(cds);
-        const limit = await bookRepository.findBuilder({ currency_code: 'GBP' }).limit({ limit: 1 }).execute();
+        const limit = await bookRepository.builder().find({ currency_code: 'GBP' }).limit({ limit: 1 }).execute();
 
         expect(limit).toHaveLength(1);
       });
@@ -132,8 +138,12 @@ describe('SELECT', () => {
     describe('======> .limit()', () => {
       it('It should RETURN : .limit({limit: 2, skip: 1}) should return only 1 item', async () => {
         const bookRepository = await getBookRepository(cds);
-        const all = await bookRepository.findBuilder({ currency_code: 'GBP' }).execute();
-        const limit = await bookRepository.findBuilder({ currency_code: 'GBP' }).limit({ limit: 2, skip: 1 }).execute();
+        const all = await bookRepository.builder().find({ currency_code: 'GBP' }).execute();
+        const limit = await bookRepository
+          .builder()
+          .find({ currency_code: 'GBP' })
+          .limit({ limit: 2, skip: 1 })
+          .execute();
 
         expect(limit).toHaveLength(2);
         expect(limit).not.toContain(all[0]);
@@ -143,7 +153,7 @@ describe('SELECT', () => {
     describe('======> .execute()', () => {
       it('It should RETURN : .execute should execute the Promise and return results', async () => {
         const bookRepository = await getBookRepository(cds);
-        const all = await bookRepository.findBuilder({ currency_code: 'GBP' }).execute();
+        const all = await bookRepository.builder().find({ currency_code: 'GBP' }).execute();
 
         expect(all).toBeDefined();
       });
