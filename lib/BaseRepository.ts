@@ -3,7 +3,13 @@ import { type Definition } from '@sap/cds/apis/csn';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import { type RepositoryPredefinedMethods, type KeyValueType, type Locale, type InsertResult } from './types/types';
+import {
+  type RepositoryPredefinedMethods,
+  type KeyValueType,
+  type Locale,
+  type InsertResult,
+  type BuilderType,
+} from './types/types';
 import SelectBuilder from './util/SelectBuilder';
 
 abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
@@ -102,8 +108,12 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {KeyValueType<T>} keys - The keys to search for.
    * @returns {SelectBuilder<T>} - A select builder instance.
    */
-  public findBuilder(keys: KeyValueType<T>): SelectBuilder<T> {
-    return new SelectBuilder<T>(this.entity as entity, keys);
+  public builder(): BuilderType<T> {
+    return {
+      // add more in the future
+      // maybe for create, update etc...
+      find: (keys: KeyValueType<T>): SelectBuilder<T> => new SelectBuilder<T>(this.entity as entity, keys),
+    };
   }
 
   /**
