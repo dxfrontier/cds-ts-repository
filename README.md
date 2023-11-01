@@ -348,7 +348,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### getDistinctColumns
 
-`(method) this.getDistinctColumns(columns: Array<keyof T>): Promise<T[]>`
+`(method) this.getDistinctColumns<Column extends keyof T>(columns: Column[]>): Promise<Array<Pick<T, Column>>>`
 
 This method will return all database `entries`.
 
@@ -358,7 +358,7 @@ This method will return all database `entries`.
 
 `Return`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+- `Promise<Array<Pick<T, Column>>>`: This method returns a Promise with the `columns specified in the columns parameter`, where `T` is `MyEntity`.
 
 `Example`
 
@@ -448,13 +448,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### getLocaleTexts
 
-`(method) this.getLocaleTexts(): Promise<T[]>`
+`(method) this.getLocaleTexts<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column> & Locale>>`
 
 The `getLocaleTexts` method is designed to retrieve a list of items with localized text.
 
 `Return`
 
-- `Promise<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
+- `Promise<Array<Pick<T, Column> & Locale>>`: This method returns a Promise with an `Array of column`, where `T` is `MyEntity`.
 
 `Example`
 
@@ -470,7 +470,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const results = await this.getLocaleTexts()
+    const results = await this.getLocaleTexts(['descr', 'ID'])
   }
   ...
 }
