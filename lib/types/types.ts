@@ -21,9 +21,9 @@ interface RepositoryPredefinedMethods<T> {
   createMany: (entries: Array<KeyValueType<T>>) => Promise<InsertResult<T>>;
 
   getAll: () => Promise<T[]>;
-  getDistinctColumns: (columns: Array<keyof T>) => Promise<T[]>;
+  getDistinctColumns: <Column extends keyof T>(columns: Column[]) => Promise<Array<Pick<T, Column>>>;
   getAllAndLimit: (props: { limit: number; offset?: number }) => Promise<T[]>;
-  getLocaleTexts: () => Promise<Array<T & Locale>>;
+  getLocaleTexts: <Column extends keyof T>(columns: Column[]) => Promise<Array<Pick<T, Column> & Locale>>;
 
   find: (keys: KeyValueType<T>) => Promise<T[]>;
   findOne: (keys: KeyValueType<T>) => Promise<T>;
