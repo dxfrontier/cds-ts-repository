@@ -26,7 +26,7 @@ describe('UPDATE', () => {
         { title: textToUpdate },
       );
 
-      const allLocalizedTexts = await bookRepository.getLocaleTexts();
+      const allLocalizedTexts = await bookRepository.getLocaleTexts(['descr', 'title', 'ID']);
       const foundUpdated = allLocalizedTexts.filter((item) => item.ID === 201 && item.locale === locale);
 
       expect(updatedLocaleItem).toBe(true);
