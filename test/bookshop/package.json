@@ -1,5 +1,5 @@
 {
-  "name": "@capire/orders",
+  "name": "bookshop",
   "version": "1.0.0",
   "scripts": {
     "start": "cds watch",
@@ -7,7 +7,7 @@
     "clean": "npx rimraf ./srv/util/types/entities/{*.js,**/*.js,**/**/*.js,**/**/**/*.js}"
   },
   "dependencies": {
-    "@sap/cds": ">=7.3.0"
+    "@sap/cds": ">=7.3.1"
   },
   "devDependencies": {
     "@cap-js/cds-typer": "^0.11.1",
