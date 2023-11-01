@@ -16,6 +16,10 @@ interface Locale {
   locale: string;
 }
 
+interface BuilderType<T> {
+  find: (keys: KeyValueType<T>) => SelectBuilder<T>;
+}
+
 interface RepositoryPredefinedMethods<T> {
   create: (entry: KeyValueType<T>) => Promise<InsertResult<T>>;
   createMany: (entries: Array<KeyValueType<T>>) => Promise<InsertResult<T>>;
@@ -27,7 +31,7 @@ interface RepositoryPredefinedMethods<T> {
 
   find: (keys: KeyValueType<T>) => Promise<T[]>;
   findOne: (keys: KeyValueType<T>) => Promise<T>;
-  findBuilder: (keys: KeyValueType<T>) => SelectBuilder<T>;
+  builder: () => BuilderType<T>;
 
   update: (keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>) => Promise<boolean>;
 
@@ -41,4 +45,4 @@ interface RepositoryPredefinedMethods<T> {
   count: () => Promise<number>;
 }
 
-export type { KeyValueType, Locale, InsertResult, RepositoryPredefinedMethods };
+export type { KeyValueType, Locale, InsertResult, BuilderType, RepositoryPredefinedMethods };
