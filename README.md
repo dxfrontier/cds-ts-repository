@@ -319,7 +319,7 @@ This method will return all database `entries`.
 
 `Return`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T[]` is `MyEntity`.
 
 `Example`
 
@@ -350,7 +350,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `(method) this.getDistinctColumns<Column extends keyof T>(columns: Column[]>): Promise<Array<Pick<T, Column>>>`
 
-This method will return all database `entries`.
+This method will return only the distinct database `columns`.
 
 `Parameters`
 
@@ -399,7 +399,7 @@ This method allows you to find and retrieve a `list of items with optional pagin
 
 `Return`
 
-- `Promise<T[]>`: This method returns a Promise with an `Array<T>`, where `T` is `MyEntity`.
+- `Promise<T[]>`: This method returns a Promise with an `Array<T[]>`, where 'T[]' is `MyEntity`.
 
 `Example 1` : Retrieve the first 10 items
 
@@ -493,7 +493,7 @@ The method allows you to find and `retrieve entries` from the database that matc
 
 `Return`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T` is `MyEntity`.
+- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T[]` is `MyEntity`.
 
 `Example`
 
