@@ -103,15 +103,13 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
     return await SELECT.one.from(this.entity).where(keys);
   }
 
-  /**
-   * Returns a select builder for building custom queries.
-   * @param {KeyValueType<T>} keys - The keys to search for.
-   * @returns {SelectBuilder<T>} - A select builder instance.
-   */
   public builder(): BuilderType<T> {
     return {
-      // add more in the future
-      // maybe for create, update etc...
+      /**
+       * Returns a select builder for building custom queries.
+       * @param {KeyValueType<T>} keys - The keys to search for.
+       * @returns {SelectBuilder<T>} - A select builder instance.
+       */
       find: (keys: KeyValueType<T>): SelectBuilder<T> => new SelectBuilder<T>(this.entity as entity, keys),
     };
   }
