@@ -28,7 +28,7 @@ The goal of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **BaseReposi
         - [getLocaleTexts](#getlocaletexts)
         - [find](#find)
         - [findOne](#findone)
-        - [findBuilder](#findbuilder)
+        - [builder](#builder)
           - [orderAsc](#orderasc)
           - [orderDesc](#orderdesc)
           - [groupBy](#groupby)
@@ -559,9 +559,9 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-##### findBuilder
+##### builder
 
-`(method) this.findBuilder(keys: KeyValueType<T>): SelectBuilder<T>`
+`(method) this.builder().find(keys: KeyValueType<T>): SelectBuilder<T>`
 
 The method allows you to create a `SelectBuilder` instance for building database `SELECT` queries based on specified keys.
 
@@ -588,9 +588,10 @@ To order the `ASC` selected columns, you can use the `orderAsc` methods. Pass an
 - `columns (Array)` : An array of name of the columns to order by.
 
 ```ts
-const results = await this.findBuilder({
-  name: 'A company name',
-})
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
   .orderAsc(['name'])
   .execute();
 ```
@@ -604,9 +605,10 @@ To order the `DESC` selected columns, you can use the `orderDesc` methods. Pass 
 - `columns (Array)` : An array of name of the columns to order by.
 
 ```ts
-const results = await this.findBuilder({
-  name: 'A company name',
-})
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
   .orderDesc(['name'])
   .execute();
 ```
@@ -620,9 +622,10 @@ If you want to group the selected columns, use the groupBy method. Pass an array
 - `columns (Array)` : An array of name of the columns to group by.
 
 ```ts
-const results = await this.findBuilder({
-  name: 'A company name',
-})
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
   .groupBy(['name'])
   .execute();
 ```
@@ -638,9 +641,10 @@ This method allows retrieve a list of items with optional pagination.
   - `skip` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
 
 ```ts
-const results = await this.findBuilder({
-  name: 'A company name',
-})
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
   .limit({ limit: 1 })
   .execute();
 ```
@@ -656,16 +660,18 @@ You can specify which columns you want to retrieve from the database using the g
 
 ```ts
 // Expand only 'orders' association
-const results = await this.findBuilder({
-  name: 'A company name',
-})
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
   .getExpand(['orders'])
   .execute();
 
 // OR expand all Associations and Compositions
-const resultsAndAllExpandedEntities = await this.findBuilder({
-  name: 'A company name',
-})
+const resultsAndAllExpandedEntities = await this.builder()
+  .find({
+    name: 'A company name',
+  })
   .getExpand()
   .execute();
 ```
@@ -675,9 +681,11 @@ const resultsAndAllExpandedEntities = await this.findBuilder({
 Finally, to execute the constructed query and retrieve the results as an array of objects, use the execute method. It returns a promise that resolves to the query result.
 
 ```ts
-const resultsAndAllExpandedEntities = await this.findBuilder({
-  name: 'A company name',
-}).execute();
+const resultsAndAllExpandedEntities = await this.builder()
+  .find({
+    name: 'A company name',
+  })
+  .execute();
 ```
 
 `Example`
@@ -695,7 +703,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
 
-    const results = await this.findBuilder({ name: 'A company name' }).orderAsc(['name']).limit({ limit: 1 }).getExpand().execute()
+    const results = await this.builder().find({ name: 'A company name' }).orderAsc(['name']).limit({ limit: 1 }).getExpand().execute()
 
   }
   ...
