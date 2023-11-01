@@ -52,7 +52,7 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * @param {Array<keyof T>} columns - An array of column names to retrieve distinct records for.
    * @returns {Promise<T[]>} A promise that resolves to an array of distinct records.
    */
-  public async getDistinctColumns(columns: Array<keyof T>): Promise<T[]> {
+  public async getDistinctColumns<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column>>> {
     return await SELECT.distinct.from(this.entity).columns(...columns);
   }
 
@@ -75,8 +75,8 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
    * Retrieves and updates localized texts for records based on the provided keys and fields to update.
    * @returns {Promise<T>} - A promise that resolves to an array of matching records.
    */
-  public async getLocaleTexts(): Promise<Array<T & Locale>> {
-    return await SELECT.from(`${this.entity.name}.texts`);
+  public async getLocaleTexts<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column> & Locale>> {
+    return await SELECT.from(`${this.entity.name}.texts`).columns(...columns, 'locale');
   }
 
   /**
