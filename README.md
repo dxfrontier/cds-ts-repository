@@ -4,8 +4,6 @@
 
 The goal of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`
 
-<a name="readme-top"></a>
-
 ## Table of Contents
 
 - [CDS-TS Dispatcher - BaseRepository](#cds-ts-dispatcher---baserepository)
@@ -64,7 +62,7 @@ npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 
 - Target folder :`./srv/util/types/entities` - Change to your location destination folder.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ## Architecture
 
@@ -78,11 +76,11 @@ npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 
 ![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/cds-ts-dispatcher/architecture_folder_structure.png?raw=true) <= expanded folders => ![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/cds-ts-dispatcher/architecture_folder_structure_expanded.png?raw=true)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ## Usage
 
@@ -216,7 +214,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### Methods
 
@@ -261,7 +259,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### createMany
 
@@ -309,7 +307,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### getAll
 
@@ -344,7 +342,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### getDistinctColumns
 
@@ -383,7 +381,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### getAllAndLimit
 
@@ -444,7 +442,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### getLocaleTexts
 
@@ -479,7 +477,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### find
 
@@ -518,7 +516,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### findOne
 
@@ -557,7 +555,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### builder
 
@@ -713,7 +711,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### update
 
@@ -755,7 +753,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### updateLocaleTexts
 
@@ -797,7 +795,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### delete
 
@@ -839,7 +837,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### deleteMany
 
@@ -883,7 +881,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### exists
 
@@ -924,7 +922,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ##### count
 
@@ -959,7 +957,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ## Examples
 
@@ -1002,4 +1000,4 @@ SOFTWARE.
 - [@sblessing](https://github.com/sblessing)
 - [@ABS GmbH](https://www.abs-gmbh.de/) team
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
