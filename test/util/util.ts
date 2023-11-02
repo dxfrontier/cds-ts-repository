@@ -21,6 +21,4 @@ export const getBookRepository = async (_cds: ReturnType<typeof connectTest>) =>
   }
 
   return new BookRepository();
-
-  // return customer;
 };
