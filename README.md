@@ -759,13 +759,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 ##### updateLocaleTexts
 
-`updateLocaleTexts(localeCodeKey: Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
+`updateLocaleTexts(localeCodeKeys: KeyValueType<T> & Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
 
 The method allows you to update entries in the database that match the specified `localeCodeKey` with new values for specific fields.
 
 `Parameters`
 
-- `localeCodeKey (string)`: A string representing the language code to filter the entries, example `'en', 'de', 'fr', 'ro' ...`
+- `localeCodeKeys (string)`: A string representing the language code to filter the entries, example `'en', 'de', 'fr', 'ro' ...`
 - `fieldsToUpdate (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
@@ -788,7 +788,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-     const updated = await this.updateLocaleTexts('de', { name: 'ein neuer Name'})
+     const updated = await this.updateLocaleTexts({locale : 'de', ID : 201}, { name: 'ein neuer Name'})
   }
   ...
 }
