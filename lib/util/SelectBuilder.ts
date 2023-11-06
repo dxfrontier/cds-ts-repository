@@ -24,22 +24,22 @@ class SelectBuilder<T> {
 
   /**
    * Retrieves the selected columns and expands associated entities.
-   * @param {Array<string>} [associations] - The optional name of the columns to expand.
+   * @param {Array<string>} [associations] - The name(s) of the columns to expand.
    * @returns {this} - Returns the instance of the current object.
    */
 
-  public getExpand(associations?: Array<keyof T>): this {
+  public getExpand(associations: Array<keyof T>): this {
     // const private routines for this func
 
-    const _buildAssociatedEntities = (column: any): void => {
-      const linkedEntities: string[] = this.findAssociationsAndCompositions();
+    // const _buildAssociatedEntities = (column: any): void => {
+    //   const linkedEntities: string[] = this.findAssociationsAndCompositions();
 
-      linkedEntities.forEach((association: string) => {
-        column[association]((linkedEntity: (...args: unknown[]) => unknown) => {
-          linkedEntity('*');
-        });
-      });
-    };
+    //   linkedEntities.forEach((association: string) => {
+    //     column[association]((linkedEntity: (...args: unknown[]) => unknown) => {
+    //       linkedEntity('*');
+    //     });
+    //   });
+    // };
 
     const _buildAssociatedNamedEntity = (column: any): void => {
       associations?.forEach((association) => {
@@ -49,15 +49,15 @@ class SelectBuilder<T> {
       });
     };
 
-    const hasNamedAssociations = associations != null && associations.length > 0;
+    // const hasNamedAssociations = associations != null && associations.length > 0;
 
     void this.select.columns((column: any) => {
       column('*');
-      if (hasNamedAssociations ?? false) {
-        _buildAssociatedNamedEntity(column);
-        return;
-      }
-      _buildAssociatedEntities(column);
+      // if (hasNamedAssociations ?? false) {
+      _buildAssociatedNamedEntity(column);
+      // return;
+      // }
+      // _buildAssociatedEntities(column);
     });
 
     return this;
