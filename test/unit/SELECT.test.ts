@@ -74,14 +74,12 @@ describe('SELECT', () => {
         const bookRepository = await getBookRepository(cds);
         const expandGenre = await bookRepository.builder().find({ ID: 201 }).getExpand(['genre']).execute();
 
-        const expandAll = await bookRepository.builder().find({ ID: 201 }).getExpand().execute();
-
-        const findOneForExpandAll = await bookRepository.find({ ID: 201 });
+        const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
 
         expect(expandGenre.length).toBeGreaterThan(0);
         expect(expandGenre[0]).toHaveProperty('genre');
 
-        expect(findOneForExpandAll).not.toMatchObject(expandAll);
+        expect(findOneForExpandAll).not.toMatchObject(expandGenre[0]);
       });
     });
 

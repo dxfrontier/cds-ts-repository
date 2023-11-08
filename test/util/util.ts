@@ -1,7 +1,7 @@
 import path from 'path';
 import cds from '@sap/cds';
 import { BaseRepository } from '../../lib/BaseRepository';
-import { type Book } from '../bookshop/srv/util/types/entities/sap/capire/bookshop';
+import { Book } from '../bookshop/srv/util/types/entities/sap/capire/bookshop';
 
 export const connectTest = (dirName: string, projectName: string) => {
   const project = path.join(dirName, '..', projectName);
@@ -12,11 +12,10 @@ export const connectTest = (dirName: string, projectName: string) => {
 
 export const getBookRepository = async (_cds: ReturnType<typeof connectTest>) => {
   const CatalogService = await _cds.connect.to('CatalogService');
-  const { Books } = CatalogService.entities;
 
   class BookRepository extends BaseRepository<Book> {
     constructor() {
-      super(Books);
+      super(Book);
     }
   }
 

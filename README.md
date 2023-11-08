@@ -653,8 +653,8 @@ You can specify which columns you want to retrieve from the database using the g
 
 `Parameters`
 
-- `associations` `(optional, string[])`: The optional columns to expand, if `associations` argument is provided then only the specified `associations / compositions` will be fetched.
-  - If `NO` `associations argument` provided then the method will fetch all `associations / compositions` present on the entity.
+- `associations` `(string[])`: The columns to expand, if `associations` argument is provided then the specified `associations / compositions` will be fetched.
+  <!-- - If `NO` `associations argument` provided then the method will fetch all `associations / compositions` present on the entity. -->
 
 ```ts
 // Expand only 'orders' association
