@@ -4,7 +4,7 @@
   "scripts": {
     "start": "npm run build:entities && cds-ts watch",
     "build:entities": "cds-typer '*' --outputDirectory ./srv/util/types/entities",
-    "build:entities:test": "npm run build:entities && npm run clean:js",
+    "build:entities:test": "run-s build:entities clean:js",
     "clean:js": "npx rimraf ./srv/util/types/entities/{*.js,**/*.js,**/**/*.js,**/**/**/*.js}"
   },
   "devDependencies": {
