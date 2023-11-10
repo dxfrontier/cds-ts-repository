@@ -9,19 +9,32 @@ on:
     types: [created]
 
 jobs:
+  # This will start unit/integration testing
+  test-unit:
+    name: Unit
+    runs-on: macos-latest
+
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start unit / integration tests
+        run: npm test
+
   build:
     runs-on: ubuntu-latest
+    needs: test-unit
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm test
+      - name: Get code
+        uses: actions/checkout@v3
+
+      - run: npm install
       - run: npm run build
 
-  publish-npm:
+   publish-npm:
     needs: build
     runs-on: ubuntu-latest
     steps:
