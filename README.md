@@ -781,8 +781,8 @@ The `updateLocaleTexts` method allows you to update entries in the database that
 
 `Parameters`
 
-- `localeCodeKeys (Object)`: An object representing the language code to filter the entries, example `'en', 'de', 'fr', 'ro' ...` and key-value fields of `MyEntity`
-- `fieldsToUpdate (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `localeCodeKeys (Object)`: An object containing language codes `'en', 'de', 'fr', 'ro', ... ` and entity keys to filter entries.
+- `fieldsToUpdate (Object)`: An object representing the keys and values to update. Each key corresponds to a property in the entity.
 
 `Return`
 
