@@ -14,32 +14,13 @@ class SelectBuilder<T> {
     this.select = SELECT.from(this.entity).where(this.keys);
   }
 
-  private findAssociationsAndCompositions(): string[] {
-    const elements = Object.values(this.entity.elements);
-
-    return elements
-      .filter((element) => element.type === 'cds.Association' || element.type === 'cds.Composition')
-      .map((association) => association.name);
-  }
-
   /**
-   * Retrieves the selected columns and expands associated entities.
-   * @param {Array<string>} [associations] - The name(s) of the columns to expand.
+   * Retrieves the expands associated entities.
+   * @param {Array<keyof T>} [associations] - An array of column names to expand, representing associated entities.
    * @returns {this} - Returns the instance of the current object.
    */
-
   public getExpand(associations: Array<keyof T>): this {
     // const private routines for this func
-
-    // const _buildAssociatedEntities = (column: any): void => {
-    //   const linkedEntities: string[] = this.findAssociationsAndCompositions();
-
-    //   linkedEntities.forEach((association: string) => {
-    //     column[association]((linkedEntity: (...args: unknown[]) => unknown) => {
-    //       linkedEntity('*');
-    //     });
-    //   });
-    // };
 
     const _buildAssociatedNamedEntity = (column: any): void => {
       associations?.forEach((association) => {
@@ -49,15 +30,9 @@ class SelectBuilder<T> {
       });
     };
 
-    // const hasNamedAssociations = associations != null && associations.length > 0;
-
     void this.select.columns((column: any) => {
       column('*');
-      // if (hasNamedAssociations ?? false) {
       _buildAssociatedNamedEntity(column);
-      // return;
-      // }
-      // _buildAssociatedEntities(column);
     });
 
     return this;
@@ -65,10 +40,9 @@ class SelectBuilder<T> {
 
   /**
    * Orders the selected columns in ascending order.
-   * @param {Array<keyof T>} columns - The columns to order.
+   * @param {Array<keyof T>} columns - An array of column names to order ascending.
    * @returns {this} - Returns the instance of the current object.
    */
-
   public orderAsc(columns: Array<keyof T>): this {
     void this.select.orderBy(columns.join(' ') + ' asc');
     return this;
@@ -76,7 +50,7 @@ class SelectBuilder<T> {
 
   /**
    * Orders the selected columns in descending order.
-   * @param {Array<keyof T>} columns - The columns to order.
+   * @param {Array<keyof T>} columns - An array of column names to order in descending.
    * @returns {this} - Returns the instance of the current object.
    */
   public orderDesc(columns: Array<keyof T>): this {
@@ -87,7 +61,7 @@ class SelectBuilder<T> {
 
   /**
    * Groups the selected columns.
-   * @param {Array<keyof T>} columns - The columns to group by.
+   * @param {Array<keyof T>} columns - An array of column names to use for grouping.
    * @returns {this} - Returns the instance of the current object.
    */
   public groupBy(columns: Array<keyof T>): this {
@@ -97,9 +71,8 @@ class SelectBuilder<T> {
 
   /**
    * Limits the result set with an optional offset.
-   * @param {Object} props - The limit and optional offset.
    * @param {number} props.limit - The limit for the result set.
-   * @param {number} [props.skip] - The optional 'skip', this will skip number of items for the result set.
+   * @param {number | undefined} [props.skip] - The optional 'skip', this will skip a certain number of items for the result set.
    * @returns {this} - Returns the instance of the current object.
    */
   public limit(props: { limit: number; skip?: number }): this {

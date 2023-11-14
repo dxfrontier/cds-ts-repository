@@ -1,12 +1,12 @@
-# CDS-TS Dispatcher - BaseRepository
+# CDS-TS-Repository - BaseRepository
 
 <img src="https://img.shields.io/badge/SAP-0FAAFF?style=for-the-badge&logo=sap&logoColor=white" /> <img src="https://img.shields.io/badge/ts--node-3178C6?style=for-the-badge&logo=ts-node&logoColor=white" /> <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" /> <img src="https://img.shields.io/badge/Express%20js-000000?style=for-the-badge&logo=express&logoColor=white" /> <img src="https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white" /> <img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white" />
 
-The goal of **[CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql)** **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`
+The goal of **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`
 
 ## Table of Contents
 
-- [CDS-TS Dispatcher - BaseRepository](#cds-ts-dispatcher---baserepository)
+- [CDS-TS-Repository - BaseRepository](#cds-ts-repository---baserepository)
   - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
     - [Install CDS-TS-Repository](#install-cds-ts-repository)
@@ -88,20 +88,20 @@ A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher]
 
 This guide explains how to use the BaseRepository with the Standard SAP CDS-TS, allowing you to work with your entities without the need for the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher).
 
-<!-- If you want to use `BaseRepository` with the `SAP CDS-TS` without using the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher) the following steps needs to be performed : -->
-
 #### Step 1: Create a HandleClass
 
-Start by creating a `HandleClass`, which will extend the `BaseRepository<T>` to handle operations for your entity. Here's an example of how to set it up:
+Start by creating a `HandleClass`, which will extend the `BaseRepository<T>` to handle operations for your entity.
 
-`Example` HandleClass
+Here's an example of how to set it up:
+
+`Example`
 
 ```ts
 
 import { Request } from '@sap/cap';
 
 import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
 
 class HandleClass extends BaseRepository<MyEntity> {
 
@@ -138,18 +138,33 @@ class HandleClass extends BaseRepository<MyEntity> {
 
 #### Step 2 : Integrate HandleClass
 
-Now that you have your `HandleClass`, you can integrate it into your `main service`. Here's an example of how to do this:
+Now that you have your `HandleClass`, you can integrate it into your implementation.
 
-1. Create a new private field `private handleClass: HandleClass`
-2. Initalize the handleClass `this.handleClass = new HandleClass();`
-3. Use the handler on the `callback` of the `events` :
-   1. `this.before('READ', MyEntity, (req) => this.HandleClass.aMethod(req))`
-   2. `this.after('READ', MyEntity, (results, req) => this.handleClass.anotherMethod(results, req))`
+`Steps`
 
-`Example` main class
+1. Create a new private field:
 
 ```ts
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE';
+private handleClass: HandleClass
+```
+
+2. Initialize the handleClass :
+
+```ts
+this.handleClass = new HandleClass();
+```
+
+3. Use the handler on the `callback` of the `events` :
+
+```ts
+this.before('READ', MyEntity, (req) => this.HandleClass.aMethod(req));
+this.after('READ', MyEntity, (results, req) => this.handleClass.anotherMethod(results, req));
+```
+
+`Example`
+
+```ts
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MainService extends cds.ApplicationService {
   private handleClass: HandleClass;
@@ -172,15 +187,40 @@ class MainService extends cds.ApplicationService {
 
 ### Option 2 : Using `BaseRepository` with [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
 
-Start by creating a `MyRepository` class, which will extend the `BaseRepository<T>` to handle operations for your entity. Here's an example of how to set it up:
+Start by creating a `MyRepository` class, which will extend the `BaseRepository<T>` to handle operations for your entity.
+
+Here's an example of how to set it up:
+
+`Steps`
+
+1. Create a new class `MyRepository` add `@Repository` decorator and extend `MyRepository` class to inherit the `BaseRepository` methods:
+
+```ts
+import { Repository } from '@dxfrontier/cds-ts-dispatcher';
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+
+@Repository()
+class MyRepository extends BaseRepository<MyEntity> {}
+```
+
+2. Use `@Inject` decorator to use Dependency injection to inject the class in another class :
+
+```ts
+import { Inject } from '@dxfrontier/cds-ts-dispatcher';
+
+@Inject(MyRepository) private readonly myRepository: MyRepository;
+```
 
 `Example`
 
 ```ts
 
 import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { Repository } from '@dxfrontier/cds-ts-dispatcher'
 
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
+
+@Repository()
 class MyRepository extends BaseRepository<MyEntity> {
   ...
   constructor() {
@@ -188,10 +228,8 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   aMethod() {
-
     // BaseRepository predefined methods using the MyEntity entity
     // All methods parameters will allow only parameters of type MyEntity
-
     const result1 = await this.create(...)
     const result2 = await this.createMany(...)
     const result5 = await this.getAll()
@@ -203,12 +241,23 @@ class MyRepository extends BaseRepository<MyEntity> {
     const result11 = await this.updateLocaleTexts(...)
     const result12 = await this.exists(...)
     const result13 = await this.count()
-
-    // ...
-
   }
-  ...
 }
+
+export default MyRepository
+
+```
+
+`Example`
+
+Inject the repository in another class using `@Inject`
+
+```ts
+
+@EntityHandler(Book)
+class BookStatsHandler {
+  @Inject(MyRepository) private readonly myRepository: MyRepository;
+  ...
 ```
 
 > [!NOTE]
@@ -222,7 +271,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `(method) this.create(entry: KeyValueType<T>) : Promise<InsertResult<T>>`.
 
-This method allows you to create a new entry in the database.
+The `create` method allows you to create a new entry in the database.
 
 `Parameters`
 
@@ -235,24 +284,21 @@ This method allows you to create a new entry in the database.
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
     const createdInstance = await this.create({
       name: 'Customer 1',
-      description : 'Customer 1 description'
-    })
-
+      description: 'Customer 1 description',
+    });
+    // Further logic with createdInstance
   }
-  ...
 }
 ```
 
@@ -265,7 +311,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `(method) this.createMany(entries: Array<KeyValueType<T>>) : Promise<InsertResult<T>>`.
 
-This method allows you to add multiple entries in the database.
+The `createMany` method allows you to add multiple entries in the database.
 
 `Parameters`
 
@@ -278,29 +324,27 @@ This method allows you to add multiple entries in the database.
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
     const createdInstance = await this.createMany([
-    {
-      name: 'Customer 1',
-      description : 'Customer 1 description'
-    },
-    {
-      name: 'Customer 2',
-      description : 'Customer 2 description'
-    }])
-
+      {
+        name: 'Customer 1',
+        description: 'Customer 1 description',
+      },
+      {
+        name: 'Customer 2',
+        description: 'Customer 2 description',
+      },
+    ]);
+    // Further logic with createdInstance
   }
-  ...
 }
 ```
 
@@ -313,29 +357,27 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `(method) this.getAll(): Promise<T[]>`
 
-This method will return all database `entries`.
+The `getAll` method retrieves all database entries.
 
 `Return`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T[]` is `MyEntity`.
+- `Promise<T[]>`: This method returns a Promise with an array of type `T`, where `T[]` is `MyEntity`.
 
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
-    const results = await this.getAll()
+    const results = await this.getAll();
+    // Further logic with results
   }
-  ...
 }
 ```
 
@@ -348,7 +390,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `(method) this.getDistinctColumns<Column extends keyof T>(columns: Column[]>): Promise<Array<Pick<T, Column>>>`
 
-This method will return only the distinct database `columns`.
+The `getDistinctColumns` method retrieves distinct values for the specified columns from the database.
 
 `Parameters`
 
@@ -356,25 +398,23 @@ This method will return only the distinct database `columns`.
 
 `Return`
 
-- `Promise<Array<Pick<T, Column>>>`: This method returns a Promise with the `columns specified in the columns parameter`, where `T` is `MyEntity`.
+- `Promise<Array<Pick<T, Column>>>`: This method returns a Promise that resolves to an array of objects containing the selected columns from the entity.
 
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
     const results = await this.getDistinctColumns(['currency_code', 'ID', 'name']);
+    // Further logic with results
   }
-  ...
 }
 ```
 
@@ -387,7 +427,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `(method) this.getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[]>`
 
-This method allows you to find and retrieve a `list of items with optional pagination.`
+The `getAllAndLimit` method allows you to find and retrieve a list of items with optional pagination.
 
 `Parameters`
 
@@ -397,45 +437,41 @@ This method allows you to find and retrieve a `list of items with optional pagin
 
 `Return`
 
-- `Promise<T[]>`: This method returns a Promise with an `Array<T[]>`, where 'T[]' is `MyEntity`.
+- `Promise<T[]>`: This method returns a Promise that resolves to an array of objects representing instances of type `MyEntity`.
 
 `Example 1` : Retrieve the first 10 items
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
-    const results = await this.getAllAndLimit({limit : 10})
+    const results = await this.getAllAndLimit({ limit: 10 });
+    // Further logic with results
   }
-  ...
 }
 ```
 
 `Example 2` : Retrieve items starting from the 20th item, limit to 5 items
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
-    const resultsWithSkip = await this.getAllAndLimit({ limit: 5, skip: 20 })
+    const resultsWithSkip = await this.getAllAndLimit({ limit: 5, skip: 20 });
+    // Further logic with resultsWithSkip
   }
-  ...
 }
 ```
 
@@ -452,25 +488,23 @@ The `getLocaleTexts` method is designed to retrieve a list of items with localiz
 
 `Return`
 
-- `Promise<Array<Pick<T, Column> & Locale>>`: This method returns a Promise with an `Array of column`, where `T` is `MyEntity`.
+- `Promise<Array<Pick<T, Column> & Locale>>`: This method returns a Promise with the locale texts provided in the `columns` argument.
 
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
-    const results = await this.getLocaleTexts(['descr', 'ID'])
+    const results = await this.getLocaleTexts(['descr', 'ID']);
+    // Further logic with results
   }
-  ...
 }
 ```
 
@@ -483,7 +517,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `find(keys: KeyValueType<T>): Promise<T[]>`
 
-The method allows you to find and `retrieve entries` from the database that match the `specified keys`.
+The `find` method allows you to find and retrieve entries from the database that match the specified keys.
 
 `Parameters`
 
@@ -491,25 +525,23 @@ The method allows you to find and `retrieve entries` from the database that matc
 
 `Return`
 
-- `Promise<T[]>`: This method returns a Promise with an `array of type T`, where `T[]` is `MyEntity`.
+- `Promise<T[]>`: This method returns a Promise with an array of type `T`, where `T[]` is `MyEntity`.
 
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
-    const results = await this.find({ name : 'Customer', description : 'description'})
+    const results = await this.find({ name: 'Customer', description: 'description' });
+    // Further logic with results
   }
-  ...
 }
 ```
 
@@ -522,33 +554,30 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `findOne(keys: KeyValueType<T>): Promise<T>`
 
-The method allows you to find and `retrieve a single entry` from the database that matches the specified keys.
-
+The `findOne` method allows you to find and retrieve a single entry from the database that matches the specified keys.
 `Parameters`
 
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
-- `Promise<T>`: This method returns a Promise with an `single entry of type T`, where `T` is `MyEntity`.
+- `Promise<T>`: This method returns a Promise with a single entry of type `T`, where `T` is `MyEntity`.
 
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
-    const results = await this.findOne({ name : 'Customer', description : 'description'})
+    const result = await this.findOne({ name: 'Customer', description: 'description' });
+    // Further logic with result
   }
-  ...
 }
 ```
 
@@ -653,8 +682,7 @@ You can specify which columns you want to retrieve from the database using the g
 
 `Parameters`
 
-- `associations` `(string[])`: The columns to expand, if `associations` argument is provided then the specified `associations / compositions` will be fetched.
-  <!-- - If `NO` `associations argument` provided then the method will fetch all `associations / compositions` present on the entity. -->
+- `associations` `(string[])`: The columns to expand, if `associations` argument is provided then the specified `associations / compositions` will be expanded.
 
 ```ts
 // Expand only 'orders' association
@@ -663,14 +691,6 @@ const results = await this.builder()
     name: 'A company name',
   })
   .getExpand(['orders'])
-  .execute();
-
-// OR expand all Associations and Compositions
-const resultsAndAllExpandedEntities = await this.builder()
-  .find({
-    name: 'A company name',
-  })
-  .getExpand()
   .execute();
 ```
 
@@ -689,9 +709,8 @@ const resultsAndAllExpandedEntities = await this.builder()
 `Example`
 
 ```ts
-
 import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
   ...
@@ -717,7 +736,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `update(keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
 
-The method allows you to update entries in the database that match the specified keys with new values for specific fields.
+The `update` method allows you to update entries in the database that match the specified keys with new values for specific fields.
 
 `Parameters`
 
@@ -726,27 +745,26 @@ The method allows you to update entries in the database that match the specified
 
 `Return`
 
-- `Promise<boolean>`: This method returns a `Promise of true / false`
+- `Promise<boolean>`: This method returns a Promise of `true` if the update operation is `successful`, and `false` otherwise.
 
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
-     const updated = await this.update(
+    const updated = await this.update(
       { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
-      { name: 'a new name', 'description' : 'a new description' })
+      { name: 'a new name', description: 'a new description' },
+    );
+    // Further logic with updated
   }
-  ...
 }
 ```
 
@@ -759,7 +777,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `updateLocaleTexts(localeCodeKeys: KeyValueType<T> & Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
 
-The method allows you to update entries in the database that match the specified `localeCodeKey` with new values for specific fields.
+The `updateLocaleTexts` method allows you to update entries in the database that match the specified `localeCodeKeys` with new values for specific fields.
 
 `Parameters`
 
@@ -768,27 +786,23 @@ The method allows you to update entries in the database that match the specified
 
 `Return`
 
-- `Promise<boolean>`: This method returns :
-  - `true` if language was updated.
-  - `false` if language was not updated.
+- `Promise<boolean>`: This method returns a Promise of `true` if the update operation is `successful`, and `false` otherwise.
 
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
-     const updated = await this.updateLocaleTexts({locale : 'de', ID : 201}, { name: 'ein neuer Name'})
+    const updated = await this.updateLocaleTexts({ locale: 'de', ID: 201 }, { name: 'ein neuer Name' });
+    // Further logic with updated
   }
-  ...
 }
 ```
 
@@ -801,7 +815,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `delete(keys: KeyValueType<T>): Promise<boolean>`
 
-The method allows you to delete entries from the database that match the specified keys.
+The `delete` method allows you to delete entries from the database that match the specified keys.
 
 `Parameters`
 
@@ -809,28 +823,24 @@ The method allows you to delete entries from the database that match the specifi
 
 `Return`
 
-- `Promise<boolean>`: This method returns :
-  - `true` if item was deleted.
-  - `false` if item was not deleted.
+- `Promise<boolean>`: This method returns a Promise of `true` if the delete operation is `successful`, and `false` otherwise.
 
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
-    const deleted1 = await this.delete({ name : 'Customer'})
-    const deleted2 = await this.delete({ ID : '2f12d711-b09e-4b57-b035-2cbd0a02ba19'})
+    const deleted1 = await this.delete({ name: 'Customer' });
+    const deleted2 = await this.delete({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' });
+    // Further logic with deleted1 and deleted2
   }
-  ...
 }
 ```
 
@@ -843,7 +853,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `deleteMany(entries: Array<KeyValueType<T>>): Promise<boolean>`
 
-The method allows you to delete `multiple entries` from the database that match the specified keys.
+The `deleteMany` method allows you to delete multiple entries from the database that match the specified keys.
 
 `Parameters`
 
@@ -851,30 +861,26 @@ The method allows you to delete `multiple entries` from the database that match 
 
 `Return`
 
-- `Promise<boolean>`: This method returns :
-  - `true` if all instances where successfully deleted.
-  - `false` if at least `one` instance was not deleted.
+- `Promise<boolean>`: This method returns a Promise of `true` if all instances were successfully deleted and `false` otherwise.
 
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
     const deleted = await this.deleteMany([
-      { ID : '2f12d711-b09e-4b57-b035-2cbd0a02ba19'},
-      { ID : 'a51ab5c8-f366-460f-8f28-0eda2e41d6db'}
-    ])
+      { ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' },
+      { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
+    ]);
+    // Further logic with deleted
   }
-  ...
 }
 ```
 
@@ -887,7 +893,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `exists(keys: KeyValueType<T>): Promise<boolean>`
 
-The method allows you to check whether entries exist in the database that match the specified fields.
+The `exists` method allows you to check whether entries exist in the database that match the specified fields.
 
 `Parameters`
 
@@ -895,27 +901,23 @@ The method allows you to check whether entries exist in the database that match 
 
 `Return`
 
-- `Promise<boolean>`: This method returns :
-  - `true` if item exists in the database.
-  - `false` if the item does not exists in the database.
+- `Promise<boolean>`: This method returns a Promise of `true` if the item exists in the databse and `false` otherwise.
 
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
-     const exists = await this.exists({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba09' })
+    const exists = await this.exists({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba09' });
+    // Further logic with exists
   }
-  ...
 }
 ```
 
@@ -928,29 +930,27 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `count(): Promise<number>`
 
-The method allows to count all items from the database.
+The `count` method allows you to count all items from the database.
 
 `Return`
 
-- `Promise<number>`: This method returns the `count of items from MyEntity`
+- `Promise<number>`: This method returns the count / number of items from `MyEntity`.
 
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_TYPE'
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity); // a CDS Typer entity type
   }
 
   public async aMethod() {
-     const numberOfItemsInMyEntity = await this.count()
+    const numberOfItemsInMyEntity = await this.count();
+    // Further logic with numberOfItemsInMyEntity
   }
-  ...
 }
 ```
 
