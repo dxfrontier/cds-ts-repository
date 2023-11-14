@@ -29,8 +29,8 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Inserts a single entry into the database.
-   * @param {KeyValueType<T>} entry - The entry to insert.
-   * @returns {INSERT<T>} - A promise that resolves to the insert result.
+   * @param {KeyValueType<T>} entry - An object representing the entry to be created.
+   * @returns {Promise<InsertResult<T>>} - A promise that resolves to the insert result.
    */
   public async create(entry: KeyValueType<T>): Promise<InsertResult<T>> {
     return await INSERT.into(this.entity).entries(entry);
@@ -38,8 +38,8 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Inserts multiple entries into the database.
-   * @param {KeyValueType<T>[]} entries - The entries to insert.
-   * @returns {INSERT<T>} - A promise that resolves to the insert result.
+   * @param {Array<KeyValueType<T>>} entries - An array of objects representing the entries to be created.
+   * @returns {Promise<InsertResult<T>>} - A promise that resolves to the insert result.
    */
   public async createMany(entries: Array<KeyValueType<T>>): Promise<InsertResult<T>> {
     return await INSERT.into(this.entity).entries(entries);
@@ -56,7 +56,7 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
   /**
    * Retrieves distinct records based on specific columns from the database.
    * @param {Array<keyof T>} columns - An array of column names to retrieve distinct records for.
-   * @returns {Promise<T[]>} A promise that resolves to an array of distinct records.
+   * @returns {Promise<Array<Pick<T, Column>>>} - A promise that resolves to an array of distinct records.
    */
   public async getDistinctColumns<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column>>> {
     return await SELECT.distinct.from(this.entity).columns(...columns);
@@ -64,9 +64,8 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Retrieves all records from the database with optional limit and offset.
-   * @param {Object} props - The limit and optional offset.
    * @param {number} props.limit - The limit for the result set.
-   * @param {number|undefined} [props.skip] - The optional 'skip', this will skip number of items for the result set.
+   * @param {number|undefined} [props.skip] - The optional 'skip', which will skip a specified number of items for the result set (default: 0).
    * @returns {Promise<T[]>} - A promise that resolves to an array of records.
    */
   public async getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[]> {
@@ -78,8 +77,9 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
   }
 
   /**
-   * Retrieves and updates localized texts for records based on the provided keys and fields to update.
-   * @returns {Promise<T>} - A promise that resolves to an array of matching records.
+   * Retrieves and updates localized texts for records based on the provided columns.
+   * @param {Array<keyof T>} columns - An array of column names to retrieve localized texts for.
+   * @returns {Promise<Array<Pick<T, Column> & Locale>>} - A promise that resolves to an array of records with localized texts.
    */
   public async getLocaleTexts<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column> & Locale>> {
     return await SELECT.from(`${this.entity.name}.texts`).columns(...columns, 'locale');
@@ -87,7 +87,7 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Finds records based on the provided keys.
-   * @param {KeyValueType<T>} keys - The keys to search for.
+   * @param {KeyValueType<T>} keys - An object representing the keys to filter the records.
    * @returns {Promise<T[]>} - A promise that resolves to an array of matching records.
    */
   public async find(keys: KeyValueType<T>): Promise<T[]> {
@@ -96,7 +96,7 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Finds a single record based on the provided keys.
-   * @param {KeyValueType<T>} keys - The keys to search for.
+   * @param {KeyValueType<T>} keys - An object representing the keys to filter the record.
    * @returns {Promise<T>} - A promise that resolves to a single matching record.
    */
   public async findOne(keys: KeyValueType<T>): Promise<T> {
@@ -116,9 +116,9 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Updates records based on the provided keys and fields to update.
-   * @param {KeyValueType<T>} keys - The keys to search for.
-   * @param {KeyValueType<T>} fieldsToUpdate - The fields to update.
-   * @returns {Promise<boolean>} - A promise that resolves to `true` if the update is successful.
+   * @param {KeyValueType<T>} keys - An object representing the keys to filter the records.
+   * @param {KeyValueType<T>} fieldsToUpdate - An object representing the fields and their updated values for the matching entries.
+   * @returns {Promise<boolean>} - A promise that resolves to `true` if the update is successful, `false` otherwise.
    */
   public async update(keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>): Promise<boolean> {
     const updated = await UPDATE.entity(this.entity).where(keys).set(fieldsToUpdate);
@@ -127,10 +127,11 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Updates locale texts for records based on the provided keys and fields to update.
-   * @param {KeyValueType<T> & Locale} localeCodeKeys - The localeCodeKeys to search for.
-   * @param {KeyValueType<T>} fieldsToUpdate - The fields to update.
-   * @returns {Promise<boolean>} - A promise that resolves to `true` if the update is successful.
+   * @param {KeyValueType<T> & Locale} localeCodeKeys - An object representing the language code to filter the entries.
+   * @param {KeyValueType<T>} fieldsToUpdate - An object representing the fields and their updated values for the matching entries.
+   * @returns {Promise<boolean>} - A promise that resolves to `true` if the update is successful, `false` otherwise.
    */
+
   public async updateLocaleTexts(
     localeCodeKeys: KeyValueType<T> & Locale,
     fieldsToUpdate: KeyValueType<T>,
@@ -141,8 +142,8 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Deletes records based on the provided keys.
-   * @param {KeyValueType<T>} keys - The keys to search for.
-   * @returns {Promise<boolean>} - A promise that resolves to `true` if the deletion is successful.
+   * @param {KeyValueType<T>} keys - An object representing the keys to filter the records.
+   * @returns {Promise<boolean>} - A promise that resolves to `true` if the deletion is successful, `false` otherwise.
    */
   public async delete(keys: KeyValueType<T>): Promise<boolean> {
     const deleted = await DELETE.from(this.entity).where(keys);
@@ -151,9 +152,10 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Deletes multiple records based on the provided keys.
-   * @param {KeyValueType<T>[]} entries - The entries to delete.
-   * @returns {Promise<boolean>} - A promise that resolves to `true` if all deletions are successful.
+   * @param {Array<KeyValueType<T>>} entries - An array of objects representing the keys to filter the entries.
+   * @returns {Promise<boolean>} - A promise that resolves to `true` if all deletions are successful, `false` otherwise.
    */
+
   public async deleteMany(entries: Array<KeyValueType<T>>): Promise<boolean> {
     const allPromises: Array<DELETE<T>> = [];
 
@@ -169,8 +171,8 @@ abstract class BaseRepository<T> implements RepositoryPredefinedMethods<T> {
 
   /**
    * Checks if records based on the provided keys exist in the database.
-   * @param {KeyValueType<T>} keys - The keys to search for.
-   * @returns {Promise<boolean>} - A promise that resolves to `true` if at least one record exists.
+   * @param {KeyValueType<T>} keys - An object representing the keys to filter the records.
+   * @returns {Promise<boolean>} - A promise that resolves to `true` if the item exists, `false` otherwise.
    */
   public async exists(keys: KeyValueType<T>): Promise<boolean> {
     const found = await SELECT.from(this.entity).where(keys);

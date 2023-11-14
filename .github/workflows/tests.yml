@@ -1,0 +1,29 @@
+# This will run unit / integration and e2e tests
+
+name: Test
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+    paths-ignore:
+      - '../../README.md'
+      - '../ISSUE_TEMPLATE'
+      - '../workflows'
+
+  workflow_dispatch:
+
+jobs:
+  # This will start unit/integration testing
+  test-unit:
+    name: Unit
+    runs-on: macos-latest
+
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start unit / integration tests
+        run: npm test
