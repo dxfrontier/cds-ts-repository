@@ -1,3 +1,4 @@
+import { Book } from '../bookshop/srv/util/types/entities/AdminService';
 import { connectTest, getBookRepository } from '../util/util';
 
 const cds = connectTest(__dirname, 'bookshop');
@@ -90,7 +91,7 @@ describe('SELECT', () => {
         const orderItemsDesc = await bookRepository
           .builder()
           .find({ currency_code: 'USD' })
-          .orderDesc(['stock'])
+          .orderDesc(['stock', 'price'])
           .execute();
 
         expect(orderItemsDesc[0]).not.toMatchObject(getAllByCurrencyCode[0]);
@@ -103,12 +104,13 @@ describe('SELECT', () => {
         const orderItemsDesc = await bookRepository
           .builder()
           .find({ currency_code: 'USD' })
-          .orderDesc(['stock'])
+          .orderDesc(['stock', 'price'])
           .execute();
+
         const orderItemsAsc = await bookRepository
           .builder()
           .find({ currency_code: 'USD' })
-          .orderAsc(['stock'])
+          .orderAsc(['stock', 'price'])
           .execute();
 
         expect(orderItemsAsc[0]).not.toMatchObject(orderItemsDesc[0]);
@@ -118,7 +120,12 @@ describe('SELECT', () => {
     describe('======> .groupBy()', () => {
       it('It should RETURN : groupBy(["author"]) should group by column "author"', async () => {
         const bookRepository = await getBookRepository(cds);
-        const groupBy = await bookRepository.builder().find({ currency_code: 'USD' }).groupBy(['author']).execute();
+
+        const groupBy = await bookRepository
+          .builder()
+          .find({ currency_code: 'USD' })
+          .groupBy(['author', 'currency_code'])
+          .execute();
 
         expect(groupBy[0]).toBeDefined();
       });

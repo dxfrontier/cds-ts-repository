@@ -44,7 +44,9 @@ class SelectBuilder<T> {
    * @returns {this} - Returns the instance of the current object.
    */
   public orderAsc(columns: Array<keyof T>): this {
-    void this.select.orderBy(columns.join(' ') + ' asc');
+    const columnsWithAsc = columns.map((column) => `${column as unknown as string} asc`);
+
+    void this.select.orderBy(...columnsWithAsc);
     return this;
   }
 
@@ -54,7 +56,9 @@ class SelectBuilder<T> {
    * @returns {this} - Returns the instance of the current object.
    */
   public orderDesc(columns: Array<keyof T>): this {
-    void this.select.orderBy(columns.join(' ') + ' desc');
+    const columnsWithDesc = columns.map((column) => `${column as unknown as string} desc`);
+
+    void this.select.orderBy(...columnsWithDesc);
 
     return this;
   }
@@ -65,7 +69,7 @@ class SelectBuilder<T> {
    * @returns {this} - Returns the instance of the current object.
    */
   public groupBy(columns: Array<keyof T>): this {
-    void this.select.groupBy(columns.join(' '));
+    void this.select.groupBy(columns as unknown as string);
     return this;
   }
 
