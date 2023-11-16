@@ -1,4 +1,3 @@
-import { Book } from '../bookshop/srv/util/types/entities/AdminService';
 import { connectTest, getBookRepository } from '../util/util';
 
 const cds = connectTest(__dirname, 'bookshop');
