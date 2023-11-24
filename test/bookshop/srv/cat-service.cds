@@ -1,32 +1,11 @@
 using {sap.capire.bookshop as my} from '../db/schema';
 
-service CatalogService @(path: '/browse') {
+service CatalogService {
 
-  /**
-   * For displaying lists of Books
-   */
-  entity ListOfBooks as projection on Books excluding {
-    descr
-  };
+  @odata.draft.enabled: true
+  entity BookEvents as projection on my.BookEvents;
 
-  /**
-   * For display in details pages
-   */
-  entity Books       as projection on my.Books {
-    *,
-    author.name as author
-  } excluding {
-    createdBy,
-    modifiedBy
-  };
+  entity Authors    as projection on my.Authors;
+  entity Books      as projection on my.Books;
 
-  action submitOrder(book : Books:ID, quantity : Integer) returns {
-    stock : Integer
-  };
-
-  event OrderedBook : {
-    book     : Books:ID;
-    quantity : Integer;
-    buyer    : String
-  };
 }

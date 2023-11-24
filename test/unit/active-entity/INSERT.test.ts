@@ -1,11 +1,17 @@
-import { connectTest, getBookRepository } from '../util/util';
-
-const cds = connectTest(__dirname, 'bookshop');
+import BookRepository from '../../util/BookRepository';
+import { startTestServer } from '../../util/util';
 
 describe('INSERT', () => {
+  startTestServer(__dirname, 'bookshop');
+
+  let bookRepository: BookRepository;
+
+  beforeAll(async () => {
+    bookRepository = new BookRepository();
+  });
+
   describe('.create()', () => {
-    test('It should RETURN : .create() which will create a new record in the database', async () => {
-      const bookRepository = await getBookRepository(cds);
+    test('should successfully create a new record in the database', async () => {
       const getAll = await bookRepository.getAll();
       const create = await bookRepository.create({
         ID: 432,
@@ -25,8 +31,7 @@ describe('INSERT', () => {
   });
 
   describe('.createMany()', () => {
-    test('It should RETURN : .createMany() which will create "multiple records" record in the database', async () => {
-      const bookRepository = await getBookRepository(cds);
+    test('should successfully create multiple records in the database', async () => {
       const getAll = await bookRepository.getAll();
       const createMany = await bookRepository.createMany([
         {
