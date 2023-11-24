@@ -1,23 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type entity } from '@sap/cds/apis/csn';
-import { type KeyValueType } from '../types/types';
+import { type Definition } from '@sap/cds/apis/csn';
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-class SelectBuilder<T> {
+class SelectBuilder<T, Keys> {
   private readonly select: SELECT<T>;
 
   constructor(
-    private readonly entity: entity,
-    private readonly keys: KeyValueType<T>,
+    private readonly entity: Definition | string,
+    private readonly keys: Keys,
   ) {
     this.select = SELECT.from(this.entity).where(this.keys);
   }
 
   /**
    * Retrieves the expands associated entities.
-   * @param {Array<keyof T>} [associations] - An array of column names to expand, representing associated entities.
-   * @returns {this} - Returns the instance of the current object.
+   * @param associations An array of column names to expand, representing associated entities.
+   * @returns Returns the instance of the current object.
+   *
+   * @example
+   * const results = await this.builder()
+   * .find({
+   *     name: 'A company name',
+   * })
+   * .getExpand(['orders'])
+   * .execute();
    */
   public getExpand(associations: Array<keyof T>): this {
     // const private routines for this func
@@ -40,8 +48,15 @@ class SelectBuilder<T> {
 
   /**
    * Orders the selected columns in ascending order.
-   * @param {Array<keyof T>} columns - An array of column names to order ascending.
-   * @returns {this} - Returns the instance of the current object.
+   * @param {Array<keyof T>} columns An array of column names to order ascending.
+   * @returns {this} Returns the instance of the current object.
+   *
+   * @example
+   * await this.builder().find({
+   *   name: 'A company name',
+   * })
+   * .orderAsc(['name'])
+   * .execute();
    */
   public orderAsc(columns: Array<keyof T>): this {
     const columnsWithAsc = columns.map((column) => `${column as unknown as string} asc`);
@@ -52,8 +67,15 @@ class SelectBuilder<T> {
 
   /**
    * Orders the selected columns in descending order.
-   * @param {Array<keyof T>} columns - An array of column names to order in descending.
-   * @returns {this} - Returns the instance of the current object.
+   * @param columns An array of column names to order in descending.
+   * @returns Returns the instance of the current object.
+   *
+   * @example
+   * await this.builder().find({
+   *   name: 'A company name',
+   * })
+   * .orderDesc(['name'])
+   * .execute();
    */
   public orderDesc(columns: Array<keyof T>): this {
     const columnsWithDesc = columns.map((column) => `${column as unknown as string} desc`);
@@ -65,8 +87,15 @@ class SelectBuilder<T> {
 
   /**
    * Groups the selected columns.
-   * @param {Array<keyof T>} columns - An array of column names to use for grouping.
-   * @returns {this} - Returns the instance of the current object.
+   * @param columns An array of column names to use for grouping.
+   * @returns Returns the instance of the current object.
+   *
+   * @example
+   * await this.builder().find({
+   *   name: 'A company name',
+   * })
+   * .groupBy(['name'])
+   * .execute();
    */
   public groupBy(columns: Array<keyof T>): this {
     void this.select.groupBy(columns as unknown as string);
@@ -75,9 +104,18 @@ class SelectBuilder<T> {
 
   /**
    * Limits the result set with an optional offset.
-   * @param {number} props.limit - The limit for the result set.
-   * @param {number | undefined} [props.skip] - The optional 'skip', this will skip a certain number of items for the result set.
-   * @returns {this} - Returns the instance of the current object.
+   * @param props
+   * @param props.limit The limit for the result set.
+   * @param props.skip The optional 'skip', this will skip a certain number of items for the result set.
+   * @returns {this} Returns the instance of the current object.
+   *
+   * @example
+   * await this.builder().find({
+   *   name: 'A company name',
+   * })
+   * .limit({ limit: 10, skip: 5 })
+   * .execute();
+   *
    */
   public limit(props: { limit: number; skip?: number }): this {
     if (props.skip !== null) {
@@ -91,7 +129,7 @@ class SelectBuilder<T> {
 
   /**
    * Executes the query and returns the result as an array of objects.
-   * @returns {Promise<Array<T>>} - A promise that resolves to the query result.
+   * @returns A promise that resolves to the query result.
    */
   public async execute(): Promise<T[]> {
     return await this.select;
