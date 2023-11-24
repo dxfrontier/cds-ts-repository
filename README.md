@@ -13,32 +13,37 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [Generate CDS Typed entities](#generate-cds-typed-entities)
   - [Architecture](#architecture)
   - [Usage](#usage)
-    - [Option 1 : Using `BaseRepository` with Standard SAP CDS-TS](#option-1--using-baserepository-with-standard-sap-cds-ts)
-      - [Step 1: Create a HandleClass](#step-1-create-a-handleclass)
-      - [Step 2 : Integrate HandleClass](#step-2--integrate-handleclass)
-    - [Option 2 : Using `BaseRepository` with CDS-TS-Dispatcher](#option-2--using-baserepository-with-cds-ts-dispatcher)
-      - [Methods](#methods)
-        - [create](#create)
-        - [createMany](#createmany)
-        - [getAll](#getall)
-        - [getDistinctColumns](#getdistinctcolumns)
-        - [getAllAndLimit](#getallandlimit)
-        - [getLocaleTexts](#getlocaletexts)
-        - [find](#find)
-        - [findOne](#findone)
-        - [builder](#builder)
-          - [orderAsc](#orderasc)
-          - [orderDesc](#orderdesc)
-          - [groupBy](#groupby)
-          - [limit](#limit)
-          - [getExpand](#getexpand)
-          - [execute](#execute)
-        - [update](#update)
-        - [updateLocaleTexts](#updatelocaletexts)
-        - [delete](#delete)
-        - [deleteMany](#deletemany)
-        - [exists](#exists)
-        - [count](#count)
+    - [`Option 1` : Using `BaseRepository` with `Standard SAP CDS-TS`](#option-1--using-baserepository-with-standard-sap-cds-ts)
+      - [Step 1: Create MyRepository class](#step-1-create-myrepository-class)
+      - [Step 2 : Integrate MyRepository class](#step-2--integrate-myrepository-class)
+    - [`Option 2` : Using `BaseRepository` with `CDS-TS-Dispatcher`](#option-2--using-baserepository-with-cds-ts-dispatcher)
+      - [Step 1 : Create MyRepository class](#step-1--create-myrepository-class)
+      - [Step 2 : Inject MyRepository class](#step-2--inject-myrepository-class)
+    - [`Drafts` : `BaseRepositoryDraft`](#drafts--baserepositorydraft)
+      - [Usage guidelines](#usage-guidelines)
+      - [Integration](#integration)
+    - [Methods](#methods)
+      - [create](#create)
+      - [createMany](#createmany)
+      - [getAll](#getall)
+      - [getDistinctColumns](#getdistinctcolumns)
+      - [getAllAndLimit](#getallandlimit)
+      - [getLocaleTexts](#getlocaletexts)
+      - [find](#find)
+      - [findOne](#findone)
+      - [builder](#builder)
+        - [orderAsc](#orderasc)
+        - [orderDesc](#orderdesc)
+        - [groupBy](#groupby)
+        - [limit](#limit)
+        - [getExpand](#getexpand)
+        - [execute](#execute)
+      - [update](#update)
+      - [updateLocaleTexts](#updatelocaletexts)
+      - [delete](#delete)
+      - [deleteMany](#deletemany)
+      - [exists](#exists)
+      - [count](#count)
   - [Examples](#examples)
   - [Contributing](#contributing)
   - [License](#license)
@@ -84,15 +89,13 @@ A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher]
 
 ## Usage
 
-### Option 1 : Using `BaseRepository` with Standard SAP CDS-TS
+### `Option 1` : Using `BaseRepository` with `Standard SAP CDS-TS`
 
-This guide explains how to use the BaseRepository with the Standard SAP CDS-TS, allowing you to work with your entities without the need for the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher).
+This guide explains how to use the BaseRepository with the `Standard SAP CDS-TS`, allowing you to work without the need for the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher).
 
-#### Step 1: Create a HandleClass
+#### Step 1: Create MyRepository class
 
-Start by creating a `HandleClass`, which will extend the `BaseRepository<T>` to handle operations for your entity.
-
-Here's an example of how to set it up:
+Start by creating a `MyRepository`, which will extend the `BaseRepository<T>` to handle operations for your entity.
 
 `Example`
 
@@ -103,7 +106,7 @@ import { Request } from '@sap/cap';
 import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
 
-class HandleClass extends BaseRepository<MyEntity> {
+class MyRepository extends BaseRepository<MyEntity> {
 
   constructor() {
     super(MyEntity)
@@ -136,29 +139,29 @@ class HandleClass extends BaseRepository<MyEntity> {
 
 ```
 
-#### Step 2 : Integrate HandleClass
+#### Step 2 : Integrate MyRepository class
 
-Now that you have your `HandleClass`, you can integrate it into your implementation.
+Now that you have your `MyRepository`, you can integrate it into your implementation.
 
 `Steps`
 
 1. Create a new private field:
 
 ```ts
-private handleClass: HandleClass
+private myRepository: MyRepository
 ```
 
-2. Initialize the handleClass :
+2. Initialize the myRepository :
 
 ```ts
-this.handleClass = new HandleClass();
+this.myRepository = new MyRepository();
 ```
 
 3. Use the handler on the `callback` of the `events` :
 
 ```ts
-this.before('READ', MyEntity, (req) => this.HandleClass.aMethod(req));
-this.after('READ', MyEntity, (results, req) => this.handleClass.anotherMethod(results, req));
+this.before('READ', MyEntity, (req) => this.myRepository.aMethod(req));
+this.after('READ', MyEntity, (results, req) => this.myRepository.anotherMethod(results, req));
 ```
 
 `Example`
@@ -167,15 +170,15 @@ this.after('READ', MyEntity, (results, req) => this.handleClass.anotherMethod(re
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MainService extends cds.ApplicationService {
-  private handleClass: HandleClass;
+  private myRepository: MyRepository;
   // ...
 
   init() {
-    this.handleClass = new HandleClass();
+    this.myRepository = new MyRepository();
     // ...
 
-    this.before('READ', MyEntity, (req) => this.handleClass.aMethod(req));
-    this.after('READ', MyEntity, (results, req) => this.handleClass.anotherMethod(results, req));
+    this.before('READ', MyEntity, (req) => this.myRepository.aMethod(req));
+    this.after('READ', MyEntity, (results, req) => this.myRepository.anotherMethod(results, req));
 
     return super.init();
   }
@@ -185,30 +188,34 @@ class MainService extends cds.ApplicationService {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
-### Option 2 : Using `BaseRepository` with [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
+### `Option 2` : Using `BaseRepository` with `CDS-TS-Dispatcher`
+
+This guide explains how to use the BaseRepository with the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher).
+
+#### Step 1 : Create MyRepository class
 
 Start by creating a `MyRepository` class, which will extend the `BaseRepository<T>` to handle operations for your entity.
 
-Here's an example of how to set it up:
-
 `Steps`
 
-1. Create a new class `MyRepository` add `@Repository` decorator and extend `MyRepository` class to inherit the `BaseRepository` methods:
+1. Create a new class `MyRepository`:
 
 ```ts
-import { Repository } from '@dxfrontier/cds-ts-dispatcher';
-import { BaseRepository } from '@dxfrontier/cds-ts-repository';
-
-@Repository()
-class MyRepository extends BaseRepository<MyEntity> {}
+class MyRepository
 ```
 
-2. Use `@Inject` decorator to use Dependency injection to inject the class in another class :
+2. Add `@Repository` decorator :
 
 ```ts
-import { Inject } from '@dxfrontier/cds-ts-dispatcher';
+@Repository()
+class MyRepository
+```
 
-@Inject(MyRepository) private readonly myRepository: MyRepository;
+3. Extend `MyRepository` class to inherit the `BaseRepository` methods
+
+```ts
+@Repository()
+class MyRepository BaseRepository<MyEntity> {}
 ```
 
 `Example`
@@ -245,15 +252,15 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 
 export default MyRepository
-
 ```
+
+#### Step 2 : Inject MyRepository class
+
+Now `MyRepository` can be injected using `@Inject` in another class.
 
 `Example`
 
-Inject the repository in another class using `@Inject`
-
 ```ts
-
 @EntityHandler(Book)
 class BookStatsHandler {
   @Inject(MyRepository) private readonly myRepository: MyRepository;
@@ -265,9 +272,71 @@ class BookStatsHandler {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-#### Methods
+### `Drafts` : `BaseRepositoryDraft`
 
-##### create
+The `BaseRepositoryDraft` class extends `BaseRepository` by providing support for draft-enabled entities.
+
+BaseRepositoryDraft repository provides a clear separation of methods for **working with active entities** and **draft instances.**
+
+#### Usage guidelines
+
+Use `BaseRepository` methods when dealing with `active entity instances`.
+
+- `update`, `delete`, `create`, `createMany`, `...`
+
+Use `BaseRepositoryDraft` methods when working with `draft entity instances`.
+
+- `updateDraft`, `deleteDraft`, `findOneDraft`, `findDrafts`, `...`
+
+#### Integration
+
+`Example 1`: Integrate `BaseRepository` & `BaseRepositoryDraft` using `Mixin`
+
+```ts
+import { BaseRepository, BaseRepositoryDraft, Mixin } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+class MyRepository extends Mixin(BaseRepository<MyEntity>, BaseRepositoryDraft<MyEntity>) {
+  constructor() {
+    super(MyEntity);
+  }
+  // ... define custom CDS-QL actions if BaseRepository ones are not satisfying your needs !
+}
+
+export default BookEventRepository;
+```
+
+> [!NOTE]
+> MyRepository class will inherit all methods for active entities and drafts.
+> `Active entity methods`: .create, createMany, update, exists, delete, deleteMany ...
+> `Draft entity methods`: .updateDraft, existsDraft, deleteDraft, deleteManyDrafts ...
+
+`Example 2`: Use only `BaseRepositoryDraft` methods
+
+```ts
+import { BaseRepository, BaseRepositoryDraft, Mixin } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+class MyRepository extends BaseRepositoryDraft<MyEntity> {
+  constructor() {
+    super(MyEntity);
+  }
+  // ... define custom CDS-QL actions if BaseRepository ones are not satisfying your needs !
+}
+
+export default BookEventRepository;
+```
+
+> [!NOTE]
+> MyRepository class will inherit all methods for drafts.
+> `Draft entity methods`: .updateDraft, existsDraft, deleteDraft, deleteManyDrafts ...
+
+> [!IMPORTANT]
+> Enable `MyEntity` as `@odata.draft.enabled: true` to use `BaseRepositoryDraft` methods.
+
+### Methods
+
+#### create
 
 `(method) this.create(entry: KeyValueType<T>) : Promise<InsertResult<T>>`.
 
@@ -307,7 +376,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### createMany
+#### createMany
 
 `(method) this.createMany(entries: Array<KeyValueType<T>>) : Promise<InsertResult<T>>`.
 
@@ -353,7 +422,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### getAll
+#### getAll
 
 `(method) this.getAll(): Promise<T[]>`
 
@@ -386,7 +455,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### getDistinctColumns
+#### getDistinctColumns
 
 `(method) this.getDistinctColumns<Column extends keyof T>(columns: Column[]>): Promise<Array<Pick<T, Column>>>`
 
@@ -423,7 +492,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### getAllAndLimit
+#### getAllAndLimit
 
 `(method) this.getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[]>`
 
@@ -480,7 +549,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### getLocaleTexts
+#### getLocaleTexts
 
 `(method) this.getLocaleTexts<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column> & Locale>>`
 
@@ -513,7 +582,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### find
+#### find
 
 `find(keys: KeyValueType<T>): Promise<T[]>`
 
@@ -550,7 +619,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### findOne
+#### findOne
 
 `findOne(keys: KeyValueType<T>): Promise<T>`
 
@@ -586,7 +655,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### builder
+#### builder
 
 `(method) this.builder().find(keys: KeyValueType<T>): SelectBuilder<T>`
 
@@ -732,7 +801,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### update
+#### update
 
 `update(keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
 
@@ -773,7 +842,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### updateLocaleTexts
+#### updateLocaleTexts
 
 `updateLocaleTexts(localeCodeKeys: KeyValueType<T> & Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
 
@@ -811,7 +880,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### delete
+#### delete
 
 `delete(keys: KeyValueType<T>): Promise<boolean>`
 
@@ -849,7 +918,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### deleteMany
+#### deleteMany
 
 `deleteMany(entries: Array<KeyValueType<T>>): Promise<boolean>`
 
@@ -889,7 +958,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### exists
+#### exists
 
 `exists(keys: KeyValueType<T>): Promise<boolean>`
 
@@ -926,7 +995,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### count
+#### count
 
 `count(): Promise<number>`
 
