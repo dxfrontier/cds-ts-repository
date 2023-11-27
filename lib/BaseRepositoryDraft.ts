@@ -1,15 +1,15 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
-import { type Definition } from '@sap/cds/apis/csn';
 
 import { type KeyValueDraftType } from './types/types';
 
 import { CoreRepository } from './util/CoreRepository';
+import { type Constructable } from '@sap/cds/apis/internal/inference';
 
 abstract class BaseRepositoryDraft<T> {
   protected readonly coreRepository: CoreRepository<KeyValueDraftType<T>>;
 
-  constructor(protected readonly entity: Definition) {
+  constructor(protected readonly entity: Constructable<T>) {
     this.coreRepository = new CoreRepository(`${this.entity.name}.drafts`);
   }
 

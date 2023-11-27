@@ -1,16 +1,16 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
-import { type Definition } from '@sap/cds/apis/csn';
 
 import { type InsertResult, type KeyValueType, type Locale } from './types/types';
 
 import { CoreRepository } from './util/CoreRepository';
+import { type Constructable } from '@sap/cds/apis/internal/inference';
 
 abstract class BaseRepository<T> {
   protected readonly coreRepository: CoreRepository<T>;
 
-  constructor(protected readonly entity: Definition) {
-    this.coreRepository = new CoreRepository(this.entity);
+  constructor(protected readonly entity: Constructable<T>) {
+    this.coreRepository = new CoreRepository(this.entity.name);
   }
 
   // Public routines

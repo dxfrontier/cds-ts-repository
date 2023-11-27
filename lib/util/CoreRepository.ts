@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
-import { type Definition } from '@sap/cds/apis/csn';
 
 import { type KeyValueType, type Locale, type InsertResult } from '../types/types';
 
@@ -8,7 +7,7 @@ import SelectBuilder from './SelectBuilder';
 import Util from './Util';
 
 class CoreRepository<T> {
-  constructor(protected readonly entity: Definition | string) {
+  constructor(protected readonly entity: string) {
     this.entity = entity;
   }
 
@@ -41,13 +40,7 @@ class CoreRepository<T> {
   }
 
   public async getLocaleTexts<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column> & Locale>> {
-    let getLocaleTexts;
-
-    if (Util.isDefinition(this.entity)) {
-      getLocaleTexts = await SELECT.from(`${this.entity.name}.texts`).columns(...columns, 'locale');
-    }
-
-    return getLocaleTexts;
+    return await SELECT.from(`${this.entity}.texts`).columns(...columns, 'locale');
   }
 
   public async find(keys: KeyValueType<T>): Promise<T[]> {
@@ -75,11 +68,7 @@ class CoreRepository<T> {
     localeCodeKeys: KeyValueType<T> & Locale,
     fieldsToUpdate: KeyValueType<T>,
   ): Promise<boolean> {
-    let updated: number = 0;
-
-    if (Util.isDefinition(this.entity)) {
-      updated = await UPDATE.entity(`${this.entity.name}.texts`).with(fieldsToUpdate).where(localeCodeKeys);
-    }
+    const updated: number = await UPDATE.entity(`${this.entity}.texts`).with(fieldsToUpdate).where(localeCodeKeys);
     return updated === 1;
   }
 
