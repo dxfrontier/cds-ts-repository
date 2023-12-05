@@ -25,7 +25,7 @@ describe('INSERT', () => {
       });
       const getAllAfter = await bookRepository.getAll();
 
-      expect(getAllAfter.length).toBeGreaterThan(getAll.length);
+      expect(getAllAfter!.length).toBeGreaterThan(getAll!.length);
       expect(create.query.INSERT.entries).toHaveLength(1);
     });
   });
@@ -57,7 +57,7 @@ describe('INSERT', () => {
       ]);
       const getAllAfter = await bookRepository.getAll();
 
-      expect(getAllAfter.length).toBeGreaterThan(getAll.length);
+      expect(getAllAfter!.length).toBeGreaterThan(getAll!.length);
       expect(createMany.query.INSERT.entries).toHaveLength(2);
     });
   });

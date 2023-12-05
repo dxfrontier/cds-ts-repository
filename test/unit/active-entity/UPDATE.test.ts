@@ -16,7 +16,7 @@ describe('UPDATE', () => {
       const findAnItemAfterUpdate = await bookRepository.find({ ID: 203 });
 
       expect(updatedItem).toBe(true);
-      expect(findAnItem).not.toMatchObject(findAnItemAfterUpdate);
+      expect(findAnItem).not.toMatchObject(findAnItemAfterUpdate!);
     });
   });
 
@@ -30,7 +30,7 @@ describe('UPDATE', () => {
       );
 
       const allLocalizedTexts = await bookRepository.getLocaleTexts(['descr', 'title', 'ID']);
-      const foundUpdated = allLocalizedTexts.filter((item) => item.ID === 201 && item.locale === 'de');
+      const foundUpdated = allLocalizedTexts!.filter((item) => item.ID === 201 && item.locale === 'de');
 
       expect(updatedLocaleItem).toBe(true);
       expect(foundUpdated[0].title).toBe(textToUpdate);

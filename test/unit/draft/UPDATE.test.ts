@@ -39,7 +39,7 @@ describe('UPDATE - drafts', () => {
 
       // Assert
       expect(updatedItem).toBe(true);
-      expect(findAnItem).not.toMatchObject(findAnItemAfterUpdate);
+      expect(findAnItem).not.toMatchObject(findAnItemAfterUpdate!);
     });
   });
 });
