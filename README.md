@@ -20,7 +20,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
       - [Step 1 : Create MyRepository class](#step-1--create-myrepository-class)
       - [Step 2 : Inject MyRepository class](#step-2--inject-myrepository-class)
     - [`Drafts` : `BaseRepositoryDraft`](#drafts--baserepositorydraft)
-      - [Usage guidelines](#usage-guidelines)
+      - [Usage](#usage-1)
       - [Integration](#integration)
     - [Methods](#methods)
       - [create](#create)
@@ -85,8 +85,6 @@ npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 
 A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
 
-<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
-
 ## Usage
 
 ### `Option 1` : Using `BaseRepository` with `Standard SAP CDS-TS`
@@ -101,8 +99,6 @@ Start by creating a `MyRepository`, which will extend the `BaseRepository<T>` to
 
 ```ts
 
-import { Request } from '@sap/cap';
-
 import { BaseRepository } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
 
@@ -112,7 +108,7 @@ class MyRepository extends BaseRepository<MyEntity> {
     super(MyEntity)
   }
 
-  public aMethod(req: Request) {
+  public aMethod() {
 
     // BaseRepository predefined methods using the MyEntity entity
     // All methods parameters will allow only parameters of type MyEntity
@@ -130,7 +126,7 @@ class MyRepository extends BaseRepository<MyEntity> {
     const result13 = await this.count()
   }
 
-  public anotherMethod(results: MyEntity[], req: Request) {
+  public anotherMethod(results: MyEntity[]) {
     const result123 = await this.exists(...)
     const result143 = await this.count()
     // ...
@@ -187,6 +183,8 @@ class MainService extends cds.ApplicationService {
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ### `Option 2` : Using `BaseRepository` with `CDS-TS-Dispatcher`
 
@@ -278,15 +276,23 @@ The `BaseRepositoryDraft` class extends `BaseRepository` by providing support fo
 
 BaseRepositoryDraft repository provides a clear separation of methods for **working with active entities** and **draft instances.**
 
-#### Usage guidelines
+#### Usage
 
 Use `BaseRepository` methods when dealing with `active entity instances`.
 
-- `update`, `delete`, `create`, `createMany`, `...`
+- `update`
+- `delete`
+- `create`
+- `createMany`
+- `...`
 
 Use `BaseRepositoryDraft` methods when working with `draft entity instances`.
 
-- `updateDraft`, `deleteDraft`, `findOneDraft`, `findDrafts`, `...`
+- `updateDraft`
+- `deleteDraft`
+- `findOneDraft`
+- `findDrafts`
+- `...`
 
 #### Integration
 
@@ -308,8 +314,8 @@ export default BookEventRepository;
 
 > [!NOTE]
 > MyRepository class will inherit all methods for active entities and drafts.
-> `Active entity methods`: .create, createMany, update, exists, delete, deleteMany ...
-> `Draft entity methods`: .updateDraft, existsDraft, deleteDraft, deleteManyDrafts ...
+> Active entity methods: .create, createMany, update, exists, delete, deleteMany ...
+> Draft entity methods: .updateDraft, existsDraft, deleteDraft, deleteManyDrafts ...
 
 `Example 2`: Use only `BaseRepositoryDraft` methods
 
@@ -329,10 +335,12 @@ export default BookEventRepository;
 
 > [!NOTE]
 > MyRepository class will inherit all methods for drafts.
-> `Draft entity methods`: .updateDraft, existsDraft, deleteDraft, deleteManyDrafts ...
+> Draft entity methods: .updateDraft, existsDraft, deleteDraft, deleteManyDrafts ...
 
 > [!IMPORTANT]
 > Enable `MyEntity` as `@odata.draft.enabled: true` to use `BaseRepositoryDraft` methods.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ### Methods
 
@@ -424,13 +432,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### getAll
 
-`(method) this.getAll(): Promise<T[]>`
+`(method) this.getAll(): Promise<T[] | undefined>`
 
 The `getAll` method retrieves all database entries.
 
 `Return`
 
-- `Promise<T[]>`: This method returns a Promise with an array of type `T`, where `T[]` is `MyEntity`.
+- `Promise<T[] | undefined>`: A Promise resolving to an array of type `T` (e.g., `MyEntity`). If no results are found, the Promise resolves to `undefined`.
 
 `Example`
 
@@ -444,7 +452,16 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
+    // Variant 1
     const results = await this.getAll();
+    if (results) {
+      // do something with results
+    }
+
+    // Variant 2
+    const items = results?.length;
+    const oneItem = results![0];
+
     // Further logic with results
   }
 }
@@ -457,7 +474,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### getDistinctColumns
 
-`(method) this.getDistinctColumns<Column extends keyof T>(columns: Column[]>): Promise<Array<Pick<T, Column>>>`
+`(method) this.getDistinctColumns<Column extends keyof T>(columns: Column[]>): Promise<Array<Pick<T, Column>> | undefined>`
 
 The `getDistinctColumns` method retrieves distinct values for the specified columns from the database.
 
@@ -467,7 +484,7 @@ The `getDistinctColumns` method retrieves distinct values for the specified colu
 
 `Return`
 
-- `Promise<Array<Pick<T, Column>>>`: This method returns a Promise that resolves to an array of objects containing the selected columns from the entity.
+- `Promise<Array<Pick<T, Column>> | undefined>`: A Promise resolving to an array of objects containing the selected columns from the entity. If no results are found, the Promise resolves to `undefined`.
 
 `Example`
 
@@ -482,6 +499,14 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
     const results = await this.getDistinctColumns(['currency_code', 'ID', 'name']);
+    // Variant 1
+    if (results) {
+      // do something with results
+    }
+
+    // Variant 2
+    const items = results?.length;
+    const oneItem = results![0];
     // Further logic with results
   }
 }
@@ -506,7 +531,7 @@ The `getAllAndLimit` method allows you to find and retrieve a list of items with
 
 `Return`
 
-- `Promise<T[]>`: This method returns a Promise that resolves to an array of objects representing instances of type `MyEntity`.
+- `Promise<T[] | undefined>`: A Promise resolving to an array of objects representing instances of type `T` (e.g., `MyEntity`). If no results are found, the Promise resolves to `undefined`.
 
 `Example 1` : Retrieve the first 10 items
 
@@ -521,6 +546,15 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
     const results = await this.getAllAndLimit({ limit: 10 });
+
+    // Variant 1
+    if (results) {
+      // do something with results
+    }
+
+    // Variant 2
+    const items = results?.length;
+    const oneItem = results![0];
     // Further logic with results
   }
 }
@@ -539,6 +573,16 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
     const resultsWithSkip = await this.getAllAndLimit({ limit: 5, skip: 20 });
+
+    // Variant 1
+    if (resultsWithSkip) {
+      // do something with results
+    }
+
+    // Variant 2
+    const items = resultsWithSkip?.length;
+    const oneItem = resultsWithSkip![0];
+
     // Further logic with resultsWithSkip
   }
 }
@@ -551,13 +595,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### getLocaleTexts
 
-`(method) this.getLocaleTexts<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column> & Locale>>`
+`(method) this.getLocaleTexts<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column> & Locale> | undefined>`
 
 The `getLocaleTexts` method is designed to retrieve a list of items with localized text.
 
 `Return`
 
-- `Promise<Array<Pick<T, Column> & Locale>>`: This method returns a Promise with the locale texts provided in the `columns` argument.
+- `Promise<Array<Pick<T, Column> & Locale> | undefined>`: A Promise resolving to an array of objects containing the selected columns from the entity along with locale information. If no results are found, the Promise resolves to `undefined`.
 
 `Example`
 
@@ -572,6 +616,15 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
     const results = await this.getLocaleTexts(['descr', 'ID']);
+
+    // Variant 1
+    if (results) {
+      // do something with results
+    }
+
+    // Variant 2
+    const items = results?.length;
+    const oneItem = results![0];
     // Further logic with results
   }
 }
@@ -584,7 +637,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### find
 
-`find(keys: KeyValueType<T>): Promise<T[]>`
+`find(keys: KeyValueType<T>): Promise<T[] | undefined>`
 
 The `find` method allows you to find and retrieve entries from the database that match the specified keys.
 
@@ -594,7 +647,7 @@ The `find` method allows you to find and retrieve entries from the database that
 
 `Return`
 
-- `Promise<T[]>`: This method returns a Promise with an array of type `T`, where `T[]` is `MyEntity`.
+- `Promise<T[] | undefined>`: A Promise that resolves to an array of type `T` (e.g., `MyEntity`). If no results are found, the Promise resolves to `undefined`.
 
 `Example`
 
@@ -609,6 +662,15 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
     const results = await this.find({ name: 'Customer', description: 'description' });
+
+    // Variant 1
+    if (results) {
+      // do something with results
+    }
+
+    // Variant 2
+    const items = results?.length;
+    const oneItem = results![0];
     // Further logic with results
   }
 }
@@ -621,7 +683,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### findOne
 
-`findOne(keys: KeyValueType<T>): Promise<T>`
+`findOne(keys: KeyValueType<T>): Promise<T | undefined>`
 
 The `findOne` method allows you to find and retrieve a single entry from the database that matches the specified keys.
 `Parameters`
@@ -630,7 +692,7 @@ The `findOne` method allows you to find and retrieve a single entry from the dat
 
 `Return`
 
-- `Promise<T>`: This method returns a Promise with a single entry of type `T`, where `T` is `MyEntity`.
+- `Promise<T | undefined>`: This method returns a Promise with a single entry of type `T`, where `T` is `MyEntity`. If no result is found, the Promise resolves to `undefined`.
 
 `Example`
 
@@ -644,7 +706,12 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const result = await this.findOne({ name: 'Customer', description: 'description' });
+    const itemFound = await this.findOne({ name: 'Customer', description: 'description' });
+    // Variant 1
+    if (itemFound) {
+      // do something with result
+    }
+
     // Further logic with result
   }
 }
@@ -789,7 +856,15 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
 
-    const results = await this.builder().find({ name: 'A company name' }).orderAsc(['name']).limit({ limit: 1 }).getExpand().execute()
+    const results = await this.builder().find({ name: 'A company name' }).orderAsc(['name']).limit({ limit: 5 }).getExpand(['orders']).execute()
+
+    if (results) {
+      // do something with results
+    }
+
+    // Variant 2
+    const items = results?.length;
+    const oneItem = results![0];
 
   }
   ...
