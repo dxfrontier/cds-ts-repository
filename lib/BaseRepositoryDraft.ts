@@ -21,7 +21,7 @@ abstract class BaseRepositoryDraft<T> {
    *
    * @example const results = await this.getAllDrafts();
    */
-  public async getAllDrafts(): Promise<Array<KeyValueDraftType<T>>> {
+  public async getAllDrafts(): Promise<Array<KeyValueDraftType<T>> | undefined> {
     return await this.coreRepository.getAll();
   }
 
@@ -32,7 +32,9 @@ abstract class BaseRepositoryDraft<T> {
    *
    * @example const results = await this.getDraftsDistinctColumns(['currency_code', 'ID', 'name']);
    */
-  public async getDraftsDistinctColumns<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column>>> {
+  public async getDraftsDistinctColumns<Column extends keyof T>(
+    columns: Column[],
+  ): Promise<Array<Pick<T, Column>> | undefined> {
     return await this.coreRepository.getDistinctColumns(columns);
   }
 
@@ -48,7 +50,7 @@ abstract class BaseRepositoryDraft<T> {
   public async getAllDraftsAndLimit(props: {
     limit: number;
     skip?: number | undefined;
-  }): Promise<Array<KeyValueDraftType<T>>> {
+  }): Promise<Array<KeyValueDraftType<T>> | undefined> {
     return await this.coreRepository.getAllAndLimit(props);
   }
 
@@ -59,7 +61,7 @@ abstract class BaseRepositoryDraft<T> {
    *
    * @example const results = await this.findDrafts({ name: 'Customer', description: 'description' });
    */
-  public async findDrafts(keys: KeyValueDraftType<T>): Promise<Array<KeyValueDraftType<T>>> {
+  public async findDrafts(keys: KeyValueDraftType<T>): Promise<Array<KeyValueDraftType<T>> | undefined> {
     return await this.coreRepository.find(keys);
   }
 
@@ -70,7 +72,7 @@ abstract class BaseRepositoryDraft<T> {
    *
    * @example const result = await this.findOneDraft({ name: 'Customer', description: 'description' });
    */
-  public async findOneDraft(keys: KeyValueDraftType<T>): Promise<KeyValueDraftType<T>> {
+  public async findOneDraft(keys: KeyValueDraftType<T>): Promise<KeyValueDraftType<T> | undefined> {
     return await this.coreRepository.findOne(keys);
   }
 

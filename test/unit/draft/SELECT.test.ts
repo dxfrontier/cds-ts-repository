@@ -25,36 +25,9 @@ describe('SELECT - drafts', () => {
       await _activateDraft(baseURL, '2f4d6e7a-8b18-4a6f-bc3e-9c8d6b74cfe1');
       await _activateDraft(baseURL, '3d5e8f7c-6a9b-4d02-af87-91b480a573d1');
     }
-    // const postItem_2 = await POST(
-    //   encodeURIComponent(
-    //     `${baseURL}/odata/v4/catalog/BookEvents(ID=84c67833-a9cb-450c-ae02-a32c3a7a6f6b,IsActiveEntity=true)/CatalogService.draftEdit`,
-    //   ),
-    //   {},
-    // );
 
     bookEventDraftRepository = new BookEventRepository();
   });
-
-  // describe('.createDraft()', () => {
-  //   it('should return all draft items from the database', async () => {
-  //     // Arrange
-  //     const getAll = await bookEventDraftRepository.getAllDrafts();
-
-  //     const uuid = cds.utils.uuid();
-  //     // Act
-  //     const createDraft = await bookEventDraftRepository.createDraft({
-  //       ID: uuid,
-  //       name: 'draft created from code',
-  //       types: 'BOOK_SIGNING',
-  //       DraftAdministrativeData_DraftUUID: uuid,
-  //     });
-
-  //     const getAllAfterCreate = await bookEventDraftRepository.getAllDrafts();
-
-  //     // Assert
-  //     expect(getAll.length).toBeGreaterThan(0);
-  //   });
-  // });
 
   describe('.getAllDrafts()', () => {
     it('should return all draft items from the database', async () => {
@@ -62,7 +35,7 @@ describe('SELECT - drafts', () => {
       const getAll = await bookEventDraftRepository.getAllDrafts();
 
       // Assert
-      expect(getAll.length).toBeGreaterThan(0);
+      expect(getAll!.length).toBeGreaterThan(0);
     });
   });
 
@@ -72,7 +45,7 @@ describe('SELECT - drafts', () => {
       const getDistinctColumns = await bookEventDraftRepository.getDraftsDistinctColumns(['ID', 'name']);
 
       // Assert
-      expect(getDistinctColumns.length).toBeGreaterThan(0);
+      expect(getDistinctColumns!.length).toBeGreaterThan(0);
     });
   });
 
@@ -84,9 +57,9 @@ describe('SELECT - drafts', () => {
       const getAllAndLimitAndSkip = await bookEventDraftRepository.getAllDraftsAndLimit({ limit: 2, skip: 1 });
 
       // Assert
-      expect(getAllAndLimit.length).toBeGreaterThan(0);
-      expect(getAllAndLimit.length).toBeLessThan(getAll.length);
-      expect(getAllAndLimitAndSkip).not.toContain(getAllAndLimit[0]);
+      expect(getAllAndLimit!.length).toBeGreaterThan(0);
+      expect(getAllAndLimit!.length).toBeLessThan(getAll!.length);
+      expect(getAllAndLimitAndSkip).not.toContain(getAllAndLimit![0]);
     });
   });
 
@@ -99,7 +72,7 @@ describe('SELECT - drafts', () => {
       const findMultiple = await bookEventDraftRepository.findDrafts({ types: 'BOOK_LUNCH' });
 
       // Assert
-      expect(getAll.length).toBeGreaterThan(findMultiple.length);
+      expect(getAll!.length).toBeGreaterThan(findMultiple!.length);
     });
   });
 
@@ -128,9 +101,9 @@ describe('SELECT - drafts', () => {
         });
 
         // Assert
-        expect(expand.length).toBeGreaterThan(0);
-        expect(expand[0]).toHaveProperty('author');
-        expect(findOne).not.toMatchObject(expand[0]);
+        expect(expand?.length).toBeGreaterThan(0);
+        expect(expand![0]).toHaveProperty('author');
+        expect(findOne).not.toMatchObject(expand![0]);
       });
     });
 
@@ -187,8 +160,8 @@ describe('SELECT - drafts', () => {
             .execute();
 
           // Assert
-          expect(groupBy[0]).toBeDefined();
-          expect(groupBy).not.toMatchObject(original);
+          expect(groupBy![0]).toBeDefined();
+          expect(groupBy).not.toMatchObject(original!);
         });
       });
 
@@ -213,7 +186,7 @@ describe('SELECT - drafts', () => {
             .execute();
 
           expect(limit).toHaveLength(1);
-          expect(limit).not.toEqual(all[0]);
+          expect(limit).not.toEqual(all![0]);
         });
       });
 

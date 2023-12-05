@@ -17,7 +17,7 @@ describe('DELETE', () => {
       const getAllAfter = await bookRepository.getAll();
 
       expect(deleteOperation).toBe(true);
-      expect(getAll.length).toBeGreaterThan(getAllAfter.length);
+      expect(getAll!.length).toBeGreaterThan(getAllAfter!.length);
     });
   });
 
@@ -28,7 +28,7 @@ describe('DELETE', () => {
       const getAllAfter = await bookRepository.getAll();
 
       expect(deleteAllOperation).toBe(true);
-      expect(getAll.length).toBeGreaterThan(getAllAfter.length);
+      expect(getAll!.length).toBeGreaterThan(getAllAfter!.length);
     });
   });
 });

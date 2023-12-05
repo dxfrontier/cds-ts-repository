@@ -53,7 +53,7 @@ abstract class BaseRepository<T> {
    *
    * @example const results = await this.getAll();
    */
-  public async getAll(): Promise<T[]> {
+  public async getAll(): Promise<T[] | undefined> {
     return await this.coreRepository.getAll();
   }
 
@@ -64,7 +64,9 @@ abstract class BaseRepository<T> {
    *
    * @example const results = await this.getDistinctColumns(['currency_code', 'ID', 'name']);
    */
-  public async getDistinctColumns<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column>>> {
+  public async getDistinctColumns<Column extends keyof T>(
+    columns: Column[],
+  ): Promise<Array<Pick<T, Column>> | undefined> {
     return await this.coreRepository.getDistinctColumns(columns);
   }
 
@@ -77,7 +79,7 @@ abstract class BaseRepository<T> {
    *
    * @example const results = await this.getAllAndLimit({ limit: 10, skip: 5 });
    */
-  public async getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[]> {
+  public async getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
     return await this.coreRepository.getAllAndLimit(props);
   }
 
@@ -88,7 +90,9 @@ abstract class BaseRepository<T> {
    *
    * @example const results = await this.getLocaleTexts(['descr', 'ID']);
    */
-  public async getLocaleTexts<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column> & Locale>> {
+  public async getLocaleTexts<Column extends keyof T>(
+    columns: Column[],
+  ): Promise<Array<Pick<T, Column> & Locale> | undefined> {
     return await this.coreRepository.getLocaleTexts(columns);
   }
 
@@ -99,7 +103,7 @@ abstract class BaseRepository<T> {
    *
    * @example const results = await this.find({ name: 'Customer', description: 'description' });
    */
-  public async find(keys: KeyValueType<T>): Promise<T[]> {
+  public async find(keys: KeyValueType<T>): Promise<T[] | undefined> {
     return await this.coreRepository.find(keys);
   }
 
@@ -110,7 +114,7 @@ abstract class BaseRepository<T> {
    *
    * @example const result = await this.findOne({ name: 'Customer', description: 'description' });
    */
-  public async findOne(keys: KeyValueType<T>): Promise<T> {
+  public async findOne(keys: KeyValueType<T>): Promise<T | undefined> {
     return await this.coreRepository.findOne(keys);
   }
 

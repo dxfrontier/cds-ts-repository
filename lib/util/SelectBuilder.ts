@@ -131,7 +131,7 @@ class SelectBuilder<T, Keys> {
    * Executes the query and returns the result as an array of objects.
    * @returns A promise that resolves to the query result.
    */
-  public async execute(): Promise<T[]> {
+  public async execute(): Promise<T[] | undefined> {
     return await this.select;
   }
 }

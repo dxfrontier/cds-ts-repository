@@ -14,8 +14,9 @@ describe('SELECT', () => {
       // Act
       const getAll = await bookRepository.getAll();
 
+      getAll?.length;
       // Assert
-      expect(getAll.length).toBeGreaterThan(0);
+      expect(getAll?.length).toBeGreaterThan(0);
     });
   });
 
@@ -25,7 +26,7 @@ describe('SELECT', () => {
       const getDistinctColumns = await bookRepository.getDistinctColumns(['currency_code', 'ID']);
 
       // Assert
-      expect(getDistinctColumns.length).toBeGreaterThan(0);
+      expect(getDistinctColumns!.length).toBeGreaterThan(0);
     });
   });
 
@@ -39,9 +40,9 @@ describe('SELECT', () => {
       const getAllAndLimitAndSkip = await bookRepository.getAllAndLimit({ limit: 2, skip: 1 });
 
       // Assert
-      expect(getAllAndLimit.length).toBeGreaterThan(0);
-      expect(getAllAndLimit.length).toBeLessThan(getAll.length);
-      expect(getAllAndLimitAndSkip).not.toContain(getAll[0]);
+      expect(getAllAndLimit!.length).toBeGreaterThan(0);
+      expect(getAllAndLimit!.length).toBeLessThan(getAll!.length);
+      expect(getAllAndLimitAndSkip).not.toContain(getAll![0]);
     });
   });
 
@@ -52,7 +53,7 @@ describe('SELECT', () => {
 
       // Assert
       expect(texts).toBeDefined();
-      expect(texts.length).toBeGreaterThan(0);
+      expect(texts!.length).toBeGreaterThan(0);
     });
   });
 
@@ -62,7 +63,7 @@ describe('SELECT', () => {
       const getAll = await bookRepository.getAll();
 
       // Assert
-      expect(getAll.length).toBeGreaterThan(0);
+      expect(getAll!.length).toBeGreaterThan(0);
     });
   });
 
@@ -72,7 +73,7 @@ describe('SELECT', () => {
       const getDistinctColumns = await bookRepository.getDistinctColumns(['currency_code', 'ID']);
 
       // Assert
-      expect(getDistinctColumns.length).toBeGreaterThan(0);
+      expect(getDistinctColumns!.length).toBeGreaterThan(0);
     });
   });
 
@@ -86,9 +87,9 @@ describe('SELECT', () => {
       const getAllAndLimitAndSkip = await bookRepository.getAllAndLimit({ limit: 2, skip: 1 });
 
       // Assert
-      expect(getAllAndLimit.length).toBeGreaterThan(0);
-      expect(getAllAndLimit.length).toBeLessThan(getAll.length);
-      expect(getAllAndLimitAndSkip).not.toContain(getAll[0]);
+      expect(getAllAndLimit!.length).toBeGreaterThan(0);
+      expect(getAllAndLimit!.length).toBeLessThan(getAll!.length);
+      expect(getAllAndLimitAndSkip).not.toContain(getAll![0]);
     });
   });
 
@@ -99,7 +100,7 @@ describe('SELECT', () => {
 
       // Assert
       expect(texts).toBeDefined();
-      expect(texts.length).toBeGreaterThan(0);
+      expect(texts!.length).toBeGreaterThan(0);
     });
   });
 
@@ -115,7 +116,7 @@ describe('SELECT', () => {
     it('should find one item with the specified criteria', async () => {
       const findMultipleResult = await bookRepository.find({ currency_code: 'GBP' });
 
-      expect(findMultipleResult.length).toBeGreaterThanOrEqual(1);
+      expect(findMultipleResult!.length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -139,9 +140,9 @@ describe('SELECT', () => {
         const expandGenre = await bookRepository.builder().find({ ID: 201 }).getExpand(['genre']).execute();
 
         // Assert
-        expect(expandGenre.length).toBeGreaterThan(0);
-        expect(expandGenre[0]).toHaveProperty('genre');
-        expect(findOneForExpandAll).not.toMatchObject(expandGenre[0]);
+        expect(expandGenre?.length).toBeGreaterThan(0);
+        expect(expandGenre![0]).toHaveProperty('genre');
+        expect(findOneForExpandAll).not.toMatchObject(expandGenre![0]);
       });
     });
 
@@ -158,7 +159,7 @@ describe('SELECT', () => {
           .execute();
 
         // Assert
-        expect(orderItemsDesc[0]).not.toMatchObject(getAllByCurrencyCode[0]);
+        expect(orderItemsDesc![0]).not.toMatchObject(getAllByCurrencyCode![0]);
       });
     });
 
@@ -179,7 +180,7 @@ describe('SELECT', () => {
           .execute();
 
         // Assert
-        expect(orderItemsAsc[0]).not.toMatchObject(orderItemsDesc[0]);
+        expect(orderItemsAsc![0]).not.toMatchObject(orderItemsDesc![0]);
       });
     });
 
@@ -193,7 +194,7 @@ describe('SELECT', () => {
           .execute();
 
         // Assert
-        expect(groupBy[0]).toBeDefined();
+        expect(groupBy![0]).toBeDefined();
       });
     });
 
@@ -221,7 +222,7 @@ describe('SELECT', () => {
 
         // Assert
         expect(limit).toHaveLength(2);
-        expect(limit).not.toContain(all[0]);
+        expect(limit).not.toContain(all![0]);
       });
     });
 

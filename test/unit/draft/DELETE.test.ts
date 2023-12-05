@@ -37,7 +37,7 @@ describe('DELETE - drafts', () => {
 
       // Assert
       expect(deleteOperation).toBe(true);
-      expect(getAll.length).toBeGreaterThan(getAllAfter.length);
+      expect(getAll!.length).toBeGreaterThan(getAllAfter!.length);
     });
   });
 
@@ -53,7 +53,7 @@ describe('DELETE - drafts', () => {
 
       // Assert
       expect(deleteAllOperation).toBe(true);
-      expect(getAll.length).toBeGreaterThan(getAllAfter.length);
+      expect(getAll!.length).toBeGreaterThan(getAllAfter!.length);
     });
   });
 });
