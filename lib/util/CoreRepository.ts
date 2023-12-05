@@ -21,15 +21,17 @@ class CoreRepository<T> {
     return await INSERT.into(this.entity).entries(entries);
   }
 
-  public async getAll(): Promise<T[]> {
+  public async getAll(): Promise<T[] | undefined> {
     return await SELECT.from(this.entity);
   }
 
-  public async getDistinctColumns<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column>>> {
+  public async getDistinctColumns<Column extends keyof T>(
+    columns: Column[],
+  ): Promise<Array<Pick<T, Column>> | undefined> {
     return await SELECT.distinct.from(this.entity).columns(...columns);
   }
 
-  public async getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[]> {
+  public async getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
     const query = SELECT.from(this.entity);
 
     if (props.skip !== undefined) {
@@ -39,15 +41,17 @@ class CoreRepository<T> {
     return await query.limit(props.limit);
   }
 
-  public async getLocaleTexts<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column> & Locale>> {
+  public async getLocaleTexts<Column extends keyof T>(
+    columns: Column[],
+  ): Promise<Array<Pick<T, Column> & Locale> | undefined> {
     return await SELECT.from(`${this.entity}.texts`).columns(...columns, 'locale');
   }
 
-  public async find(keys: KeyValueType<T>): Promise<T[]> {
+  public async find(keys: KeyValueType<T>): Promise<T[] | undefined> {
     return await SELECT.from(this.entity).where(keys);
   }
 
-  public async findOne(keys: KeyValueType<T>): Promise<T> {
+  public async findOne(keys: KeyValueType<T>): Promise<T | undefined> {
     return await SELECT.one.from(this.entity).where(keys);
   }
 
