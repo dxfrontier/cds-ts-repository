@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import { type KeyValueType, type Locale, type InsertResult } from '../types/types';
+import { type KeyValueType, type Locale, type InsertResult, type FindReturn } from '../types/types';
 
 import SelectBuilder from './SelectBuilder';
 import Util from './Util';
+import type Filter from './Filter';
 
 class CoreRepository<T> {
   constructor(protected readonly entity: string) {
@@ -12,7 +14,6 @@ class CoreRepository<T> {
   }
 
   // Public routines
-
   public async create(entry: KeyValueType<T>): Promise<InsertResult<T>> {
     return await INSERT.into(this.entity).entries(entry);
   }
@@ -47,19 +48,23 @@ class CoreRepository<T> {
     return await SELECT.from(`${this.entity}.texts`).columns(...columns, 'locale');
   }
 
-  public async find(keys: KeyValueType<T>): Promise<T[] | undefined> {
-    return await SELECT.from(this.entity).where(keys);
+  public async find(keys: KeyValueType<T> | Filter<T> | string): Promise<T[] | undefined> {
+    const filterKeys = Util.buildQueryKeys(keys);
+
+    return await SELECT.from(this.entity).where(filterKeys);
   }
 
   public async findOne(keys: KeyValueType<T>): Promise<T | undefined> {
     return await SELECT.one.from(this.entity).where(keys);
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  public builder() {
+  public builder(): FindReturn<T> {
     return {
-      find: <Keys extends KeyValueType<T>>(keys: Keys): SelectBuilder<T, Keys> =>
-        new SelectBuilder<T, Keys>(this.entity, keys),
+      find: (keys: KeyValueType<T> | Filter<T> | string): SelectBuilder<T, any> => {
+        const filterKeys = Util.buildQueryKeys(keys);
+
+        return new SelectBuilder<T, unknown>(this.entity, filterKeys);
+      },
     };
   }
 

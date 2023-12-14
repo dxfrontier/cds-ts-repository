@@ -1,4 +1,4 @@
-# CDS-TS-Repository - BaseRepository
+<h2> CDS-TS-Repository - BaseRepository </h2>
 
 <img src="https://img.shields.io/badge/SAP-0FAAFF?style=for-the-badge&logo=sap&logoColor=white" /> <img src="https://img.shields.io/badge/ts--node-3178C6?style=for-the-badge&logo=ts-node&logoColor=white" /> <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" /> <img src="https://img.shields.io/badge/Express%20js-000000?style=for-the-badge&logo=express&logoColor=white" /> <img src="https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white" /> <img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white" />
 
@@ -6,48 +6,51 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
 
 ## Table of Contents
 
-- [CDS-TS-Repository - BaseRepository](#cds-ts-repository---baserepository)
-  - [Table of Contents](#table-of-contents)
-  - [Installation](#installation)
-    - [Install CDS-TS-Repository](#install-cds-ts-repository)
-    - [Generate CDS Typed entities](#generate-cds-typed-entities)
-  - [Architecture](#architecture)
-  - [Usage](#usage)
-    - [`Option 1` : Using `BaseRepository` with `Standard SAP CDS-TS`](#option-1--using-baserepository-with-standard-sap-cds-ts)
-      - [Step 1: Create MyRepository class](#step-1-create-myrepository-class)
-      - [Step 2 : Integrate MyRepository class](#step-2--integrate-myrepository-class)
-    - [`Option 2` : Using `BaseRepository` with `CDS-TS-Dispatcher`](#option-2--using-baserepository-with-cds-ts-dispatcher)
-      - [Step 1 : Create MyRepository class](#step-1--create-myrepository-class)
-      - [Step 2 : Inject MyRepository class](#step-2--inject-myrepository-class)
-    - [`Drafts` : `BaseRepositoryDraft`](#drafts--baserepositorydraft)
-      - [Usage](#usage-1)
-      - [Integration](#integration)
-    - [Methods](#methods)
-      - [create](#create)
-      - [createMany](#createmany)
-      - [getAll](#getall)
-      - [getDistinctColumns](#getdistinctcolumns)
-      - [getAllAndLimit](#getallandlimit)
-      - [getLocaleTexts](#getlocaletexts)
-      - [find](#find)
-      - [findOne](#findone)
-      - [builder](#builder)
+- [Table of Contents](#table-of-contents)
+- [Installation](#installation)
+  - [Install CDS-TS-Repository](#install-cds-ts-repository)
+  - [Generate CDS Typed entities](#generate-cds-typed-entities)
+- [Architecture](#architecture)
+- [Usage](#usage)
+  - [`Option 1` : Using `BaseRepository` with `Standard SAP CDS-TS`](#option-1--using-baserepository-with-standard-sap-cds-ts)
+    - [Step 1: Create MyRepository class](#step-1-create-myrepository-class)
+    - [Step 2 : Integrate MyRepository class](#step-2--integrate-myrepository-class)
+  - [`Option 2` : Using `BaseRepository` with `CDS-TS-Dispatcher`](#option-2--using-baserepository-with-cds-ts-dispatcher)
+    - [Step 1 : Create MyRepository class](#step-1--create-myrepository-class)
+    - [Step 2 : Inject MyRepository class](#step-2--inject-myrepository-class)
+  - [`Drafts` : `BaseRepositoryDraft`](#drafts--baserepositorydraft)
+    - [Usage](#usage-1)
+    - [Integration](#integration)
+  - [`Methods`](#methods)
+    - [create](#create)
+    - [createMany](#createmany)
+    - [getAll](#getall)
+    - [getDistinctColumns](#getdistinctcolumns)
+    - [getAllAndLimit](#getallandlimit)
+    - [getLocaleTexts](#getlocaletexts)
+    - [find](#find)
+    - [findOne](#findone)
+    - [builder](#builder)
+      - [.find](#find-1)
         - [orderAsc](#orderasc)
         - [orderDesc](#orderdesc)
         - [groupBy](#groupby)
+        - [columns](#columns)
         - [limit](#limit)
         - [getExpand](#getexpand)
         - [execute](#execute)
-      - [update](#update)
-      - [updateLocaleTexts](#updatelocaletexts)
-      - [delete](#delete)
-      - [deleteMany](#deletemany)
-      - [exists](#exists)
-      - [count](#count)
-  - [Examples](#examples)
-  - [Contributing](#contributing)
-  - [License](#license)
-  - [Authors](#authors)
+    - [update](#update)
+    - [updateLocaleTexts](#updatelocaletexts)
+    - [delete](#delete)
+    - [deleteMany](#deletemany)
+    - [exists](#exists)
+    - [count](#count)
+  - [`Helpers`](#helpers)
+    - [Filter](#filter)
+- [Examples](#examples)
+- [Contributing](#contributing)
+- [License](#license)
+- [Authors](#authors)
 
 ## Installation
 
@@ -59,13 +62,22 @@ npm install @dxfrontier/cds-ts-respository
 
 ### Generate CDS Typed entities
 
-The following command should be used to generate typed entity classes
+The following command should be used to generate the typed entities.
 
 ```bash
 npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 ```
 
 - Target folder :`./srv/util/types/entities` - Change to your location destination folder.
+
+> [!CAUTION]
+> cds-typer will generate typed entities based on the service names
+>
+> ![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/common/cds_typer_entities.png?raw=true)
+>
+> Import always the `generated entities from the service folders and not from the index.ts`
+
+For more info see official **[SAP CDS-Typer](https://cap.cloud.sap/docs/tools/cds-typer)** page.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -98,8 +110,7 @@ Start by creating a `MyRepository`, which will extend the `BaseRepository<T>` to
 `Example`
 
 ```ts
-
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
+import { BaseRepository, TypedRequest } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
 
 class MyRepository extends BaseRepository<MyEntity> {
@@ -108,7 +119,7 @@ class MyRepository extends BaseRepository<MyEntity> {
     super(MyEntity)
   }
 
-  public aMethod() {
+  public aMethod(req: TypedRequest<MyEntity>) {
 
     // BaseRepository predefined methods using the MyEntity entity
     // All methods parameters will allow only parameters of type MyEntity
@@ -126,7 +137,7 @@ class MyRepository extends BaseRepository<MyEntity> {
     const result13 = await this.count()
   }
 
-  public anotherMethod(results: MyEntity[]) {
+  public anotherMethod(results: MyEntity[], req: TypedRequest<MyEntity>) {
     const result123 = await this.exists(...)
     const result143 = await this.count()
     // ...
@@ -342,7 +353,7 @@ export default BookEventRepository;
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-### Methods
+### `Methods`
 
 #### create
 
@@ -392,7 +403,7 @@ The `createMany` method allows you to add multiple entries in the database.
 
 `Parameters`
 
-- `entries (Array)`: An array of objects representing the entries to be created. Each object should match the structure expected by `MyEntity`.
+- `entries (Array<object>)`: An array of objects representing the entries to be created. Each object should match the structure expected by `MyEntity`.
 
 `Return`
 
@@ -480,7 +491,7 @@ The `getDistinctColumns` method retrieves distinct values for the specified colu
 
 `Parameters`
 
-- `columns` `(Array)`: An array of column names to retrieve distinct records for. Each column name should be of a type that matches the entity's schema.
+- `columns` `(Array<string>)`: An array of column names to retrieve distinct records for. Each column name should be of a type that matches the entity's schema.
 
 `Return`
 
@@ -637,19 +648,20 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### find
 
-`find(keys: KeyValueType<T>): Promise<T[] | undefined>`
-
 The `find` method allows you to find and retrieve entries from the database that match the specified keys.
 
-`Parameters`
+`Overloads`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+| Method                                                                        | Parameters                                                                                                                                                                                  |
+| :---------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `this.builder().find(keys: KeyValueType<T>): SelectBuilder<T>`                | `keys (Object)`: An object representing the keys to filter the entries. <br /> Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria. |
+| `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)`: An instance of **[Filter\<T\>](#filter)**                                                                                                                                |
 
 `Return`
 
 - `Promise<T[] | undefined>`: A Promise that resolves to an array of type `T` (e.g., `MyEntity`). If no results are found, the Promise resolves to `undefined`.
 
-`Example`
+`Example 1` using object
 
 ```ts
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
@@ -675,6 +687,36 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 }
 ```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+`Example 2` using [Filter](#filter)
+
+```ts
+import { BaseRepository, Filter } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const filter = new Filter<MyEntity>({
+      field: 'name',
+      operator: 'LIKE',
+      value: 'Customer',
+    });
+
+    // Execute the query using the find
+    const results = await this.find(filter);
+  }
+}
+```
+
+> [!TIP]
+> See [Filter](#filter) for more complex QUERY filters
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
@@ -724,13 +766,14 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### builder
 
-`(method) this.builder().find(keys: KeyValueType<T>): SelectBuilder<T>`
+##### .find
 
-The method allows you to create a `SelectBuilder` instance for building database `SELECT` queries based on specified keys.
+`Overloads`
 
-`Parameters`
-
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+| Method                                                                        | Parameters                                                                                                                                                                                  |
+| :---------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `this.builder().find(keys: KeyValueType<T>): SelectBuilder<T>`                | `keys (Object)`: An object representing the keys to filter the entries. <br /> Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria. |
+| `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)`: An instance of **[Filter\<T\>](#filter)**                                                                                                                                |
 
 `Return`
 
@@ -738,6 +781,7 @@ The method allows you to create a `SelectBuilder` instance for building database
   - [orderAsc](#orderasc)
   - [orderDesc](#orderdesc)
   - [groupBy](#groupby)
+  - [columns](#columns)
   - [limit](#limit)
   - [getExpand](#getexpand)
   - [execute](#execute)
@@ -748,7 +792,7 @@ To order the `ASC` selected columns, you can use the `orderAsc` methods. Pass an
 
 `Parameters`
 
-- `columns (Array)` : An array of name of the columns to order by.
+- `columns (Array<string>)` : An array of name of the columns to order by.
 
 ```ts
 const results = await this.builder()
@@ -765,7 +809,7 @@ To order the `DESC` selected columns, you can use the `orderDesc` methods. Pass 
 
 `Parameters`
 
-- `columns (Array)` : An array of name of the columns to order by.
+- `columns (Array<string>)` : An array of name of the columns to order by.
 
 ```ts
 const results = await this.builder()
@@ -782,7 +826,7 @@ If you want to group the selected columns, use the groupBy method. Pass an array
 
 `Parameters`
 
-- `columns (Array)` : An array of name of the columns to group by.
+- `columns (Array<string>)` : An array of name of the columns to group by.
 
 ```ts
 const results = await this.builder()
@@ -793,15 +837,32 @@ const results = await this.builder()
   .execute();
 ```
 
+###### columns
+
+Specifies which columns to be fetched
+
+`Parameters`
+
+- `columns (Array<string>)` : An array of name of the columns to order by.
+
+```ts
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
+  .columns(['name', 'currency_code'])
+  .execute();
+```
+
 ###### limit
 
 This method allows retrieve a list of items with optional pagination.
 
 `Parameters`
 
-- `props` `(Object)`: An object containing the following properties:
+- `props` `(object)`: An object containing the following properties:
   - `limit` `(number)`: The maximum number of items to retrieve.
-  - `skip` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
+  - `skip?` `(number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
 
 ```ts
 const results = await this.builder()
@@ -873,8 +934,6 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### update
 
@@ -1001,7 +1060,7 @@ The `deleteMany` method allows you to delete multiple entries from the database 
 
 `Parameters`
 
-- `entries (Array[Object])` - An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `entries (Array<object>)` - An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
@@ -1094,6 +1153,106 @@ class MyRepository extends BaseRepository<MyEntity> {
   public async aMethod() {
     const numberOfItemsInMyEntity = await this.count();
     // Further logic with numberOfItemsInMyEntity
+  }
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+### `Helpers`
+
+#### Filter
+
+Use `Filter` to create complex `WHERE QUERY` filters.
+
+`Overloads`
+
+| Method                                                          | Parameters                                                                                                                                       |
+| :-------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `new Filter<T>(options: FilterOptions<T>)`                      | `options (object)`: Creates a new filter. `T` should be generated using [CDS-Typer](#generate-cds-typed-entities)                                |
+| `new Filter(operator: LogicalOperator, ...filters : Filter<T>)` | `operator (string)`, `filters Array<Filter>`: Creates a new Filter instance which combines 2 ... n filters with a Logical operator `'AND', 'OR'` |
+
+`Example 1` : Single filter
+
+```ts
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+import { Filter, BaseRepository } from '@dxfrontier/cds-ts-repository';
+
+class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const filter = new Filter<MyEntity>({
+      field: 'name',
+      operator: 'LIKE',
+      value: 'Customer',
+    });
+
+    // Execute the query using the builder find
+    const results = await this.builder().find(filter).orderAsc(['name']).execute();
+    // OR
+    // Execute the query using the find
+    const results2 = await this.find(filter);
+  }
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+`Example 2` : Combination of 2...n filters
+
+```ts
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+import { Filter, BaseRepository } from '@dxfrontier/cds-ts-repository';
+
+class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const filterLike = new Filter<MyEntity>({
+      field: 'customer_name',
+      operator: 'LIKE',
+      value: 'abs',
+    });
+
+    const filterBetween = new Filter<MyEntity>({
+      field: 'stock',
+      operator: 'BETWEEN',
+      value1: 11,
+      value2: 333,
+    });
+
+    const filterIn = new Filter<MyEntity>({
+      field: 'ID',
+      operator: 'IN',
+      value: [201, 203, 207],
+    });
+
+    /*
+    combinedLikeAndBetweenFilters translates to : 
+    descr like 'Wuthering' or stock between 11 and 333
+    */
+    const combinedLikeAndBetweenFilters = new Filter('OR', filterLike, filterBetween);
+
+    /* 
+    filters translates to : 
+    (descr LIKE 'Wuthering' OR stock BETWEEN 11 and 333) AND ID IN ('203', '201', '207')
+    */
+    const filters = new Filter('AND', combinedLikeAndBetweenFilters, filterIn);
+
+    // Execute the query using the builder find
+    const results = await this.builder().find(filters).getExpand(['orders']).execute();
+    // OR
+    // Execute the query using the .find
+    const results2 = await this.find(filters);
   }
 }
 ```

@@ -5,11 +5,11 @@ import { type Definition } from '@sap/cds/apis/csn';
 import { type Service } from '@sap/cds';
 
 class SelectBuilder<T, Keys> {
-  private readonly select: SELECT<T>;
+  private select: SELECT<T>;
 
   constructor(
     private readonly entity: Definition | string,
-    private readonly keys: Keys,
+    private readonly keys: Keys | string,
   ) {
     this.select = SELECT.from(this.entity).where(this.keys);
   }
@@ -17,7 +17,7 @@ class SelectBuilder<T, Keys> {
   /**
    * Retrieves the expands associated entities.
    * @param associations An array of column names to expand, representing associated entities.
-   * @returns Returns the instance of the current object.
+   * @returns SelectBuilder instance
    *
    * @example
    * const results = await this.builder()
@@ -49,10 +49,10 @@ class SelectBuilder<T, Keys> {
   /**
    * Orders the selected columns in ascending order.
    * @param {Array<keyof T>} columns An array of column names to order ascending.
-   * @returns {this} Returns the instance of the current object.
+   * @returns SelectBuilder instance
    *
    * @example
-   * await this.builder().find({
+   * const results = await this.builder().find({
    *   name: 'A company name',
    * })
    * .orderAsc(['name'])
@@ -68,10 +68,10 @@ class SelectBuilder<T, Keys> {
   /**
    * Orders the selected columns in descending order.
    * @param columns An array of column names to order in descending.
-   * @returns Returns the instance of the current object.
+   * @returns SelectBuilder instance
    *
    * @example
-   * await this.builder().find({
+   * const results = await this.builder().find({
    *   name: 'A company name',
    * })
    * .orderDesc(['name'])
@@ -88,18 +88,42 @@ class SelectBuilder<T, Keys> {
   /**
    * Groups the selected columns.
    * @param columns An array of column names to use for grouping.
-   * @returns Returns the instance of the current object.
+   * @returns SelectBuilder instance
    *
    * @example
-   * await this.builder().find({
+   * const results = await this.builder().find({
    *   name: 'A company name',
    * })
    * .groupBy(['name'])
    * .execute();
    */
   public groupBy(columns: Array<keyof T>): this {
-    void this.select.groupBy(columns as unknown as string);
+    void this.select.groupBy(columns as unknown as string).columns;
     return this;
+  }
+
+  /**
+   * Specifies which columns to be fetched
+   * @param columns An array of column names to retrieve.
+   * @returns SelectBuilder instance
+   *
+   * @example
+   * const results = await this.builder().find({
+   *   name: 'A company name',
+   * })
+   * .columns(['name', 'currency_code'])
+   * .execute();
+   *
+   */
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  public columns<Columns extends keyof T>(columns: Columns[]) {
+    void this.select.columns(columns as unknown as string);
+
+    // We are creating and new instance of SelectBuilder and preserving the select from the current SelectBuilder instance
+    const selectBuilder = new SelectBuilder<Pick<T, Columns>, typeof this.keys>(this.entity, this.keys);
+    selectBuilder.select = this.select;
+
+    return selectBuilder;
   }
 
   /**
@@ -107,10 +131,10 @@ class SelectBuilder<T, Keys> {
    * @param props
    * @param props.limit The limit for the result set.
    * @param props.skip The optional 'skip', this will skip a certain number of items for the result set.
-   * @returns {this} Returns the instance of the current object.
+   * @returns SelectBuilder instance
    *
    * @example
-   * await this.builder().find({
+   * const results = await this.builder().find({
    *   name: 'A company name',
    * })
    * .limit({ limit: 10, skip: 5 })
