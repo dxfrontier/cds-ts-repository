@@ -7,43 +7,17 @@ import { type Service } from '@sap/cds';
 class SelectBuilder<T, Keys> {
   private select: SELECT<T>;
 
+  /* This flag is used in the getExpand method, as both methods are calling the .columns
+   */
+  private isColumnsCalledFirst: boolean = false;
+
+  private isExpandCalledFirst: boolean = false;
+
   constructor(
     private readonly entity: Definition | string,
     private readonly keys: Keys | string,
   ) {
     this.select = SELECT.from(this.entity).where(this.keys);
-  }
-
-  /**
-   * Retrieves the expands associated entities.
-   * @param associations An array of column names to expand, representing associated entities.
-   * @returns SelectBuilder instance
-   *
-   * @example
-   * const results = await this.builder()
-   * .find({
-   *     name: 'A company name',
-   * })
-   * .getExpand(['orders'])
-   * .execute();
-   */
-  public getExpand(associations: Array<keyof T>): this {
-    // const private routines for this func
-
-    const _buildAssociatedNamedEntity = (column: any): void => {
-      associations?.forEach((association) => {
-        column[association]((linkedEntity: (...args: unknown[]) => unknown) => {
-          linkedEntity('*');
-        });
-      });
-    };
-
-    void this.select.columns((column: any) => {
-      column('*');
-      _buildAssociatedNamedEntity(column);
-    });
-
-    return this;
   }
 
   /**
@@ -103,6 +77,43 @@ class SelectBuilder<T, Keys> {
   }
 
   /**
+   * Retrieves the expands associated entities.
+   * @param associations An array of column names to expand, representing associated entities.
+   * @returns SelectBuilder instance
+   *
+   * @example
+   * const results = await this.builder()
+   * .find({
+   *     name: 'A company name',
+   * })
+   * .getExpand(['orders'])
+   * .execute();
+   */
+  public getExpand(associations: Array<keyof T>): this {
+    this.isExpandCalledFirst = true;
+
+    // const private routines for this func
+    const _buildAssociatedNamedEntity = (column: any): void => {
+      // If .columns() was called first do not expand all
+      if (!this.isColumnsCalledFirst) {
+        column('*');
+      }
+
+      associations?.forEach((association) => {
+        column[association]((linkedEntity: (...args: unknown[]) => unknown) => {
+          linkedEntity('*');
+        });
+      });
+    };
+
+    void this.select.columns((column: any) => {
+      _buildAssociatedNamedEntity(column);
+    });
+
+    return this;
+  }
+
+  /**
    * Specifies which columns to be fetched
    * @param columns An array of column names to retrieve.
    * @returns SelectBuilder instance
@@ -117,11 +128,29 @@ class SelectBuilder<T, Keys> {
    */
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   public columns<Columns extends keyof T>(columns: Columns[]) {
+    // private routine for this func
+    const _removeExpandAllFields = (): void => {
+      this.select.SELECT.columns?.shift();
+      /* 
+        Workaround using reverse
+        When .getExpand(['reviews']) is firstly called before .columns(['currency_code','reviews']) somehow this causes duplicates and gives an error.
+        If this is being reversed, this works as expected
+      */
+      this.select.SELECT.columns?.reverse();
+    };
+
     void this.select.columns(columns as unknown as string);
+
+    if (this.isExpandCalledFirst) {
+      // As the .columns() was called after .getExpand(), the '*' will be removed from the .columns array to have correct typing based only on the columns
+      _removeExpandAllFields();
+    }
 
     // We are creating and new instance of SelectBuilder and preserving the select from the current SelectBuilder instance
     const selectBuilder = new SelectBuilder<Pick<T, Columns>, typeof this.keys>(this.entity, this.keys);
+
     selectBuilder.select = this.select;
+    selectBuilder.isColumnsCalledFirst = true;
 
     return selectBuilder;
   }

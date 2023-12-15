@@ -1,10 +1,8 @@
 import type { FilterOperator, FilterOptions, LogicalOperator } from '../types/types';
 
 class Filter<T> {
-  // Common fields
   private readonly field: keyof T;
   private readonly operator: FilterOperator;
-
   private readonly logicalOperator: LogicalOperator;
   private readonly filters: Filter<T>[];
 
@@ -15,7 +13,41 @@ class Filter<T> {
   public readonly value1?: number | string;
   public readonly value2?: number | string;
 
+  /**
+   * Creates a new Filter instance
+   * @param options An object representing the Filter options
+   * @returns Filter
+   * @example
+   * const filter = new Filter<Book>({
+   *  field: 'name',
+   *  operator: 'LIKE',
+   *  value: 'Customer',
+   * });
+   * */
   constructor(options: FilterOptions<T>);
+
+  /**
+   * Creates a new Filter instance
+   * @param operator  Operator used to combine the filters
+   * @param filters   An array of filters
+   * @returns Filter
+   * @example
+   *
+   * const filter1 = new Filter<Book>({
+   *    field: 'customer_name',
+   *    operator: 'LIKE',
+   *    value: 'ABS',
+   * });
+   *
+   * const filter2 = new Filter<Book>({
+   *    field: 'stock',
+   *    operator: 'BETWEEN',
+   *    value1: 11,
+   *    value2: 333,
+   * });
+   *
+   * const filters = new Filter('AND', filter1, filter2);
+   * */
   constructor(operator: LogicalOperator, ...filters: Filter<T>[]);
 
   constructor(filter: FilterOptions<T> | LogicalOperator, ...filters: Filter<T>[]) {
@@ -27,10 +59,6 @@ class Filter<T> {
       if (filter.operator === 'BETWEEN' || filter.operator === 'NOT BETWEEN') {
         this.value1 = filter.value1;
         this.value2 = filter.value2;
-      }
-
-      if (filter.operator === 'LIKE') {
-        this.value = `%${filter.value}%`;
       }
 
       if (filter.operator === 'LIKE') {

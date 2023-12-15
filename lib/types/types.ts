@@ -1,15 +1,10 @@
-import type { Request } from '@sap/cds/apis/events';
+import type { TypedRequest } from '@sap/cds/apis/services';
 
 import { type LanguageCode } from 'iso-639-1';
 import type SelectBuilder from '../util/SelectBuilder';
 import type Filter from '../util/Filter';
 
 type LooseAutocomplete<T extends string> = T | Omit<string, T>;
-
-/**
- * Use this type to have the Request typed
- */
-type TypedRequest<T> = Omit<Request, 'data'> & { data: T };
 
 type KeyValueType<T> = {
   [K in keyof T]?: T[K];
@@ -71,9 +66,9 @@ type FilterOperatorWhenSingleValue =
   | 'GREATER THAN'
   | 'GREATER THAN OR EQUALS';
 type FilterOperatorWhenTwoValues = 'BETWEEN' | 'NOT BETWEEN';
-type FilterOperatorWhenSingleArrayValue = 'IN' | 'NOT IN';
+type FilterOperatorWhenArrayValues = 'IN' | 'NOT IN';
 
-type FilterOperator = FilterOperatorWhenSingleValue | FilterOperatorWhenTwoValues | FilterOperatorWhenSingleArrayValue;
+type FilterOperator = FilterOperatorWhenSingleValue | FilterOperatorWhenTwoValues | FilterOperatorWhenArrayValues;
 
 type FilterSingleValue = {
   operator: FilterOperatorWhenSingleValue;
@@ -87,7 +82,7 @@ type FilterBetween = {
 };
 
 type FilterInAndNotIn = {
-  operator: FilterOperatorWhenSingleArrayValue;
+  operator: FilterOperatorWhenArrayValues;
   value: string[] | number[];
 };
 

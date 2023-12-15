@@ -9,7 +9,10 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
   - [Install CDS-TS-Repository](#install-cds-ts-repository)
-  - [Generate CDS Typed entities](#generate-cds-typed-entities)
+  - [`Generate CDS Typed entities`](#generate-cds-typed-entities)
+    - [Option 1 - `Recommended`](#option-1---recommended)
+    - [Option 2](#option-2)
+    - [`Important`](#important)
 - [Architecture](#architecture)
 - [Usage](#usage)
   - [`Option 1` : Using `BaseRepository` with `Standard SAP CDS-TS`](#option-1--using-baserepository-with-standard-sap-cds-ts)
@@ -60,22 +63,38 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
 npm install @dxfrontier/cds-ts-respository
 ```
 
-### Generate CDS Typed entities
+### `Generate CDS Typed entities`
 
-The following command should be used to generate the typed entities.
+#### Option 1 - `Recommended`
+
+Execute the command :
+
+```bash
+cds add typer
+```
+
+> [!TIP]
+> If above option is being used, this means whenever we change a `.CDS` file the changes will be reflected in the generated `@cds-models` folder.
+
+#### Option 2
+
+Execute the command :
 
 ```bash
 npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 ```
 
-- Target folder :`./srv/util/types/entities` - Change to your location destination folder.
+- Target folder :`./srv/util/types/entities` - Change to your desired destination folder.
+
+> [!TIP]
+> If above option is being used, you have to run every time the command when you do a change in a `.CDS file`
+
+#### `Important`
 
 > [!CAUTION]
-> cds-typer will generate typed entities based on the service names
->
-> ![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/common/cds_typer_entities.png?raw=true)
->
 > Import always the `generated entities from the service folders and not from the index.ts`
+
+![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/common/cds_typer_entities_@cds-models.png?raw=true)
 
 For more info see official **[SAP CDS-Typer](https://cap.cloud.sap/docs/tools/cds-typer)** page.
 
@@ -105,7 +124,7 @@ This guide explains how to use the BaseRepository with the `Standard SAP CDS-TS`
 
 #### Step 1: Create MyRepository class
 
-Start by creating a `MyRepository`, which will extend the `BaseRepository<T>` to handle operations for your entity.
+Start by creating `MyRepository` class, which will extend the `BaseRepository<T>` to handle operations for your entity.
 
 `Example`
 
@@ -652,10 +671,10 @@ The `find` method allows you to find and retrieve entries from the database that
 
 `Overloads`
 
-| Method                                                                        | Parameters                                                                                                                                                                                  |
-| :---------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `this.builder().find(keys: KeyValueType<T>): SelectBuilder<T>`                | `keys (Object)`: An object representing the keys to filter the entries. <br /> Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria. |
-| `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)`: An instance of **[Filter\<T\>](#filter)**                                                                                                                                |
+| Method                                                              | Parameters                                                                                                                                                                              |
+| :------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `this.find(keys: KeyValueType<T>): SelectBuilder<T>`                | `keys (Object)`: An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)`: An instance of **[Filter\<T\>](#filter)**                                                                                                                            |
 
 `Return`
 
@@ -770,10 +789,10 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `Overloads`
 
-| Method                                                                        | Parameters                                                                                                                                                                                  |
-| :---------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `this.builder().find(keys: KeyValueType<T>): SelectBuilder<T>`                | `keys (Object)`: An object representing the keys to filter the entries. <br /> Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria. |
-| `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)`: An instance of **[Filter\<T\>](#filter)**                                                                                                                                |
+| Method                                                                        | Parameters                                                                                                                                                                              |
+| :---------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `this.builder().find(keys: KeyValueType<T>): SelectBuilder<T>`                | `keys (Object)`: An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)`: An instance of **[Filter\<T\>](#filter)**                                                                                                                            |
 
 `Return`
 
@@ -1262,7 +1281,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-## Examples
+## `Examples`
 
 Find here a collection of samples for the [CDS-TS-Dispatcher & CDS-TS-Repository](https://github.com/dxfrontier/cds-ts-samples)
 

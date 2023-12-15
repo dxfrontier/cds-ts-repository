@@ -112,7 +112,6 @@ export const Util = {
     let query: string = '';
 
     // Compute the filters in a logical OR or AND
-    // TODO: refactor this
     if (filter.getLogicalOperator() === 'AND') {
       query = `(${subQueries.join(` ${filter.getLogicalOperator()} `)})`;
     }

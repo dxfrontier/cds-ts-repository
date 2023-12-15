@@ -445,6 +445,58 @@ describe('SELECT', () => {
     });
 
     describe('======> .filter() - object ', () => {
+      describe('======> .getExpand() + .columns() ', () => {
+        it('should return only the columns "currency_code, descr, reviews" + expanded "reviews" property', async () => {
+          // Arrange
+          const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
+
+          // Act
+          // When .getExpand first and after the .columns
+          const reviews = await bookRepository
+            .builder()
+            .find({ ID: 201 })
+            .getExpand(['reviews'])
+            .columns(['currency_code', 'descr'])
+            .execute();
+
+          // When .columns first and after the .getExpand
+          const reviews_2 = await bookRepository
+            .builder()
+            .find({ ID: 201 })
+            .columns(['currency_code', 'descr', 'reviews'])
+            .getExpand(['reviews'])
+            .execute();
+
+          const reviews_3 = await bookRepository
+            .builder()
+            .find({ ID: 201 })
+            // .columns(['currency_code', 'descr', 'reviews'])
+            .getExpand(['reviews'])
+            .execute();
+
+          const reviews_4 = await bookRepository
+            .builder()
+            .find({ ID: 201 })
+            .columns(['currency_code', 'descr', 'reviews'])
+            // .getExpand(['reviews'])
+            .execute();
+
+          // Assert
+          expect(reviews?.length).toBeGreaterThan(0);
+          expect(reviews![0]).toHaveProperty('reviews');
+          expect(reviews![0]).toHaveProperty('descr');
+          expect(reviews![0]).toHaveProperty('currency_code');
+
+          expect(reviews_2?.length).toBeGreaterThan(0);
+          expect(reviews_2![0]).toHaveProperty('reviews');
+          expect(reviews_2![0]).toHaveProperty('descr');
+          expect(reviews_2![0]).toHaveProperty('currency_code');
+
+          expect(findOneForExpandAll).not.toMatchObject(reviews![0]);
+          expect(findOneForExpandAll).not.toMatchObject(reviews_2![0]);
+        });
+      });
+
       describe('======> .getExpand()', () => {
         it('should return the original object + expanded "genre" property', async () => {
           // Arrange
