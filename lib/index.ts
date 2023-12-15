@@ -9,6 +9,7 @@ export type {
   InsertResult,
   FilterOperator,
   LogicalOperator,
+  TypedRequest,
 } from './types/types';
 
 export { Mixin } from 'ts-mixer';
