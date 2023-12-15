@@ -2,6 +2,7 @@
 import { type Service } from '@sap/cds';
 
 import { type KeyValueDraftType } from './types/types';
+import type Filter from './util/Filter';
 
 import { CoreRepository } from './util/CoreRepository';
 import { type Constructable } from '@sap/cds/apis/internal/inference';
@@ -61,7 +62,23 @@ abstract class BaseRepositoryDraft<T> {
    *
    * @example const results = await this.findDrafts({ name: 'Customer', description: 'description' });
    */
-  public async findDrafts(keys: KeyValueDraftType<T>): Promise<Array<KeyValueDraftType<T>> | undefined> {
+  public async findDrafts(keys: KeyValueDraftType<T>): Promise<T[] | undefined>;
+  /**
+   * Finds records based on the provided filters.
+   * @param filter A Filter instance
+   * @returns SelectBuilder
+   * @example
+   * const filterLike = new Filter<Book>({
+   *  field: 'name',
+   *  operator: 'LIKE',
+   *  value: 'Customer',
+   * });
+   *
+   * const results = await this.findDrafts(filter)
+   *
+   * */
+  public async findDrafts(filter: Filter<T>): Promise<T[] | undefined>;
+  public async findDrafts(keys: KeyValueDraftType<T> | Filter<T>): Promise<Array<KeyValueDraftType<T>> | undefined> {
     return await this.coreRepository.find(keys);
   }
 

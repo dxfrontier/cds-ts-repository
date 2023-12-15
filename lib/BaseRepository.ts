@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
 import { type InsertResult, type KeyValueType, type Locale } from './types/types';
+import type Filter from './util/Filter';
 
 import { CoreRepository } from './util/CoreRepository';
 import { type Constructable } from '@sap/cds/apis/internal/inference';
@@ -103,7 +105,23 @@ abstract class BaseRepository<T> {
    *
    * @example const results = await this.find({ name: 'Customer', description: 'description' });
    */
-  public async find(keys: KeyValueType<T>): Promise<T[] | undefined> {
+  public async find(keys: KeyValueType<T>): Promise<T[] | undefined>;
+  /**
+   * Finds records based on the provided filters.
+   * @param filter A Filter instance
+   * @returns SelectBuilder
+   * @example
+   * const filterLike = new Filter<Book>({
+   *  field: 'name',
+   *  operator: 'LIKE',
+   *  value: 'Customer',
+   * });
+   *
+   * const results = await this.find(filter)
+   *
+   * */
+  public async find(filter: Filter<T>): Promise<T[] | undefined>;
+  public async find(keys: KeyValueType<T> | Filter<T>): Promise<T[] | undefined> {
     return await this.coreRepository.find(keys);
   }
 
