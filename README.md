@@ -50,7 +50,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [count](#count)
   - [`Helpers`](#helpers)
     - [Filter](#filter)
-- [Examples](#examples)
+- [`Examples`](#examples)
 - [Contributing](#contributing)
 - [License](#license)
 - [Authors](#authors)
@@ -67,10 +67,14 @@ npm install @dxfrontier/cds-ts-respository
 
 #### Option 1 - `Recommended`
 
-Execute the command :
+Execute the following commands :
 
 ```bash
 cds add typer
+```
+
+```bash
+npm install
 ```
 
 > [!TIP]
@@ -428,7 +432,7 @@ The `createMany` method allows you to add multiple entries in the database.
 
 - `Promise<InsertResult<T>>`: This method returns a `Promise` that resolves when the insertion operation is completed successfully.
 
-`Example`
+`Example 1`
 
 ```ts
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
@@ -450,6 +454,30 @@ class MyRepository extends BaseRepository<MyEntity> {
         description: 'Customer 2 description',
       },
     ]);
+    // Further logic with createdInstance
+  }
+}
+```
+
+`Example 2`
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const createdInstance = await this.createMany(
+      {
+        name: 'Customer 1423',
+        description: 'Customer 1323 description',
+      },
+      { name: 'Customer 143323', description: 'Customer 134323 description' },
+    );
     // Further logic with createdInstance
   }
 }
@@ -818,7 +846,9 @@ const results = await this.builder()
   .find({
     name: 'A company name',
   })
-  .orderAsc(['name'])
+  .orderAsc('name', 'ID', 'company')
+  // or
+  //.orderAsc(['name', 'ID', 'company'])
   .execute();
 ```
 
@@ -835,7 +865,9 @@ const results = await this.builder()
   .find({
     name: 'A company name',
   })
-  .orderDesc(['name'])
+  .orderDesc('name', 'ID', 'company')
+  // or
+  //.orderDesc(['name', 'ID', 'company'])
   .execute();
 ```
 
@@ -852,24 +884,28 @@ const results = await this.builder()
   .find({
     name: 'A company name',
   })
-  .groupBy(['name'])
+  .groupBy('name', 'company')
+  // or
+  //.groupBy(['name', 'company'])
   .execute();
 ```
 
 ###### columns
 
-Specifies which columns to be fetched
+Specifies which columns to be fetched.
 
 `Parameters`
 
-- `columns (Array<string>)` : An array of name of the columns to order by.
+- `columns (Array<string>)` : An array of name of the columns to show only.
 
 ```ts
 const results = await this.builder()
   .find({
     name: 'A company name',
   })
-  .columns(['name', 'currency_code'])
+  .columns('name', 'currency_code')
+  // or
+  //.columns(['name', 'currency_code'])
   .execute();
 ```
 
@@ -1085,7 +1121,7 @@ The `deleteMany` method allows you to delete multiple entries from the database 
 
 - `Promise<boolean>`: This method returns a Promise of `true` if all instances were successfully deleted and `false` otherwise.
 
-`Example`
+`Example 1`
 
 ```ts
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
@@ -1101,6 +1137,27 @@ class MyRepository extends BaseRepository<MyEntity> {
       { ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' },
       { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
     ]);
+    // Further logic with deleted
+  }
+}
+```
+
+`Example 2`
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const deleted = await this.deleteMany(
+      { ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' },
+      { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
+    );
     // Further logic with deleted
   }
 }

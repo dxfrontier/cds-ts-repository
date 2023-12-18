@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type Service } from '@sap/cds';
-
-import { type KeyValueType, type Locale, type InsertResult, type FindReturn } from '../types/types';
 
 import SelectBuilder from './SelectBuilder';
 import Util from './Util';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { type Service } from '@sap/cds';
+
+import type { KeyValueType, Locale, InsertResult, FindReturn, Entries } from '../types/types';
 import type Filter from './Filter';
 
 class CoreRepository<T> {
@@ -18,8 +19,8 @@ class CoreRepository<T> {
     return await INSERT.into(this.entity).entries(entry);
   }
 
-  public async createMany(entries: Array<KeyValueType<T>>): Promise<InsertResult<T>> {
-    return await INSERT.into(this.entity).entries(entries);
+  public async createMany(...entries: Entries<T>[]): Promise<InsertResult<T>> {
+    return await INSERT.into(this.entity).entries(...entries);
   }
 
   public async getAll(): Promise<T[] | undefined> {
@@ -86,10 +87,12 @@ class CoreRepository<T> {
     return deleted === 1;
   }
 
-  public async deleteMany(entries: Array<KeyValueType<T>>): Promise<boolean> {
+  public async deleteMany(...entries: Entries<T>[]): Promise<boolean> {
+    const items = Array.isArray(entries[0]) ? entries[0] : entries;
+
     const allPromises: Array<DELETE<T>> = [];
 
-    entries.forEach((instance) => {
+    items.forEach((instance) => {
       const itemDelete = DELETE.from(this.entity).where(instance);
       allPromises.push(itemDelete);
     });

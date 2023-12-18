@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import { type KeyValueDraftType } from './types/types';
+import type { DraftEntries, KeyValueDraftType } from './types/types';
 import type Filter from './util/Filter';
 
 import { CoreRepository } from './util/CoreRepository';
@@ -139,8 +139,8 @@ abstract class BaseRepositoryDraft<T> {
     ]);
    */
 
-  public async deleteManyDrafts(entries: Array<KeyValueDraftType<T>>): Promise<boolean> {
-    return await this.coreRepository.deleteMany(entries);
+  public async deleteManyDrafts(entries: DraftEntries<T>[]): Promise<boolean> {
+    return await this.coreRepository.deleteMany(...entries);
   }
 
   /**

@@ -1,5 +1,5 @@
 # Ignore artifacts
 package.json
-test/bookshop/srv/util/types/entities
 dist
 .github
+test/bookshop/@cds-models

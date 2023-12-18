@@ -1,14 +1,15 @@
+import { Book } from '#cds-models/CatalogService';
 import Filter from '../../../lib/util/Filter';
-import { Book } from '../../bookshop/srv/util/types/entities/CatalogService';
-import BookRepository from '../../util/BookRepository';
+
+import { getBookRepository } from '../../util/BookRepository';
 import { startTestServer } from '../../util/util';
 
 describe('SELECT', () => {
   startTestServer(__dirname, 'bookshop');
-  let bookRepository: BookRepository;
+  let bookRepository: Awaited<ReturnType<typeof getBookRepository>>;
 
   beforeAll(async () => {
-    bookRepository = new BookRepository();
+    bookRepository = await getBookRepository();
   });
 
   describe('.getAll()', () => {
@@ -183,6 +184,23 @@ describe('SELECT', () => {
 
   describe('.builder()', () => {
     describe('======> .filter() - Overload - filter / filters ', () => {
+      describe('======> .filter() - NOT EQUAL', () => {
+        it('should return 5 record and ID 251 not in the items', async () => {
+          const initialResult = await bookRepository.getAll();
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'ID',
+            operator: 'NOT EQUAL',
+            value: 251,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(initialResult?.length).toBeGreaterThan(results!.length);
+        });
+      });
       describe('======> .filter() - EQUALS', () => {
         it('should return 1 record with the ID 251', async () => {
           // Arrange
@@ -456,29 +474,15 @@ describe('SELECT', () => {
             .builder()
             .find({ ID: 201 })
             .getExpand(['reviews'])
-            .columns(['currency_code', 'descr'])
+            .columns(['currency_code', 'descr', 'reviews'])
             .execute();
 
           // When .columns first and after the .getExpand
           const reviews_2 = await bookRepository
             .builder()
             .find({ ID: 201 })
-            .columns(['currency_code', 'descr', 'reviews'])
+            .columns('ID', 'currency_code', 'descr', 'reviews')
             .getExpand(['reviews'])
-            .execute();
-
-          const reviews_3 = await bookRepository
-            .builder()
-            .find({ ID: 201 })
-            // .columns(['currency_code', 'descr', 'reviews'])
-            .getExpand(['reviews'])
-            .execute();
-
-          const reviews_4 = await bookRepository
-            .builder()
-            .find({ ID: 201 })
-            .columns(['currency_code', 'descr', 'reviews'])
-            // .getExpand(['reviews'])
             .execute();
 
           // Assert
@@ -498,7 +502,19 @@ describe('SELECT', () => {
       });
 
       describe('======> .getExpand()', () => {
-        it('should return the original object + expanded "genre" property', async () => {
+        it('should return the original object + expanded "genre" property - .getExpand("genre")', async () => {
+          // Arrange
+          const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
+
+          // Act
+          const expandGenre = await bookRepository.builder().find({ ID: 201 }).getExpand('genre').execute();
+
+          // Assert
+          expect(expandGenre?.length).toBeGreaterThan(0);
+          expect(expandGenre![0]).toHaveProperty('genre');
+          expect(findOneForExpandAll).not.toMatchObject(expandGenre![0]);
+        });
+        it('should return the original object + expanded "genre" property - .getExpand(["genre"])', async () => {
           // Arrange
           const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
 
@@ -513,7 +529,22 @@ describe('SELECT', () => {
       });
 
       describe('======> .orderDesc()', () => {
-        it('should find all values with "USD" value and make them "DESC" over "stock" property', async () => {
+        it('should find all values with "USD" value and make them "DESC" over "stock" property - .orderDesc(["stock", "price"])', async () => {
+          // Arrange
+          const getAllByCurrencyCode = await bookRepository.builder().find({ currency_code: 'USD' }).execute();
+
+          // Act
+          const orderItemsDesc = await bookRepository
+            .builder()
+            .find({ currency_code: 'USD' })
+            .orderDesc(['stock', 'price'])
+            .execute();
+
+          // Assert
+          expect(orderItemsDesc![0]).not.toMatchObject(getAllByCurrencyCode![0]);
+        });
+
+        it('should find all values with "USD" value and make them "DESC" over "stock" property - .orderDesc("stock", "price")', async () => {
           // Arrange
           const getAllByCurrencyCode = await bookRepository.builder().find({ currency_code: 'USD' }).execute();
 
@@ -530,7 +561,7 @@ describe('SELECT', () => {
       });
 
       describe('======> .orderAsc()', () => {
-        it('should find all values with "USD" value and make them "ASC" over "stock" property', async () => {
+        it('should find all values with "USD" value and make them "ASC" over "stock" property - orderAsc("stock", "price")', async () => {
           // Arrange
           const orderItemsDesc = await bookRepository
             .builder()
@@ -548,10 +579,29 @@ describe('SELECT', () => {
           // Assert
           expect(orderItemsAsc![0]).not.toMatchObject(orderItemsDesc![0]);
         });
+
+        it('should find all values with "USD" value and make them "ASC" over "stock" property - orderAsc("stock, "price")', async () => {
+          // Arrange
+          const orderItemsDesc = await bookRepository
+            .builder()
+            .find({ currency_code: 'USD' })
+            .orderDesc(['stock', 'price'])
+            .execute();
+
+          // Act
+          const orderItemsAsc = await bookRepository
+            .builder()
+            .find({ currency_code: 'USD' })
+            .orderAsc('stock', 'price')
+            .execute();
+
+          // Assert
+          expect(orderItemsAsc![0]).not.toMatchObject(orderItemsDesc![0]);
+        });
       });
 
       describe('======> .columns()', () => {
-        it('should return 2 records with only 2 columns ID and descr', async () => {
+        it('columns should return 2 records with only 2 columns ID and descr - .columns(["ID", "descr"])', async () => {
           // Act
           const columns = await bookRepository
             .builder()
@@ -571,15 +621,48 @@ describe('SELECT', () => {
             expect(item).not.toHaveProperty('currency_code');
           });
         });
+
+        it('should return 2 records with only 2 columns ID and descr - .columns("ID", "descr")', async () => {
+          // Act
+          const columns = await bookRepository
+            .builder()
+            .find({ currency_code: 'USD' })
+            .columns('ID', 'descr')
+            .execute();
+
+          // Assert
+          expect(columns).toHaveLength(2);
+
+          columns?.forEach((item) => {
+            expect(item).toHaveProperty('ID');
+            expect(item).toHaveProperty('descr');
+
+            expect(item).not.toHaveProperty('title');
+            expect(item).not.toHaveProperty('price');
+            expect(item).not.toHaveProperty('currency_code');
+          });
+        });
       });
 
       describe('======> .groupBy()', () => {
-        it('should group by column "author"', async () => {
+        it('should group by column "author - groupBy(["author", "currency_code"])"', async () => {
           // Act
           const groupBy = await bookRepository
             .builder()
             .find({ currency_code: 'USD' })
             .groupBy(['author', 'currency_code'])
+            .execute();
+
+          // Assert
+          expect(groupBy![0]).toBeDefined();
+        });
+
+        it('should group by column "author" - groupBy("author", "currency_code")', async () => {
+          // Act
+          const groupBy = await bookRepository
+            .builder()
+            .find({ currency_code: 'USD' })
+            .groupBy('author', 'currency_code')
             .execute();
 
           // Assert

@@ -29,6 +29,10 @@ type Locale = {
   locale: LooseAutocomplete<LanguageCode>;
 };
 
+type Columns<T> = keyof T | (keyof T)[];
+type Entries<T> = KeyValueType<T> | KeyValueType<T>[];
+type DraftEntries<T> = KeyValueDraftType<T> | KeyValueDraftType<T>[];
+
 type FindReturn<T> = {
   /**
    * Finds records based on the provided keys.
@@ -60,6 +64,7 @@ type LogicalOperator = 'AND' | 'OR';
 
 type FilterOperatorWhenSingleValue =
   | 'EQUALS'
+  | 'NOT EQUAL'
   | 'LIKE'
   | 'LESS THAN'
   | 'LESS THAN OR EQUALS'
@@ -97,6 +102,9 @@ export type {
   InsertResult,
   DraftAdministrativeFields,
   TypedRequest,
+  Columns,
+  Entries,
+  DraftEntries,
   // Builder types
   FindReturn,
   LogicalOperator,

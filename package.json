@@ -1,6 +1,6 @@
 {
   "name": "@dxfrontier/cds-ts-repository",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "The goal of SAP CAP CDS-QL BaseRepository is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the database like .create(), .createMany(), .getAll(), .update(), .find(), .exists() ...",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -20,7 +20,7 @@
     "prettier:message": "echo 'Prettier started ...'",
     "check": "run-s eslint:message eslint prettier:message prettier",
     "fix": "run-s eslint:message eslint:fix prettier:message prettier:fix",
-    "test": "npm run build:entities --prefix test/bookshop && jest",
+    "test": "jest",
     "start:bookshop": "npm run start --prefix ./test/bookshop",
     "prepare": "husky install",
     "build:clean": "echo 'Clean dist folder' && npx rimraf ./dist/{*.js,*.map,*.ts,*.mts,*.mjs}",
@@ -29,7 +29,7 @@
     "build": "run-s build:clean build:message build:ts"
   },
   "dependencies": {
-    "@sap/cds": "7.4.1",
+    "@sap/cds": "^7.4.1",
     "ts-mixer": "^6.0.3"
   },
   "devDependencies": {
@@ -95,5 +95,8 @@
       "npm run prettier:fix",
       "npm run test --bail --findRelatedTests ./test"
     ]
+  },
+  "imports": {
+    "#cds-models/*": "./test/bookshop/@cds-models/*/index.js"
   }
 }

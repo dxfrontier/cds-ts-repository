@@ -13,7 +13,10 @@
     "strict": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "#cds-models/*": ["./test/bookshop/@cds-models/*/index.ts"]
+    }
   },
   "exclude": ["node_modules"]
 }

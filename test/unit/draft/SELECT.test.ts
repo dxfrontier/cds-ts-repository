@@ -1,12 +1,11 @@
-// import cds from '@sap/cds';
-// import { Book } from '../../bookshop/srv/util/types/entities/CatalogService';
-import BookEventRepository from '../../util/BookEventRepository';
+import { getBookEventRepository } from '../../util/BookEventRepository';
 import { startTestServer } from '../../util/util';
 import { o } from 'odata';
 
 describe('SELECT - drafts', () => {
   const { GET } = startTestServer(__dirname, 'bookshop');
-  let bookEventDraftRepository: BookEventRepository;
+
+  let bookEventDraftRepository: Awaited<ReturnType<typeof getBookEventRepository>>;
 
   beforeAll(async () => {
     const {
@@ -26,7 +25,7 @@ describe('SELECT - drafts', () => {
       await _activateDraft(baseURL, '3d5e8f7c-6a9b-4d02-af87-91b480a573d1');
     }
 
-    bookEventDraftRepository = new BookEventRepository();
+    bookEventDraftRepository = await getBookEventRepository();
   });
 
   describe('.getAllDrafts()', () => {

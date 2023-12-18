@@ -1,13 +1,13 @@
-import BookRepository from '../../util/BookRepository';
+import { getBookRepository } from '../../util/BookRepository';
 import { startTestServer } from '../../util/util';
 
 describe('DELETE', () => {
   startTestServer(__dirname, 'bookshop');
 
-  let bookRepository: BookRepository;
+  let bookRepository: Awaited<ReturnType<typeof getBookRepository>>;
 
   beforeAll(async () => {
-    bookRepository = new BookRepository();
+    bookRepository = await getBookRepository();
   });
 
   describe('.delete()', () => {
@@ -22,9 +22,18 @@ describe('DELETE', () => {
   });
 
   describe('.deleteMany()', () => {
-    test('should successfully delete multiple items from the database', async () => {
+    it('should successfully delete multiple items from the database - deleteMany([{ ID : 207 }, { ID : 251 }])', async () => {
       const getAll = await bookRepository.getAll();
       const deleteAllOperation = await bookRepository.deleteMany([{ ID: 207 }, { ID: 251 }]);
+      const getAllAfter = await bookRepository.getAll();
+
+      expect(deleteAllOperation).toBe(true);
+      expect(getAll!.length).toBeGreaterThan(getAllAfter!.length);
+    });
+
+    it('should successfully delete multiple items from the database - deleteMany({ ID: 201 }, { ID: 252 })', async () => {
+      const getAll = await bookRepository.getAll();
+      const deleteAllOperation = await bookRepository.deleteMany({ ID: 203 }, { ID: 252 });
       const getAllAfter = await bookRepository.getAll();
 
       expect(deleteAllOperation).toBe(true);

@@ -1,12 +1,12 @@
-import BookRepository from '../../util/BookRepository';
+import { getBookRepository } from '../../util/BookRepository';
 import { startTestServer } from '../../util/util';
 
 describe('UPDATE', () => {
   startTestServer(__dirname, 'bookshop');
-  let bookRepository: BookRepository;
+  let bookRepository: Awaited<ReturnType<typeof getBookRepository>>;
 
   beforeAll(async () => {
-    bookRepository = new BookRepository();
+    bookRepository = await getBookRepository();
   });
 
   describe('.update()', () => {

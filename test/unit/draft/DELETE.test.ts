@@ -1,10 +1,10 @@
-import BookEventRepository from '../../util/BookEventRepository';
+import { getBookEventRepository } from '../../util/BookEventRepository';
 import { startTestServer } from '../../util/util';
 import { o } from 'odata';
 
 describe('DELETE - drafts', () => {
   const { GET } = startTestServer(__dirname, 'bookshop');
-  let bookEventDraftRepository: BookEventRepository;
+  let bookEventDraftRepository: Awaited<ReturnType<typeof getBookEventRepository>>;
 
   beforeAll(async () => {
     const {
@@ -21,7 +21,7 @@ describe('DELETE - drafts', () => {
     await _activateDraft(baseURL!, 'f47ac10b-58cc-4372-a567-0e02b2c3d479');
     await _activateDraft(baseURL!, '8f7b7b5d-d8ee-48a9-9422-0068cf001244');
 
-    bookEventDraftRepository = new BookEventRepository();
+    bookEventDraftRepository = await getBookEventRepository();
   });
 
   describe('.deleteDraft()', () => {

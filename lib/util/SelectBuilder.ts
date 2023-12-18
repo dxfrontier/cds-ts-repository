@@ -4,6 +4,8 @@ import { type Definition } from '@sap/cds/apis/csn';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
+import type { Columns } from '../types/types';
+
 class SelectBuilder<T, Keys> {
   private select: SELECT<T>;
 
@@ -22,20 +24,24 @@ class SelectBuilder<T, Keys> {
 
   /**
    * Orders the selected columns in ascending order.
-   * @param {Array<keyof T>} columns An array of column names to order ascending.
+   * @param columns An array of column names to order ascending.
    * @returns SelectBuilder instance
    *
    * @example
    * const results = await this.builder().find({
    *   name: 'A company name',
    * })
-   * .orderAsc(['name'])
+   * .orderAsc('name', 'company', 'ID')
+   * // or
+   * // .orderAsc(['name', 'company'])
    * .execute();
    */
-  public orderAsc(columns: Array<keyof T>): this {
-    const columnsWithAsc = columns.map((column) => `${column as unknown as string} asc`);
+  public orderAsc(...columns: Columns<T>[]): this {
+    const columnsArray = Array.isArray(columns[0]) ? columns[0] : columns;
+    const ascColumns = columnsArray.map((column) => `${column as string} asc`);
 
-    void this.select.orderBy(...columnsWithAsc);
+    void this.select.orderBy(...ascColumns);
+
     return this;
   }
 
@@ -49,12 +55,15 @@ class SelectBuilder<T, Keys> {
    *   name: 'A company name',
    * })
    * .orderDesc(['name'])
+   * // or
+   * // .orderDesc(['name', 'company'])
    * .execute();
    */
-  public orderDesc(columns: Array<keyof T>): this {
-    const columnsWithDesc = columns.map((column) => `${column as unknown as string} desc`);
+  public orderDesc(...columns: Columns<T>[]): this {
+    const columnsArray = Array.isArray(columns[0]) ? columns[0] : columns;
+    const descColumns = columnsArray.map((column) => `${column as string} desc`);
 
-    void this.select.orderBy(...columnsWithDesc);
+    void this.select.orderBy(...descColumns);
 
     return this;
   }
@@ -68,11 +77,14 @@ class SelectBuilder<T, Keys> {
    * const results = await this.builder().find({
    *   name: 'A company name',
    * })
-   * .groupBy(['name'])
+   * .groupBy('name', 'company')
+   * // or
+   * //.groupBy(['name', 'company'])
    * .execute();
    */
-  public groupBy(columns: Array<keyof T>): this {
-    void this.select.groupBy(columns as unknown as string).columns;
+  public groupBy(...columns: Columns<T>[]): this {
+    const columnsArray = Array.isArray(columns[0]) ? columns[0] : columns;
+    void this.select.groupBy(...(columnsArray as unknown as string));
     return this;
   }
 
@@ -86,10 +98,14 @@ class SelectBuilder<T, Keys> {
    * .find({
    *     name: 'A company name',
    * })
-   * .getExpand(['orders'])
+   * .getExpand('orders', 'reviews')
+   * // or
+   * // .getExpand(['orders', 'reviews'])
    * .execute();
    */
-  public getExpand(associations: Array<keyof T>): this {
+  public getExpand(...associations: Columns<T>[]): this {
+    const associationsColumns = Array.isArray(associations[0]) ? associations[0] : associations;
+
     this.isExpandCalledFirst = true;
 
     // const private routines for this func
@@ -99,7 +115,7 @@ class SelectBuilder<T, Keys> {
         column('*');
       }
 
-      associations?.forEach((association) => {
+      associationsColumns?.forEach((association) => {
         column[association]((linkedEntity: (...args: unknown[]) => unknown) => {
           linkedEntity('*');
         });
@@ -113,6 +129,35 @@ class SelectBuilder<T, Keys> {
     return this;
   }
 
+  // public columns(
+  //   ...columns: {
+  //     name: keyof T;
+  //     func: 'MAX' | 'MIN' | 'AVG' | 'CONCAT';
+  //     as: string;
+  //   }[]
+  // ): SelectBuilder<T, string | Keys>;
+
+  //   public columns<Columns extends keyof T>(
+  //   ...columns:
+  //     | Columns[]
+  //     | {
+  //         name: Columns;
+  //         func: 'MAX' | 'MIN' | 'AVG' | 'CONCAT';
+  //         as: string;
+  //       }[]
+  // ): SelectBuilder<Pick<T, Columns>, string | Keys> {
+  // reviews_2 = await bookRepository
+  //   .builder()
+  //   .find({ ID: 201 })
+  //   // .columns(
+  //   //   { name: 'author_ID', func: 'AVG', as: 'dada' },
+  //   //   { name: 'currency', func: 'AVG', as: 'dada' },
+  //   //   { name: 'genre', func: 'AVG', as: 'dada' },
+  //   // )
+  //   .columns('ID', 'currency', 'descr', 'reviews')
+  //   .getExpand(['reviews', 'reviews'])
+  //   .execute();
+
   /**
    * Specifies which columns to be fetched
    * @param columns An array of column names to retrieve.
@@ -122,15 +167,28 @@ class SelectBuilder<T, Keys> {
    * const results = await this.builder().find({
    *   name: 'A company name',
    * })
+   * .columns('name', 'currency_code')
+   * // or
    * .columns(['name', 'currency_code'])
    * .execute();
    *
    */
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  public columns<Columns extends keyof T>(columns: Columns[]) {
+  public columns<Columns extends keyof T>(columns: Columns[]): SelectBuilder<Pick<T, Columns>, string | Keys>;
+  public columns<Columns extends keyof T>(...columns: Columns[]): SelectBuilder<Pick<T, Columns>, string | Keys>;
+  public columns<Columns extends keyof T>(
+    columns: unknown,
+    ...rest: unknown[]
+  ): SelectBuilder<Pick<T, Columns>, string | Keys> {
+    const allColumns = [columns, ...rest];
+
     // private routine for this func
     const _removeExpandAllFields = (): void => {
-      this.select.SELECT.columns?.shift();
+      this.select.SELECT.columns?.forEach((item, index) => {
+        const column = item as any;
+        if (column === '*') {
+          this.select.SELECT.columns?.splice(index, 1);
+        }
+      });
       /* 
         Workaround using reverse
         When .getExpand(['reviews']) is firstly called before .columns(['currency_code','reviews']) somehow this causes duplicates and gives an error.
@@ -139,7 +197,7 @@ class SelectBuilder<T, Keys> {
       this.select.SELECT.columns?.reverse();
     };
 
-    void this.select.columns(columns as unknown as string);
+    void this.select.columns(...(allColumns as unknown as string));
 
     if (this.isExpandCalledFirst) {
       // As the .columns() was called after .getExpand(), the '*' will be removed from the .columns array to have correct typing based only on the columns
