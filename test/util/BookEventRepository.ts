@@ -1,14 +1,16 @@
 import { Mixin } from 'ts-mixer';
-import { BookEvent } from '../bookshop/srv/util/types/entities/CatalogService';
 import { BaseRepository } from '../../lib';
 import { BaseRepositoryDraft } from '../../lib/BaseRepositoryDraft';
+import type { BookEvent } from '#cds-models/CatalogService';
 
-class BookEventRepository extends Mixin(BaseRepository<BookEvent>, BaseRepositoryDraft<BookEvent>) {
-  constructor() {
-    super(BookEvent);
+export const getBookEventRepository = async () => {
+  const { BookEvent } = await import('#cds-models/CatalogService');
+
+  class BookEventRepository extends Mixin(BaseRepository<BookEvent>, BaseRepositoryDraft<BookEvent>) {
+    constructor() {
+      super(BookEvent);
+    }
   }
 
-  // ... define custom CDS-QL actions if BaseRepository ones are not satisfying your needs !
-}
-
-export default BookEventRepository;
+  return new BookEventRepository();
+};

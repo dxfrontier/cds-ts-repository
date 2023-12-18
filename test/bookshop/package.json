@@ -2,9 +2,7 @@
   "name": "bookshop",
   "version": "1.0.0",
   "scripts": {
-    "start": "npm run build:entities && cds-ts watch",
-    "build:entities": "cds-typer '*' --outputDirectory ./srv/util/types/entities && npm run clean",
-    "clean": "npx rimraf ./srv/util/types/entities/{*.js,**/*.js,**/**/*.js,**/**/**/*.js}"
+    "start": "cds-ts watch"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^1.3.1"
