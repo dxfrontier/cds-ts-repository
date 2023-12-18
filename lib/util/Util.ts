@@ -17,8 +17,8 @@ export const Util = {
     );
   },
 
-  isEquals<T>(keys: Filter<T>): boolean {
-    return keys.getFilterOperator() === 'EQUALS';
+  isEqualsOrNotEqual<T>(keys: Filter<T>): boolean {
+    return keys.getFilterOperator() === 'EQUALS' || keys.getFilterOperator() === 'NOT EQUAL';
   },
 
   isLeftOrRightOperator<T>(keys: Filter<T>): boolean {
@@ -55,6 +55,9 @@ export const Util = {
       case 'EQUALS':
         return '=';
 
+      case 'NOT EQUAL':
+        return '<>';
+
       default:
         throw Error('No operator found');
     }
@@ -76,7 +79,7 @@ export const Util = {
       return `${key} ${filterOperator} '${keys.value as string}'`;
     }
 
-    if (Util.isEquals(keys)) {
+    if (Util.isEqualsOrNotEqual(keys)) {
       return `${key} ${Util.mapOperator(keys)} '${keys.value as string}'`;
     }
 

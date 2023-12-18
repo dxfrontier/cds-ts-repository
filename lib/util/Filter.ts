@@ -65,12 +65,17 @@ class Filter<T> {
         this.value = `%${filter.value}%`;
       }
 
+      if (filter.operator === 'LIKE') {
+        this.value = `%${filter.value}%`;
+      }
+
       if (
         filter.operator === 'LESS THAN' ||
         filter.operator === 'GREATER THAN' ||
         filter.operator === 'LESS THAN OR EQUALS' ||
         filter.operator === 'GREATER THAN OR EQUALS' ||
-        filter.operator === 'EQUALS'
+        filter.operator === 'EQUALS' ||
+        filter.operator === 'NOT EQUAL'
       ) {
         this.value = filter.value;
       }

@@ -2,7 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import { type InsertResult, type KeyValueType, type Locale } from './types/types';
+import type { Entries, InsertResult, KeyValueType, Locale } from './types/types';
 import type Filter from './util/Filter';
 
 import { CoreRepository } from './util/CoreRepository';
@@ -45,8 +45,8 @@ abstract class BaseRepository<T> {
       },
     ])
    */
-  public async createMany(entries: Array<KeyValueType<T>>): Promise<InsertResult<T>> {
-    return await this.coreRepository.createMany(entries);
+  public async createMany(...entries: Entries<T>[]): Promise<InsertResult<T>> {
+    return await this.coreRepository.createMany(...entries);
   }
 
   /**
@@ -199,8 +199,8 @@ abstract class BaseRepository<T> {
     ]);
    */
 
-  public async deleteMany(entries: Array<KeyValueType<T>>): Promise<boolean> {
-    return await this.coreRepository.deleteMany(entries);
+  public async deleteMany(...entries: Entries<T>[]): Promise<boolean> {
+    return await this.coreRepository.deleteMany(...entries);
   }
 
   /**
