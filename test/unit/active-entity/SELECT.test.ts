@@ -24,9 +24,17 @@ describe('SELECT', () => {
   });
 
   describe('.getDistinctColumns()', () => {
-    it('It should RETURN : distinct columns found in the database', async () => {
+    it('It should RETURN : distinct columns found in the database - .getDistinctColumns(["currency_code", "ID"])', async () => {
       // Act
       const getDistinctColumns = await bookRepository.getDistinctColumns(['currency_code', 'ID']);
+
+      // Assert
+      expect(getDistinctColumns!.length).toBeGreaterThan(0);
+    });
+
+    it('It should RETURN : distinct columns found in the database - .getDistinctColumns("currency_code", "ID")', async () => {
+      // Act
+      const getDistinctColumns = await bookRepository.getDistinctColumns('currency_code', 'ID');
 
       // Assert
       expect(getDistinctColumns!.length).toBeGreaterThan(0);
@@ -482,7 +490,7 @@ describe('SELECT', () => {
             .builder()
             .find({ ID: 201 })
             .columns('ID', 'currency_code', 'descr', 'reviews')
-            .getExpand(['reviews'])
+            .getExpand('reviews')
             .execute();
 
           // Assert

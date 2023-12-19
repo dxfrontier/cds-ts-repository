@@ -4,7 +4,7 @@ import { type Definition } from '@sap/cds/apis/csn';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { Columns } from '../types/types';
+import type { Columns, ShowOnlyColumns } from '../types/types';
 
 class SelectBuilder<T, Keys> {
   private select: SELECT<T>;
@@ -33,7 +33,7 @@ class SelectBuilder<T, Keys> {
    * })
    * .orderAsc('name', 'company', 'ID')
    * // or
-   * // .orderAsc(['name', 'company'])
+   * //.orderAsc(['name', 'company'])
    * .execute();
    */
   public orderAsc(...columns: Columns<T>[]): this {
@@ -56,7 +56,7 @@ class SelectBuilder<T, Keys> {
    * })
    * .orderDesc(['name'])
    * // or
-   * // .orderDesc(['name', 'company'])
+   * //.orderDesc(['name', 'company'])
    * .execute();
    */
   public orderDesc(...columns: Columns<T>[]): this {
@@ -100,7 +100,7 @@ class SelectBuilder<T, Keys> {
    * })
    * .getExpand('orders', 'reviews')
    * // or
-   * // .getExpand(['orders', 'reviews'])
+   * //.getExpand(['orders', 'reviews'])
    * .execute();
    */
   public getExpand(...associations: Columns<T>[]): this {
@@ -129,35 +129,6 @@ class SelectBuilder<T, Keys> {
     return this;
   }
 
-  // public columns(
-  //   ...columns: {
-  //     name: keyof T;
-  //     func: 'MAX' | 'MIN' | 'AVG' | 'CONCAT';
-  //     as: string;
-  //   }[]
-  // ): SelectBuilder<T, string | Keys>;
-
-  //   public columns<Columns extends keyof T>(
-  //   ...columns:
-  //     | Columns[]
-  //     | {
-  //         name: Columns;
-  //         func: 'MAX' | 'MIN' | 'AVG' | 'CONCAT';
-  //         as: string;
-  //       }[]
-  // ): SelectBuilder<Pick<T, Columns>, string | Keys> {
-  // reviews_2 = await bookRepository
-  //   .builder()
-  //   .find({ ID: 201 })
-  //   // .columns(
-  //   //   { name: 'author_ID', func: 'AVG', as: 'dada' },
-  //   //   { name: 'currency', func: 'AVG', as: 'dada' },
-  //   //   { name: 'genre', func: 'AVG', as: 'dada' },
-  //   // )
-  //   .columns('ID', 'currency', 'descr', 'reviews')
-  //   .getExpand(['reviews', 'reviews'])
-  //   .execute();
-
   /**
    * Specifies which columns to be fetched
    * @param columns An array of column names to retrieve.
@@ -169,17 +140,16 @@ class SelectBuilder<T, Keys> {
    * })
    * .columns('name', 'currency_code')
    * // or
-   * .columns(['name', 'currency_code'])
+   * //.columns(['name', 'currency_code'])
    * .execute();
    *
    */
-  public columns<Columns extends keyof T>(columns: Columns[]): SelectBuilder<Pick<T, Columns>, string | Keys>;
-  public columns<Columns extends keyof T>(...columns: Columns[]): SelectBuilder<Pick<T, Columns>, string | Keys>;
-  public columns<Columns extends keyof T>(
-    columns: unknown,
-    ...rest: unknown[]
-  ): SelectBuilder<Pick<T, Columns>, string | Keys> {
-    const allColumns = [columns, ...rest];
+  public columns<ColumnKeys extends Columns<T>>(
+    ...columns: ColumnKeys[]
+  ): SelectBuilder<Pick<T, ShowOnlyColumns<T, ColumnKeys>>, string | Keys> {
+    // const allColumns = [columns, ...rest];
+
+    const allColumns = Array.isArray(columns[0]) ? columns[0] : columns;
 
     // private routine for this func
     const _removeExpandAllFields = (): void => {
@@ -189,7 +159,7 @@ class SelectBuilder<T, Keys> {
           this.select.SELECT.columns?.splice(index, 1);
         }
       });
-      /* 
+      /*
         Workaround using reverse
         When .getExpand(['reviews']) is firstly called before .columns(['currency_code','reviews']) somehow this causes duplicates and gives an error.
         If this is being reversed, this works as expected
@@ -205,7 +175,10 @@ class SelectBuilder<T, Keys> {
     }
 
     // We are creating and new instance of SelectBuilder and preserving the select from the current SelectBuilder instance
-    const selectBuilder = new SelectBuilder<Pick<T, Columns>, typeof this.keys>(this.entity, this.keys);
+    const selectBuilder = new SelectBuilder<Pick<T, ShowOnlyColumns<T, ColumnKeys>>, typeof this.keys>(
+      this.entity,
+      this.keys,
+    );
 
     selectBuilder.select = this.select;
     selectBuilder.isColumnsCalledFirst = true;

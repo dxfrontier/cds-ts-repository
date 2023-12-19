@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { DraftEntries, KeyValueDraftType } from './types/types';
+import type { Columns, DraftEntries, KeyValueDraftType, ShowOnlyColumns } from './types/types';
 import type Filter from './util/Filter';
 
 import { CoreRepository } from './util/CoreRepository';
@@ -32,11 +32,13 @@ abstract class BaseRepositoryDraft<T> {
    * @returns A promise that resolves to an array of distinct records.
    *
    * @example const results = await this.getDraftsDistinctColumns(['currency_code', 'ID', 'name']);
+   * // or
+   * // const results = await this.getDraftsDistinctColumns('currency_code', 'ID', 'name');
    */
-  public async getDraftsDistinctColumns<Column extends keyof T>(
-    columns: Column[],
-  ): Promise<Array<Pick<T, Column>> | undefined> {
-    return await this.coreRepository.getDistinctColumns(columns);
+  public async getDraftsDistinctColumns<ColumnKeys extends Columns<KeyValueDraftType<T>>>(
+    ...columns: ColumnKeys[]
+  ): Promise<Array<Pick<KeyValueDraftType<T>, ShowOnlyColumns<KeyValueDraftType<T>, ColumnKeys>>> | undefined> {
+    return await this.coreRepository.getDistinctColumns(...columns);
   }
 
   /**

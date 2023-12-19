@@ -2,7 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { Entries, InsertResult, KeyValueType, Locale } from './types/types';
+import type { Columns, Entries, InsertResult, KeyValueType, Locale, ShowOnlyColumns } from './types/types';
 import type Filter from './util/Filter';
 
 import { CoreRepository } from './util/CoreRepository';
@@ -64,12 +64,15 @@ abstract class BaseRepository<T> {
    * @param columns An array of column names to retrieve distinct records for.
    * @returns A promise that resolves to an array of distinct records.
    *
-   * @example const results = await this.getDistinctColumns(['currency_code', 'ID', 'name']);
+   * @example
+   * const results = await this.getDistinctColumns(['currency_code', 'ID', 'name']);
+   * // or
+   * // const results = await this.getDistinctColumns('currency_code', 'ID', 'name');
    */
-  public async getDistinctColumns<Column extends keyof T>(
-    columns: Column[],
-  ): Promise<Array<Pick<T, Column>> | undefined> {
-    return await this.coreRepository.getDistinctColumns(columns);
+  public async getDistinctColumns<ColumnKeys extends Columns<T>>(
+    ...columns: ColumnKeys[]
+  ): Promise<Array<Pick<T, ShowOnlyColumns<T, ColumnKeys>>> | undefined> {
+    return await this.coreRepository.getDistinctColumns(...columns);
   }
 
   /**
