@@ -39,9 +39,17 @@ describe('SELECT - drafts', () => {
   });
 
   describe('.getDraftsDistinctColumns()', () => {
-    it('should return distinct columns found in the database', async () => {
+    it('should return distinct columns found in the database - .getDraftsDistinctColumns(["ID", "name"])', async () => {
       // Act
       const getDistinctColumns = await bookEventDraftRepository.getDraftsDistinctColumns(['ID', 'name']);
+
+      // Assert
+      expect(getDistinctColumns!.length).toBeGreaterThan(0);
+    });
+
+    it('should return distinct columns found in the database - .getDraftsDistinctColumns("ID", "name")', async () => {
+      // Act
+      const getDistinctColumns = await bookEventDraftRepository.getDraftsDistinctColumns('ID', 'name');
 
       // Assert
       expect(getDistinctColumns!.length).toBeGreaterThan(0);

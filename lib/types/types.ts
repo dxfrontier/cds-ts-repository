@@ -30,6 +30,8 @@ type Locale = {
 };
 
 type Columns<T> = keyof T | (keyof T)[];
+type ShowOnlyColumns<T, K> = K extends (keyof T)[] ? K[number] : K extends keyof T ? K : never;
+
 type Entries<T> = KeyValueType<T> | KeyValueType<T>[];
 type DraftEntries<T> = KeyValueDraftType<T> | KeyValueDraftType<T>[];
 
@@ -103,6 +105,7 @@ export type {
   DraftAdministrativeFields,
   TypedRequest,
   Columns,
+  ShowOnlyColumns,
   Entries,
   DraftEntries,
   // Builder types

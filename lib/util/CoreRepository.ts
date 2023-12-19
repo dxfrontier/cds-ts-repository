@@ -6,7 +6,7 @@ import Util from './Util';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { KeyValueType, Locale, InsertResult, FindReturn, Entries } from '../types/types';
+import type { KeyValueType, Locale, InsertResult, FindReturn, Entries, Columns, ShowOnlyColumns } from '../types/types';
 import type Filter from './Filter';
 
 class CoreRepository<T> {
@@ -27,10 +27,12 @@ class CoreRepository<T> {
     return await SELECT.from(this.entity);
   }
 
-  public async getDistinctColumns<Column extends keyof T>(
-    columns: Column[],
-  ): Promise<Array<Pick<T, Column>> | undefined> {
-    return await SELECT.distinct.from(this.entity).columns(...columns);
+  public async getDistinctColumns<ColumnKeys extends Columns<T>>(
+    ...columns: ColumnKeys[]
+  ): Promise<Array<Pick<T, ShowOnlyColumns<T, ColumnKeys>>> | undefined> {
+    const allColumns = Array.isArray(columns[0]) ? columns[0] : columns;
+
+    return await SELECT.distinct.from(this.entity).columns(...allColumns);
   }
 
   public async getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
@@ -90,7 +92,7 @@ class CoreRepository<T> {
   public async deleteMany(...entries: Entries<T>[]): Promise<boolean> {
     const items = Array.isArray(entries[0]) ? entries[0] : entries;
 
-    const allPromises: Array<DELETE<T>> = [];
+    const allPromises: Array<DELETE<any>> = [];
 
     items.forEach((instance) => {
       const itemDelete = DELETE.from(this.entity).where(instance);

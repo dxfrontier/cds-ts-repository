@@ -10,11 +10,7 @@ export const Util = {
   },
 
   isLike<T>(keys: Filter<T>): boolean {
-    return (
-      keys.getFilterOperator() === 'LIKE'
-      // keys.getFilterOperator() === 'STARTS WITH' ||
-      // keys.getFilterOperator() === 'ENDS WITH'
-    );
+    return keys.getFilterOperator() === 'LIKE';
   },
 
   isEqualsOrNotEqual<T>(keys: Filter<T>): boolean {

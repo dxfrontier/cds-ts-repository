@@ -444,40 +444,21 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const createdInstance = await this.createMany([
-      {
-        name: 'Customer 1',
-        description: 'Customer 1 description',
-      },
-      {
-        name: 'Customer 2',
-        description: 'Customer 2 description',
-      },
-    ]);
-    // Further logic with createdInstance
-  }
-}
-```
 
-`Example 2`
+    const create = {
+      name: 'Customer 1',
+      description: 'Customer 1 description',
+    },
+    {
+      name: 'Customer 2',
+      description: 'Customer 2 description',
+    };
 
-```ts
-import { BaseRepository } from '@dxfrontier/cds-ts-repository';
-import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+    // as an array of objects
+    const createdInstance = await this.createMany([create]);
 
-class MyRepository extends BaseRepository<MyEntity> {
-  constructor() {
-    super(MyEntity); // a CDS Typer entity type
-  }
-
-  public async aMethod() {
-    const createdInstance = await this.createMany(
-      {
-        name: 'Customer 1423',
-        description: 'Customer 1323 description',
-      },
-      { name: 'Customer 143323', description: 'Customer 134323 description' },
-    );
+    // as a spread of objects
+    const createdInstance2 = await this.createMany(create); // as spread objects
     // Further logic with createdInstance
   }
 }
@@ -557,6 +538,9 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
     const results = await this.getDistinctColumns(['currency_code', 'ID', 'name']);
+    // or using spread strings
+    // const results = await this.getDistinctColumns('currency_code', 'ID', 'name');
+
     // Variant 1
     if (results) {
       // do something with results
@@ -942,7 +926,9 @@ const results = await this.builder()
   .find({
     name: 'A company name',
   })
-  .getExpand(['orders'])
+  .getExpand('orders', 'reviews')
+  // or
+  //.getExpand(['orders', 'reviews'])
   .execute();
 ```
 
@@ -1133,28 +1119,14 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
+    // as an array of objects
     const deleted = await this.deleteMany([
       { ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' },
       { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
     ]);
-    // Further logic with deleted
-  }
-}
-```
 
-`Example 2`
-
-```ts
-import { BaseRepository } from '@dxfrontier/cds-ts-repository';
-import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
-
-class MyRepository extends BaseRepository<MyEntity> {
-  constructor() {
-    super(MyEntity); // a CDS Typer entity type
-  }
-
-  public async aMethod() {
-    const deleted = await this.deleteMany(
+    // as an spread of objects
+    const deleted2 = await this.deleteMany(
       { ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' },
       { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
     );
