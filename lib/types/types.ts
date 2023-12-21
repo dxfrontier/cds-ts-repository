@@ -97,6 +97,29 @@ type FilterOptions<T> = {
   field: keyof T;
 } & (FilterSingleValue | FilterBetween | FilterInAndNotIn);
 
+export type StringFunctions =
+  | 'COUNT'
+  | 'AVG'
+  | 'MIN'
+  | 'MAX'
+  | 'CEILING'
+  | 'CONCAT'
+  | 'LENGTH'
+  | 'TOUPPER'
+  | 'TOLOWER'
+  | 'YEAR'
+  | 'MONTH'
+  | 'DAY'
+  | 'HOUR'
+  | 'MINUTE'
+  | 'SECOND';
+
+export interface ColumnFormatterType<T> {
+  column: keyof T;
+  aggregationFunction: StringFunctions;
+  renamed: string;
+}
+
 export type {
   KeyValueType,
   KeyValueDraftType,
@@ -113,4 +136,5 @@ export type {
   LogicalOperator,
   FilterOperator,
   FilterOptions,
+  // ColumnFormatterType,
 };
