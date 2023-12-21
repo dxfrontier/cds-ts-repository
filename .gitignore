@@ -1,5 +1,6 @@
 # CDS-Typer generated entities
-test/bookshop/srv/util/types/entities
+
+test/bookshop/@cds-models/*
 
 # Logs
 logs

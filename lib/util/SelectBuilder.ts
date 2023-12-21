@@ -147,8 +147,6 @@ class SelectBuilder<T, Keys> {
   public columns<ColumnKeys extends Columns<T>>(
     ...columns: ColumnKeys[]
   ): SelectBuilder<Pick<T, ShowOnlyColumns<T, ColumnKeys>>, string | Keys> {
-    // const allColumns = [columns, ...rest];
-
     const allColumns = Array.isArray(columns[0]) ? columns[0] : columns;
 
     // private routine for this func
