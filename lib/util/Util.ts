@@ -1,4 +1,4 @@
-import type { KeyValueType } from '../types/types';
+import type { Entry } from '../types/types';
 import Filter from './Filter';
 
 export const Util = {
@@ -7,23 +7,6 @@ export const Util = {
       return false;
     }
     return true;
-  },
-
-  isLike<T>(keys: Filter<T>): boolean {
-    return keys.getFilterOperator() === 'LIKE';
-  },
-
-  isEqualsOrNotEqual<T>(keys: Filter<T>): boolean {
-    return keys.getFilterOperator() === 'EQUALS' || keys.getFilterOperator() === 'NOT EQUAL';
-  },
-
-  isLeftOrRightOperator<T>(keys: Filter<T>): boolean {
-    return (
-      keys.getFilterOperator() === 'GREATER THAN' ||
-      keys.getFilterOperator() === 'GREATER THAN OR EQUALS' ||
-      keys.getFilterOperator() === 'LESS THAN' ||
-      keys.getFilterOperator() === 'LESS THAN OR EQUALS'
-    );
   },
 
   isBetweenOrNotBetween<T>(keys: Filter<T>): boolean {
@@ -54,34 +37,27 @@ export const Util = {
       case 'NOT EQUAL':
         return '<>';
 
+      case 'LIKE':
+      case 'ENDS_WITH':
+      case 'STARTS_WITH':
+        return 'LIKE';
+
       default:
         throw Error('No operator found');
     }
   },
 
-  isSingleFilter<T>(keys: Record<string, unknown> | Filter<T> | string): keys is Filter<T> {
+  isSingleFilter<T>(keys?: Record<string, unknown> | Filter<T> | string): keys is Filter<T> {
     return keys instanceof Filter && typeof keys === 'object' && !('filters' in keys);
   },
 
-  isMultipleFilters<T>(keys: Record<string, unknown> | Filter<T> | string): keys is Filter<T> {
+  isMultipleFilters<T>(keys?: Record<string, unknown> | Filter<T> | string): keys is Filter<T> {
     return keys instanceof Filter && 'filters' in keys;
   },
 
   buildSingleFilter<T>(keys: Filter<T>): string {
     const filterOperator = keys.getFilterOperator();
     const key = keys.getField();
-
-    if (Util.isLike(keys)) {
-      return `${key} ${filterOperator} '${keys.value as string}'`;
-    }
-
-    if (Util.isEqualsOrNotEqual(keys)) {
-      return `${key} ${Util.mapOperator(keys)} '${keys.value as string}'`;
-    }
-
-    if (Util.isLeftOrRightOperator(keys)) {
-      return `${key} ${Util.mapOperator(keys)} '${keys.value as string}'`;
-    }
 
     if (Util.isBetweenOrNotBetween(keys)) {
       return `(${key} ${filterOperator} ${keys.value1} AND ${keys.value2})`;
@@ -95,7 +71,8 @@ export const Util = {
       }
     }
 
-    return '';
+    // All others operators
+    return `${key} ${Util.mapOperator(keys)} '${keys.value as string}'`;
   },
 
   buildSQLQuery<T>(filter: Filter<T>): string {
@@ -122,7 +99,7 @@ export const Util = {
     return query;
   },
 
-  buildQueryKeys<T>(keys: KeyValueType<T> | Filter<T> | string): string | KeyValueType<T> {
+  buildQueryKeys<T>(keys?: Entry<T> | Filter<T> | string): string | Entry<T> | undefined {
     // Single filter object
     if (Util.isSingleFilter(keys)) {
       keys = Util.buildSingleFilter(keys);
