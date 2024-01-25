@@ -22,4 +22,4 @@ module.exports.Promotions = csn.Promotions
 // events
 // actions
 // enums
-module.exports.BookEvent.types = Object.fromEntries(Object.entries(cds.model.definitions['sap.capire.bookshop.BookEvents'].elements.types.enum).map(([k,v]) => [k,v.val??k]))
+module.exports.BookEvent.types ??= { BOOK_SIGNING: "BOOK_SIGNING", AUTHOR_TALK: "AUTHOR_TALK", BOOK_LUNCH: "BOOK_LUNCH" }
