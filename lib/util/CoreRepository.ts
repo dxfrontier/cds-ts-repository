@@ -6,7 +6,7 @@ import Util from './Util';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { KeyValueType, Locale, InsertResult, FindReturn, Entries, Columns, ShowOnlyColumns } from '../types/types';
+import type { Entry, Locale, InsertResult, FindReturn, Entries, Columns, ShowOnlyColumns } from '../types/types';
 import type Filter from './Filter';
 
 class CoreRepository<T> {
@@ -15,7 +15,7 @@ class CoreRepository<T> {
   }
 
   // Public routines
-  public async create(entry: KeyValueType<T>): Promise<InsertResult<T>> {
+  public async create(entry: Entry<T>): Promise<InsertResult<T>> {
     return await INSERT.into(this.entity).entries(entry);
   }
 
@@ -51,19 +51,19 @@ class CoreRepository<T> {
     return await SELECT.from(`${this.entity}.texts`).columns(...columns, 'locale');
   }
 
-  public async find(keys: KeyValueType<T> | Filter<T> | string): Promise<T[] | undefined> {
+  public async find(keys?: Entry<T> | Filter<T> | string): Promise<T[] | undefined> {
     const filterKeys = Util.buildQueryKeys(keys);
 
     return await SELECT.from(this.entity).where(filterKeys);
   }
 
-  public async findOne(keys: KeyValueType<T>): Promise<T | undefined> {
+  public async findOne(keys: Entry<T>): Promise<T | undefined> {
     return await SELECT.one.from(this.entity).where(keys);
   }
 
   public builder(): FindReturn<T> {
     return {
-      find: (keys: KeyValueType<T> | Filter<T> | string): SelectBuilder<T, any> => {
+      find: (keys?: Entry<T> | Filter<T> | string): SelectBuilder<T, any> => {
         const filterKeys = Util.buildQueryKeys(keys);
 
         return new SelectBuilder<T, unknown>(this.entity, filterKeys);
@@ -71,20 +71,17 @@ class CoreRepository<T> {
     };
   }
 
-  public async update(keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>): Promise<boolean> {
+  public async update(keys: Entry<T>, fieldsToUpdate: Entry<T>): Promise<boolean> {
     const updated: number = await UPDATE.entity(this.entity).where(keys).set(fieldsToUpdate);
     return updated === 1;
   }
 
-  public async updateLocaleTexts(
-    localeCodeKeys: KeyValueType<T> & Locale,
-    fieldsToUpdate: KeyValueType<T>,
-  ): Promise<boolean> {
+  public async updateLocaleTexts(localeCodeKeys: Entry<T> & Locale, fieldsToUpdate: Entry<T>): Promise<boolean> {
     const updated: number = await UPDATE.entity(`${this.entity}.texts`).with(fieldsToUpdate).where(localeCodeKeys);
     return updated === 1;
   }
 
-  public async delete(keys: KeyValueType<T>): Promise<boolean> {
+  public async delete(keys: Entry<T>): Promise<boolean> {
     const deleted: number = await DELETE.from(this.entity).where(keys);
     return deleted === 1;
   }
@@ -104,7 +101,7 @@ class CoreRepository<T> {
     return Util.isAllSuccess(deletedItems);
   }
 
-  public async exists(keys: KeyValueType<T>): Promise<boolean> {
+  public async exists(keys: Entry<T>): Promise<boolean> {
     const found: T[] = await SELECT.from(this.entity).where(keys);
     return found.length > 0;
   }

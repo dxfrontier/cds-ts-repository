@@ -116,6 +116,22 @@ describe('SELECT', () => {
   });
 
   describe('.find()', () => {
+    describe('.find() - OVERLOAD - Get all', () => {
+      it('should find "multiple" items with the specified criteria', async () => {
+        // Act
+        const findAll = await bookRepository.find();
+
+        // Assert
+        expect(findAll).toHaveLength(6);
+      });
+
+      it('should find one item with the specified criteria', async () => {
+        const findMultipleResult = await bookRepository.find({ currency_code: 'GBP' });
+
+        expect(findMultipleResult!.length).toBeGreaterThanOrEqual(1);
+      });
+    });
+
     describe('.find() - object', () => {
       it('should find "multiple" items with the specified criteria', async () => {
         // Act
@@ -191,6 +207,16 @@ describe('SELECT', () => {
   });
 
   describe('.builder()', () => {
+    describe('======> .filter() - Overload ', () => {
+      it('should return 6 record', async () => {
+        // Act
+        const results = await bookRepository.builder().find().execute();
+
+        // Assert
+        expect(results?.length).toEqual(6);
+      });
+    });
+
     describe('======> .filter() - Overload - filter / filters ', () => {
       describe('======> .filter() - NOT EQUAL', () => {
         it('should return 5 record and ID 251 not in the items', async () => {
@@ -227,6 +253,44 @@ describe('SELECT', () => {
           results?.forEach((item) => {
             expect(item.ID).toBe(filter.value as number);
           });
+        });
+      });
+
+      describe('======> .filter() - ENDS_WITH', () => {
+        it('should return 2 records containing in the "descr" field the string "1850." ', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'descr',
+            operator: 'ENDS_WITH',
+            value: '1850.',
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(2);
+
+          results?.forEach((item) => expect(item.descr).toContain((filter.value as string).replace(/%/g, '')));
+        });
+      });
+
+      describe('======> .filter() - STARTS_WITH', () => {
+        it('should return 2 records containing in the "descr" field the string "Wuthering" ', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'descr',
+            operator: 'STARTS_WITH',
+            value: 'Wuthering',
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(2);
+
+          results?.forEach((item) => expect(item.descr).toContain((filter.value as string).replace(/%/g, '')));
         });
       });
 
@@ -703,6 +767,313 @@ describe('SELECT', () => {
           // Assert
           expect(limit).toHaveLength(2);
           expect(limit).not.toContain(all![0]);
+        });
+      });
+
+      describe('======> .columnFormatter()', () => {
+        it('should return 1 item having 2 new properties "theAvg", "stockRenamed"', async () => {
+          // Arrange
+          const originalItem = await bookRepository.builder().find({ ID: 201 }).execute();
+
+          // Act
+          const columnFormatter = await bookRepository
+            .builder()
+            .find({ currency_code: 'GBP' })
+            .getExpand('reviews')
+            .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+            .columnsFormatter(
+              { column: 'price', aggregate: 'AVG', renameAs: 'theAvg' },
+              { column: 'stock', aggregate: 'AVG', renameAs: 'stockRenamed' },
+            )
+            .execute();
+
+          // columnFormatter[0].
+          // Assert
+          expect(columnFormatter).toHaveLength(1);
+          expect(columnFormatter![0]).not.toContain(originalItem![0]);
+          expect(columnFormatter![0]).toHaveProperty('theAvg');
+          expect(columnFormatter![0]).toHaveProperty('stockRenamed');
+        });
+
+        describe('.columnFormatter() - NUMERIC AGGREGATE FUNCTIONS', () => {
+          it("'AVG' | 'MIN' | 'MAX' | 'SUM' | 'ABS' | 'CEILING' | 'TOTAL'", async () => {
+            // Arrange
+            const originalItem = await bookRepository.builder().find({ ID: 201 }).execute();
+
+            // Act
+            const AVG = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'price', aggregate: 'AVG', renameAs: 'AVG' })
+              .execute();
+
+            // Assert
+            expect(AVG).toHaveLength(1);
+            expect(AVG![0]).toHaveProperty('AVG');
+
+            const MIN = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'price', aggregate: 'MIN', renameAs: 'MIN' })
+              .execute();
+
+            // Assert
+            expect(MIN).toHaveLength(1);
+            expect(MIN![0]).toHaveProperty('MIN');
+
+            const MAX = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'price', aggregate: 'MAX', renameAs: 'MAX' })
+              .execute();
+
+            // Assert
+            expect(MAX).toHaveLength(1);
+            expect(MAX![0]).toHaveProperty('MAX');
+
+            const SUM = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'price', aggregate: 'SUM', renameAs: 'SUM' })
+              .execute();
+
+            // Assert
+            expect(SUM).toHaveLength(1);
+            expect(SUM![0]).toHaveProperty('SUM');
+
+            const ABS = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'price', aggregate: 'ABS', renameAs: 'ABS' })
+              .execute();
+
+            // Assert
+            expect(ABS).toHaveLength(3);
+            expect(ABS![0]).toHaveProperty('ABS');
+
+            const CEILING = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'price', aggregate: 'CEILING', renameAs: 'CEILING' })
+              .execute();
+
+            // Assert
+            expect(CEILING).toHaveLength(3);
+            expect(CEILING![0]).toHaveProperty('CEILING');
+
+            const TOTAL = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'price', aggregate: 'TOTAL', renameAs: 'TOTAL' })
+              .execute();
+
+            // Assert
+            expect(TOTAL).toHaveLength(1);
+            expect(TOTAL![0]).toHaveProperty('TOTAL');
+
+            const COUNT = await bookRepository
+              .builder()
+              .find()
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'price', aggregate: 'COUNT', renameAs: 'COUNT' })
+              .execute();
+
+            // Assert
+            expect(COUNT).toHaveLength(1);
+            expect(COUNT![0].COUNT).toBe(6);
+            expect(COUNT![0]).toHaveProperty('COUNT');
+
+            const ROUND = await bookRepository
+              .builder()
+              .find()
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'price', aggregate: 'ROUND', renameAs: 'ROUND' })
+              .execute();
+
+            // Assert
+            expect(ROUND).toHaveLength(6);
+            expect(ROUND![0]).toHaveProperty('ROUND');
+
+            const FLOOR = await bookRepository
+              .builder()
+              .find()
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'price', aggregate: 'FLOOR', renameAs: 'FLOOR' })
+              .execute();
+
+            // Assert
+            expect(FLOOR).toHaveLength(6);
+            expect(FLOOR![0]).toHaveProperty('FLOOR');
+          });
+        });
+
+        describe('.columnFormatter() - STRING AGGREGATE FUNCTIONS', () => {
+          it("'LOWER' | 'UPPER' | 'LENGTH' & Two columns string ======> 'CONCAT'", async () => {
+            // Arrange
+            const originalItem = await bookRepository.builder().find({ ID: 201 }).execute();
+
+            // Act
+            const LOWER = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'descr', aggregate: 'LOWER', renameAs: 'LOWER' })
+              .execute();
+
+            // Assert
+            expect(LOWER).toHaveLength(3);
+            expect(LOWER![0]).toHaveProperty('LOWER');
+
+            const UPPER = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'descr', aggregate: 'UPPER', renameAs: 'UPPER' })
+              .execute();
+
+            // Assert
+            expect(UPPER).toHaveLength(3);
+            expect(UPPER![0]).toHaveProperty('UPPER');
+
+            const LENGTH = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'descr', aggregate: 'LENGTH', renameAs: 'LENGTH' })
+              .execute();
+
+            // Assert
+            expect(LENGTH).toHaveLength(3);
+            expect(LENGTH![0]).toHaveProperty('LENGTH');
+
+            const CONCAT = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column1: 'price', column2: 'descr', aggregate: 'CONCAT', renameAs: 'CONCAT' })
+              .execute();
+
+            // Assert
+            expect(CONCAT).toHaveLength(3);
+            expect(CONCAT![0]).toHaveProperty('CONCAT');
+
+            const TRIM = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'descr', aggregate: 'TRIM', renameAs: 'TRIM' })
+              .execute();
+
+            // Assert
+            expect(TRIM).toHaveLength(3);
+            expect(TRIM![0]).toHaveProperty('TRIM');
+          });
+        });
+
+        describe('.columnFormatter() - DATE AGGREGATE FUNCTIONS', () => {
+          it("'DAY' | 'MONTH' | 'YEAR' | 'HOUR' | 'MINUTE' | 'SECOND'", async () => {
+            // Arrange
+            const originalItem = await bookRepository.builder().find({ ID: 201 }).execute();
+
+            // Act
+            const DAY = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'createdAt', aggregate: 'DAY', renameAs: 'DAY' })
+              .execute();
+
+            // Assert
+            expect(DAY).toHaveLength(3);
+            expect(DAY![0]).toHaveProperty('DAY');
+
+            const MONTH = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'createdAt', aggregate: 'MONTH', renameAs: 'MONTH' })
+              .execute();
+
+            // Assert
+            expect(MONTH).toHaveLength(3);
+            expect(MONTH![0]).toHaveProperty('MONTH');
+
+            const YEAR = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'createdAt', aggregate: 'YEAR', renameAs: 'YEAR' })
+              .execute();
+
+            // Assert
+            expect(YEAR).toHaveLength(3);
+            expect(YEAR![0]).toHaveProperty('YEAR');
+
+            const HOUR = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'createdAt', aggregate: 'HOUR', renameAs: 'HOUR' })
+              .execute();
+
+            // Assert
+            expect(HOUR).toHaveLength(3);
+            expect(HOUR![0]).toHaveProperty('HOUR');
+
+            const MINUTE = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({ column: 'createdAt', aggregate: 'MINUTE', renameAs: 'MINUTE' })
+              .execute();
+
+            // Assert
+            expect(MINUTE).toHaveLength(3);
+            expect(MINUTE![0]).toHaveProperty('MINUTE');
+
+            const SECOND = await bookRepository
+              .builder()
+              .find({ currency_code: 'GBP' })
+              .getExpand('reviews')
+              .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
+              .columnsFormatter({
+                column: 'createdAt',
+                aggregate: 'SECOND',
+                renameAs: 'SECOND',
+              })
+              .execute();
+
+            // Assert
+            expect(SECOND).toHaveLength(3);
+            expect(SECOND![0]).toHaveProperty('SECOND');
+          });
         });
       });
 

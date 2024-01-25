@@ -3,10 +3,11 @@ import type { TypedRequest } from '@sap/cds/apis/services';
 import { type LanguageCode } from 'iso-639-1';
 import type SelectBuilder from '../util/SelectBuilder';
 import type Filter from '../util/Filter';
+// import { Book } from '#cds-models/CatalogService';
 
 type LooseAutocomplete<T extends string> = T | Omit<string, T>;
 
-type KeyValueType<T> = {
+type Entry<T> = {
   [K in keyof T]?: T[K];
 };
 
@@ -15,7 +16,7 @@ type DraftAdministrativeFields = {
   HasActiveEntity?: boolean;
 };
 
-type KeyValueDraftType<T> = T & DraftAdministrativeFields;
+type EntryDraft<T> = T & DraftAdministrativeFields;
 
 type InsertResult<T> = {
   query: {
@@ -32,10 +33,17 @@ type Locale = {
 type Columns<T> = keyof T | (keyof T)[];
 type ShowOnlyColumns<T, K> = K extends (keyof T)[] ? K[number] : K extends keyof T ? K : never;
 
-type Entries<T> = KeyValueType<T> | KeyValueType<T>[];
-type DraftEntries<T> = KeyValueDraftType<T> | KeyValueDraftType<T>[];
+type Entries<T> = Entry<T> | Entry<T>[];
+type DraftEntries<T> = EntryDraft<T> | EntryDraft<T>[];
 
 type FindReturn<T> = {
+  /**
+   * Get all records from the table.
+   * @returns SelectBuilder
+   * @example const results = await this.builder().find().execute()
+   *
+   * */
+  find(): SelectBuilder<T, string>;
   /**
    * Finds records based on the provided keys.
    * @param keys An object representing the keys to filter the records.
@@ -43,7 +51,7 @@ type FindReturn<T> = {
    * @example const results = await this.builder().find({ name : 'Customer 1', company : 'home' }).execute()
    *
    * */
-  find<Keys extends KeyValueType<T>>(keys: KeyValueType<T>): SelectBuilder<T, Keys>;
+  find<Keys extends Entry<T>>(keys: Entry<T>): SelectBuilder<T, Keys>;
 
   /**
    * Finds records based on the provided filters.
@@ -62,12 +70,16 @@ type FindReturn<T> = {
   find<T>(filter: Filter<T>): SelectBuilder<T, string>;
 };
 
+// Start Filter types
+
 type LogicalOperator = 'AND' | 'OR';
 
 type FilterOperatorWhenSingleValue =
   | 'EQUALS'
   | 'NOT EQUAL'
   | 'LIKE'
+  | 'STARTS_WITH'
+  | 'ENDS_WITH'
   | 'LESS THAN'
   | 'LESS THAN OR EQUALS'
   | 'GREATER THAN'
@@ -97,9 +109,98 @@ type FilterOptions<T> = {
   field: keyof T;
 } & (FilterSingleValue | FilterBetween | FilterInAndNotIn);
 
+// End Filter types
+
+// Start .columnsFormatter types
+
+type NumericAggregateFunctions =
+  | 'AVG'
+  | 'MIN'
+  | 'MAX'
+  | 'SUM'
+  | 'ABS'
+  | 'CEILING'
+  | 'TOTAL'
+  | 'COUNT'
+  | 'ROUND'
+  | 'FLOOR';
+type DateAggregateFunctions = 'DAY' | 'MONTH' | 'YEAR' | 'HOUR' | 'MINUTE' | 'SECOND';
+
+type StringAggregateFunctions = 'LOWER' | 'UPPER' | 'LENGTH' | 'TRIM';
+type StringAggregateTwoColumnsFunctions = 'CONCAT';
+
+type AggregateNumberUsingColumn = {
+  aggregate?: NumericAggregateFunctions;
+};
+
+type AggregateDateUsingColumn = {
+  aggregate?: DateAggregateFunctions;
+};
+
+type AggregateStringUsingColumn = {
+  aggregate?: StringAggregateFunctions;
+};
+
+type AggregateStringTwoColumnsUsingColumn<T> = {
+  aggregate?: StringAggregateTwoColumnsFunctions;
+  column1: keyof T;
+  column2: keyof T;
+};
+
+type BaseAggregateFields<T> = {
+  renameAs: string;
+  column: keyof T;
+};
+
+type AggregateFields<T> =
+  | (BaseAggregateFields<T> & (AggregateStringUsingColumn | AggregateNumberUsingColumn | AggregateDateUsingColumn))
+  | (AggregateStringTwoColumnsUsingColumn<T> & { renameAs: string });
+
+type DynamicColumnTypes<T extends AggregateFields<K>[], K> = {
+  [K in T[number]['renameAs']]: K extends Extract<
+    T[number],
+    { aggregate: NumericAggregateFunctions | DateAggregateFunctions }
+  >['aggregate']
+    ? number
+    : K extends Extract<T[number], { aggregate: StringAggregateFunctions }>['aggregate']
+      ? string
+      : string; // Just renaming will get by default string
+};
+
+type ColumnFormatter<T> = AggregateFields<T>[];
+
+type AddNewFields<T, K extends ColumnFormatter<T>> = T & Partial<DynamicColumnTypes<K, T>>;
+
+type GetColumnNames<T, K extends ColumnFormatter<T>> = K[number][];
+
+type AppendColumns<T, K extends ColumnFormatter<T>> = T & AddNewFields<T, GetColumnNames<T, K>>;
+
+// End .columnsFormatter types
+
+// TODO: deep expand of getExpand
+// export type Expand<T> = ExpandType<T> | ExpandType<T>[];
+
+// export type ExpandType<T> = string | ExpandObject<T>;
+
+// export type ExpandObject<T> = keyof T | NestedExpandOptions<T>;
+
+// export type NestedExpandOptions<T> = {
+//   [P in keyof T]?: Unpacked<T[P]>;
+// };
+
+// export type Unpacked<T> = T extends (infer U)[] ? U : T;
+
+// export const book: Expand<Book> = {
+//   author: {},
+//   reviews: {
+//     reviewer: {},
+//   },
+// };
+
 export type {
-  KeyValueType,
-  KeyValueDraftType,
+  // Common
+  Entry,
+  EntryDraft,
   Locale,
   InsertResult,
   DraftAdministrativeFields,
@@ -108,10 +209,21 @@ export type {
   ShowOnlyColumns,
   Entries,
   DraftEntries,
+
   // Builder types
   FindReturn,
   LogicalOperator,
   FilterOperator,
   FilterOptions,
-  // ColumnFormatterType,
+
+  // ColumnsFormatter types
+  ColumnFormatter,
+  AddNewFields,
+  GetColumnNames,
+  AppendColumns,
+  DynamicColumnTypes,
+  NumericAggregateFunctions,
+  DateAggregateFunctions,
+  StringAggregateFunctions,
+  StringAggregateTwoColumnsFunctions,
 };

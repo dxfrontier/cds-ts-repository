@@ -1,14 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { Columns, DraftEntries, KeyValueDraftType, ShowOnlyColumns } from './types/types';
+import type { Columns, DraftEntries, EntryDraft, ShowOnlyColumns } from './types/types';
 import type Filter from './util/Filter';
 
 import { CoreRepository } from './util/CoreRepository';
 import { type Constructable } from '@sap/cds/apis/internal/inference';
 
 abstract class BaseRepositoryDraft<T> {
-  protected readonly coreRepository: CoreRepository<KeyValueDraftType<T>>;
+  protected readonly coreRepository: CoreRepository<EntryDraft<T>>;
 
   constructor(protected readonly entity: Constructable<T>) {
     this.coreRepository = new CoreRepository(`${this.entity.name}.drafts`);
@@ -22,7 +22,7 @@ abstract class BaseRepositoryDraft<T> {
    *
    * @example const results = await this.getAllDrafts();
    */
-  public async getAllDrafts(): Promise<Array<KeyValueDraftType<T>> | undefined> {
+  public async getAllDrafts(): Promise<Array<EntryDraft<T>> | undefined> {
     return await this.coreRepository.getAll();
   }
 
@@ -35,9 +35,9 @@ abstract class BaseRepositoryDraft<T> {
    * // or
    * // const results = await this.getDraftsDistinctColumns('currency_code', 'ID', 'name');
    */
-  public async getDraftsDistinctColumns<ColumnKeys extends Columns<KeyValueDraftType<T>>>(
+  public async getDraftsDistinctColumns<ColumnKeys extends Columns<EntryDraft<T>>>(
     ...columns: ColumnKeys[]
-  ): Promise<Array<Pick<KeyValueDraftType<T>, ShowOnlyColumns<KeyValueDraftType<T>, ColumnKeys>>> | undefined> {
+  ): Promise<Array<Pick<EntryDraft<T>, ShowOnlyColumns<EntryDraft<T>, ColumnKeys>>> | undefined> {
     return await this.coreRepository.getDistinctColumns(...columns);
   }
 
@@ -53,7 +53,7 @@ abstract class BaseRepositoryDraft<T> {
   public async getAllDraftsAndLimit(props: {
     limit: number;
     skip?: number | undefined;
-  }): Promise<Array<KeyValueDraftType<T>> | undefined> {
+  }): Promise<Array<EntryDraft<T>> | undefined> {
     return await this.coreRepository.getAllAndLimit(props);
   }
 
@@ -64,7 +64,7 @@ abstract class BaseRepositoryDraft<T> {
    *
    * @example const results = await this.findDrafts({ name: 'Customer', description: 'description' });
    */
-  public async findDrafts(keys: KeyValueDraftType<T>): Promise<T[] | undefined>;
+  public async findDrafts(keys: EntryDraft<T>): Promise<T[] | undefined>;
   /**
    * Finds records based on the provided filters.
    * @param filter A Filter instance
@@ -80,7 +80,7 @@ abstract class BaseRepositoryDraft<T> {
    *
    * */
   public async findDrafts(filter: Filter<T>): Promise<T[] | undefined>;
-  public async findDrafts(keys: KeyValueDraftType<T> | Filter<T>): Promise<Array<KeyValueDraftType<T>> | undefined> {
+  public async findDrafts(keys: EntryDraft<T> | Filter<T>): Promise<Array<EntryDraft<T>> | undefined> {
     return await this.coreRepository.find(keys);
   }
 
@@ -91,7 +91,7 @@ abstract class BaseRepositoryDraft<T> {
    *
    * @example const result = await this.findOneDraft({ name: 'Customer', description: 'description' });
    */
-  public async findOneDraft(keys: KeyValueDraftType<T>): Promise<KeyValueDraftType<T> | undefined> {
+  public async findOneDraft(keys: EntryDraft<T>): Promise<EntryDraft<T> | undefined> {
     return await this.coreRepository.findOne(keys);
   }
 
@@ -112,7 +112,7 @@ abstract class BaseRepositoryDraft<T> {
       { name: 'a new name', description: 'a new description' },
     );
    */
-  public async updateDraft(keys: KeyValueDraftType<T>, fieldsToUpdate: KeyValueDraftType<T>): Promise<boolean> {
+  public async updateDraft(keys: EntryDraft<T>, fieldsToUpdate: EntryDraft<T>): Promise<boolean> {
     return await this.coreRepository.update(keys, fieldsToUpdate);
   }
 
@@ -125,7 +125,7 @@ abstract class BaseRepositoryDraft<T> {
    * const deleted1 = await this.deleteDraft({ name: 'Customer' });
    * const deleted2 = await this.deleteDraft({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' });
    */
-  public async deleteDraft(keys: KeyValueDraftType<T>): Promise<boolean> {
+  public async deleteDraft(keys: EntryDraft<T>): Promise<boolean> {
     return await this.coreRepository.delete(keys);
   }
 
@@ -153,7 +153,7 @@ abstract class BaseRepositoryDraft<T> {
    * @example const exists = await this.existsDraft({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba09' });
    *
    */
-  public async existsDraft(keys: KeyValueDraftType<T>): Promise<boolean> {
+  public async existsDraft(keys: EntryDraft<T>): Promise<boolean> {
     return await this.coreRepository.exists(keys);
   }
 

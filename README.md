@@ -2,6 +2,13 @@
 
 <img src="https://img.shields.io/badge/SAP-0FAAFF?style=for-the-badge&logo=sap&logoColor=white" /> <img src="https://img.shields.io/badge/ts--node-3178C6?style=for-the-badge&logo=ts-node&logoColor=white" /> <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" /> <img src="https://img.shields.io/badge/Express%20js-000000?style=for-the-badge&logo=express&logoColor=white" /> <img src="https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white" /> <img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white" />
 
+![NPM Downloads](https://img.shields.io/npm/dm/%40dxfrontier%2Fcds-ts-repository)
+![GitHub issues](https://img.shields.io/github/issues/dxfrontier/cds-ts-repository)
+![GitHub contributors](https://img.shields.io/github/contributors/dxfrontier/cds-ts-repository)
+![NPM Version](https://img.shields.io/npm/v/%40dxfrontier%2Fcds-ts-repository)
+
+[![Test](https://github.com/dxfrontier/cds-ts-repository/actions/workflows/tests.yml/badge.svg)](https://github.com/dxfrontier/cds-ts-repository/actions/workflows/tests.yml) ![GitHub Repo stars](https://img.shields.io/github/stars/dxfrontier/cds-ts-repository)
+
 The goal of **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`
 
 ## Table of Contents
@@ -39,6 +46,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
         - [orderDesc](#orderdesc)
         - [groupBy](#groupby)
         - [columns](#columns)
+        - [columnsFormatter](#columnsformatter)
         - [limit](#limit)
         - [getExpand](#getexpand)
         - [execute](#execute)
@@ -116,9 +124,9 @@ For more info see official **[SAP CDS-Typer](https://cap.cloud.sap/docs/tools/cd
 
 ![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/cds-ts-dispatcher/architecture_folder_structure.png?raw=true) <= expanded folders => ![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/cds-ts-dispatcher/architecture_folder_structure_expanded.png?raw=true)
 
-<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
-
 A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ## Usage
 
@@ -136,6 +144,9 @@ Start by creating `MyRepository` class, which will extend the `BaseRepository<T>
 import { BaseRepository, TypedRequest } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
 
+// Imported to have visibility over INSERT, SELECT, UPDATE, DELETE ...
+import { Service } from '@sap/cds';
+
 class MyRepository extends BaseRepository<MyEntity> {
 
   constructor() {
@@ -143,10 +154,6 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public aMethod(req: TypedRequest<MyEntity>) {
-
-    // BaseRepository predefined methods using the MyEntity entity
-    // All methods parameters will allow only parameters of type MyEntity
-
     const result1 = await this.create(...)
     const result2 = await this.createMany(...)
     const result5 = await this.getAll()
@@ -160,9 +167,12 @@ class MyRepository extends BaseRepository<MyEntity> {
     const result13 = await this.count()
   }
 
-  public anotherMethod(results: MyEntity[], req: TypedRequest<MyEntity>) {
+  // .... enhance with custom QL methods
+  public customQLMethod(results: MyEntity[], req: TypedRequest<MyEntity>) {
     const result123 = await this.exists(...)
     const result143 = await this.count()
+
+    const customQL = SELECT.from(this.entity.name)
     // ...
   }
 }
@@ -200,13 +210,10 @@ this.after('READ', MyEntity, (results, req) => this.myRepository.anotherMethod(r
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 class MainService extends cds.ApplicationService {
-  private myRepository: MyRepository;
+  private myRepository: MyRepository = new MyRepository();
   // ...
 
   init() {
-    this.myRepository = new MyRepository();
-    // ...
-
     this.before('READ', MyEntity, (req) => this.myRepository.aMethod(req));
     this.after('READ', MyEntity, (results, req) => this.myRepository.anotherMethod(results, req));
 
@@ -255,20 +262,18 @@ class MyRepository BaseRepository<MyEntity> {}
 ```ts
 
 import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { Repository } from '@dxfrontier/cds-ts-dispatcher'
+import { Repository, Service } from '@dxfrontier/cds-ts-dispatcher'
 
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
 
 @Repository()
 class MyRepository extends BaseRepository<MyEntity> {
-  ...
+
   constructor() {
-    super(MyEntity) // a CDS Typer entity type
+    super(MyEntity) // CDS-Typer entity
   }
 
   aMethod() {
-    // BaseRepository predefined methods using the MyEntity entity
-    // All methods parameters will allow only parameters of type MyEntity
     const result1 = await this.create(...)
     const result2 = await this.createMany(...)
     const result5 = await this.getAll()
@@ -280,6 +285,11 @@ class MyRepository extends BaseRepository<MyEntity> {
     const result11 = await this.updateLocaleTexts(...)
     const result12 = await this.exists(...)
     const result13 = await this.count()
+  }
+
+  // .... enhance with custom QL methods
+  customQLMethod() {
+    const customQL = = SELECT.from(this.entity.name)
   }
 }
 
@@ -327,6 +337,8 @@ Use `BaseRepositoryDraft` methods when working with `draft entity instances`.
 - `findOneDraft`
 - `findDrafts`
 - `...`
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### Integration
 
@@ -380,9 +392,9 @@ export default BookEventRepository;
 
 #### create
 
-`(method) this.create(entry: KeyValueType<T>) : Promise<InsertResult<T>>`.
+`(method) this.create(entry: Entry<T>) : Promise<InsertResult<T>>`.
 
-The `create` method allows you to create a new entry in the database.
+The `create` method allows you to create a new entry in the table.
 
 `Parameters`
 
@@ -420,13 +432,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### createMany
 
-`(method) this.createMany(entries: Array<KeyValueType<T>>) : Promise<InsertResult<T>>`.
+`(method) this.createMany(...entries: Entries<T>[]) : Promise<InsertResult<T>>`.
 
-The `createMany` method allows you to add multiple entries in the database.
+The `createMany` method allows you to add multiple entries in the table.
 
 `Parameters`
 
-- `entries (Array<object>)`: An array of objects representing the entries to be created. Each object should match the structure expected by `MyEntity`.
+- `entries (...entries: Entries<T>[])`: An array of objects representing the entries to be created. Each object should match the structure expected by `MyEntity`.
 
 `Return`
 
@@ -473,7 +485,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `(method) this.getAll(): Promise<T[] | undefined>`
 
-The `getAll` method retrieves all database entries.
+The `getAll` method retrieves all table entries.
 
 `Return`
 
@@ -515,7 +527,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `(method) this.getDistinctColumns<Column extends keyof T>(columns: Column[]>): Promise<Array<Pick<T, Column>> | undefined>`
 
-The `getDistinctColumns` method retrieves distinct values for the specified columns from the database.
+The `getDistinctColumns` method retrieves distinct values for the specified columns from the table.
 
 `Parameters`
 
@@ -679,14 +691,15 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### find
 
-The `find` method allows you to find and retrieve entries from the database that match the specified keys.
+The `find` method allows you to find and retrieve entries from the table that match the specified keys.
 
 `Overloads`
 
-| Method                                                              | Parameters                                                                                                                                                                              |
-| :------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `this.find(keys: KeyValueType<T>): SelectBuilder<T>`                | `keys (Object)`: An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
-| `this.find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)`: An instance of **[Filter\<T\>](#filter)**                                                                                                                            |
+| Method                                                                     | Parameters        | Description                                                                                                                                                            |
+| :------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `this.find(): Promise<T \| undefined>`                                     |                   | Get all table items.                                                                                                                                                   |
+| `this.find(keys: Entry<T>): Promise<T \| undefined>`                       | `keys (Object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.find(filter :`**[Filter\<T\>](#filter)**`): Promise<T \| undefined>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
 
 `Return`
 
@@ -756,9 +769,9 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### findOne
 
-`findOne(keys: KeyValueType<T>): Promise<T | undefined>`
+`findOne(keys: Entry<T>): Promise<T | undefined>`
 
-The `findOne` method allows you to find and retrieve a single entry from the database that matches the specified keys.
+The `findOne` method allows you to find and retrieve a single entry from the table that matches the specified keys.
 `Parameters`
 
 - `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
@@ -801,10 +814,11 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `Overloads`
 
-| Method                                                                        | Parameters                                                                                                                                                                              |
-| :---------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `this.builder().find(keys: KeyValueType<T>): SelectBuilder<T>`                | `keys (Object)`: An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
-| `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)`: An instance of **[Filter\<T\>](#filter)**                                                                                                                            |
+| Method                                                                        | Parameters        | Description                                                                                                                                                            |
+| :---------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `this.builder().find(): SelectBuilder<T>`                                     |                   | Get all table items.                                                                                                                                                   |
+| `this.builder().find(keys: Entry<T>): SelectBuilder<T>`                       | `keys (Object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
 
 `Return`
 
@@ -813,9 +827,12 @@ class MyRepository extends BaseRepository<MyEntity> {
   - [orderDesc](#orderdesc)
   - [groupBy](#groupby)
   - [columns](#columns)
+  - [columnsFormatter](#columnsformatter)
   - [limit](#limit)
   - [getExpand](#getexpand)
   - [execute](#execute)
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ###### orderAsc
 
@@ -823,7 +840,9 @@ To order the `ASC` selected columns, you can use the `orderAsc` methods. Pass an
 
 `Parameters`
 
-- `columns (Array<string>)` : An array of name of the columns to order by.
+- `columns (...columns : Columns<T>[])` : An array of name of the columns to order by.
+
+`Example`
 
 ```ts
 const results = await this.builder()
@@ -836,13 +855,17 @@ const results = await this.builder()
   .execute();
 ```
 
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
 ###### orderDesc
 
 To order the `DESC` selected columns, you can use the `orderDesc` methods. Pass an array of column names to specify the order.
 
 `Parameters`
 
-- `columns (Array<string>)` : An array of name of the columns to order by.
+- `columns (...columns : Columns<T>[])` : An array of name of the columns to order by.
+
+`Example`
 
 ```ts
 const results = await this.builder()
@@ -855,13 +878,17 @@ const results = await this.builder()
   .execute();
 ```
 
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
 ###### groupBy
 
 If you want to group the selected columns, use the groupBy method. Pass an array of column names to group by.
 
 `Parameters`
 
-- `columns (Array<string>)` : An array of name of the columns to group by.
+- `columns (...columns : Columns<T>[])` : An array of name of the columns to group by.
+
+`Example`
 
 ```ts
 const results = await this.builder()
@@ -874,13 +901,17 @@ const results = await this.builder()
   .execute();
 ```
 
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
 ###### columns
 
 Specifies which columns to be fetched.
 
 `Parameters`
 
-- `columns (Array<string>)` : An array of name of the columns to show only.
+- `columns (...columns : Columns<T>[])` : An array of name of the columns to show only.
+
+`Example`
 
 ```ts
 const results = await this.builder()
@@ -893,6 +924,61 @@ const results = await this.builder()
   .execute();
 ```
 
+> [!WARNING]
+> If `columns()` method is used together with `getExpand()` / `columnsFormatter()` / `groupBy()` / `orderAsc()` / `orderDesc()`, the `columns()` method can have impact on the final typing`
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### columnsFormatter
+
+The `columnsFormatter` allows you to specify which columns to be renamed or apply aggregate function
+
+This method can be used :
+
+- To `rename` columns in your query results.
+- To apply `aggregate functions` to specific columns, such as calculating averages, sums etc.
+
+`Parameters`
+
+- `columns (Array<object>)` An array of objects specifying the columns to be modified.
+
+  - `column` `(string)`: The name of the column to be processed.
+  - `column1` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
+  - `column2` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
+  - `aggregate?` `[optional] (string)`: This property, if applied, will `call aggregate function` for the specified `column` name, below you can find the available aggregate functions :
+    - String : `'LOWER' | 'UPPER' | 'LENGTH' | 'CONCAT' | 'TRIM'`
+    - Number : `'AVG' | 'MIN' | 'MAX' | 'SUM' | 'ABS' | 'CEILING' | 'TOTAL' | 'COUNT' | 'ROUND' | 'FLOOR'`
+    - Date : `'DAY' | 'MONTH' | 'YEAR' | 'HOUR' | 'MINUTE' | 'SECOND'`
+  - `renameAs` `(string)`: This property creates a new column with the given name
+
+`Example 1`
+
+```ts
+const results = await this.builder()
+  .find()
+  .columnsFormatter(
+    { column: 'price', aggregate: 'AVG', renameAs: 'average' },
+    { column: 'stock', renameAs: 'stockRenamed' },
+  )
+  .execute();
+```
+
+`Example 2`
+
+```ts
+const results = this.builder()
+  .find({ ID: 201 })
+  .getExpand(['reviews'])
+  .columns('reviews', 'bookName', 'authorName')
+  .columnsFormatter({ column1: 'bookName', column2: 'authorName', aggregate: 'CONCAT', renameAs: 'bookAndAuthorName' })
+  .execute();
+
+// above typing will have the following properties
+// 'reviews', 'bookName', 'authorName', 'bookAndAuthorName'
+```
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
 ###### limit
 
 This method allows retrieve a list of items with optional pagination.
@@ -903,6 +989,8 @@ This method allows retrieve a list of items with optional pagination.
   - `limit` `(number)`: The maximum number of items to retrieve.
   - `skip?` `(number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
 
+`Example`
+
 ```ts
 const results = await this.builder()
   .find({
@@ -912,13 +1000,17 @@ const results = await this.builder()
   .execute();
 ```
 
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
 ###### getExpand
 
-You can specify which columns you want to retrieve from the database using the getExpand method. It also allows you to expand associated entities.
+You can specify which columns you want to retrieve from the table using the getExpand method. It also allows you to expand associated entities.
 
 `Parameters`
 
-- `associations` `(string[])`: The columns to expand, if `associations` argument is provided then the specified `associations / compositions` will be expanded.
+- `associations` `(...associations : Columns<T>[])`: The columns to expand, if `associations` argument is provided then the specified `associations / compositions` will be expanded.
+
+`Example`
 
 ```ts
 // Expand only 'orders' association
@@ -932,55 +1024,43 @@ const results = await this.builder()
   .execute();
 ```
 
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
 ###### execute
 
 Finally, to execute the constructed query and retrieve the results as an array of objects, use the execute method. It returns a promise that resolves to the query result.
 
+`Example 1`
+
 ```ts
-const resultsAndAllExpandedEntities = await this.builder()
+const results = await this.builder()
   .find({
     name: 'A company name',
   })
   .execute();
 ```
 
-`Example`
+`Example 2`
 
 ```ts
-import { BaseRepository } from '@dxfrontier/cds-ts-repository'
-import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
-
-class MyRepository extends BaseRepository<MyEntity> {
-  ...
-  constructor() {
-    super(MyEntity) // a CDS Typer entity type
-  }
-
-  public async aMethod() {
-
-    const results = await this.builder().find({ name: 'A company name' }).orderAsc(['name']).limit({ limit: 5 }).getExpand(['orders']).execute()
-
-    if (results) {
-      // do something with results
-    }
-
-    // Variant 2
-    const items = results?.length;
-    const oneItem = results![0];
-
-  }
-  ...
-}
+const results = await this.builder()
+  .find({ name: 'A company name' })
+  .orderAsc(['name'])
+  .limit({ limit: 5 })
+  .getExpand('orders')
+  .execute();
 ```
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
 #### update
 
-`update(keys: KeyValueType<T>, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
+`update(keys: Entry<T>, fieldsToUpdate: Entry<T>): Promise<boolean>`
 
-The `update` method allows you to update entries in the database that match the specified keys with new values for specific fields.
+The `update` method allows you to update entries in the table that match the specified keys with new values for specific fields.
 
 `Parameters`
 
@@ -1019,9 +1099,9 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### updateLocaleTexts
 
-`updateLocaleTexts(localeCodeKeys: KeyValueType<T> & Locale, fieldsToUpdate: KeyValueType<T>): Promise<boolean>`
+`updateLocaleTexts(localeCodeKeys: Entry<T> & Locale, fieldsToUpdate: Entry<T>): Promise<boolean>`
 
-The `updateLocaleTexts` method allows you to update entries in the database that match the specified `localeCodeKeys` with new values for specific fields.
+The `updateLocaleTexts` method allows you to update entries in the table that match the specified `localeCodeKeys` with new values for specific fields.
 
 `Parameters`
 
@@ -1057,9 +1137,9 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### delete
 
-`delete(keys: KeyValueType<T>): Promise<boolean>`
+`delete(keys: Entry<T>): Promise<boolean>`
 
-The `delete` method allows you to delete entries from the database that match the specified keys.
+The `delete` method allows you to delete entries from the table that match the specified keys.
 
 `Parameters`
 
@@ -1095,13 +1175,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### deleteMany
 
-`deleteMany(entries: Array<KeyValueType<T>>): Promise<boolean>`
+`deleteMany(...entries: Entries<T>[]): Promise<boolean>`
 
-The `deleteMany` method allows you to delete multiple entries from the database that match the specified keys.
+The `deleteMany` method allows you to delete multiple entries from the table that match the specified keys.
 
 `Parameters`
 
-- `entries (Array<object>)` - An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `entries (...entries: Entries<T>[])` - An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
@@ -1142,9 +1222,9 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### exists
 
-`exists(keys: KeyValueType<T>): Promise<boolean>`
+`exists(keys: Entry<T>): Promise<boolean>`
 
-The `exists` method allows you to check whether entries exist in the database that match the specified fields.
+The `exists` method allows you to check whether entries exist in the table that match the specified fields.
 
 `Parameters`
 
@@ -1181,7 +1261,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `count(): Promise<number>`
 
-The `count` method allows you to count all items from the database.
+The `count` method allows you to count all items from the table.
 
 `Return`
 
@@ -1218,10 +1298,10 @@ Use `Filter` to create complex `WHERE QUERY` filters.
 
 `Overloads`
 
-| Method                                                          | Parameters                                                                                                                                       |
-| :-------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `new Filter<T>(options: FilterOptions<T>)`                      | `options (object)`: Creates a new filter. `T` should be generated using [CDS-Typer](#generate-cds-typed-entities)                                |
-| `new Filter(operator: LogicalOperator, ...filters : Filter<T>)` | `operator (string)`, `filters Array<Filter>`: Creates a new Filter instance which combines 2 ... n filters with a Logical operator `'AND', 'OR'` |
+| Method                                                          | Parameters                                                               | Description                                                                                                                                                                                                                                                                                                                                       |
+| :-------------------------------------------------------------- | :----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `new Filter<T>(options: FilterOptions<T>)`                      | `options ({field : string, operator : FilterOperator, value : string })` | Creates a new filter. `T` should be generated using [CDS-Typer](#generate-cds-typed-entities) <br /><br /> `FilterOperator` values : `'EQUALS'`, `'NOT EQUAL'`, `'LIKE'`, `'STARTS_WITH'`, `'ENDS_WITH'`, `'LESS THAN'`, `'LESS THAN OR EQUALS'`, `'GREATER THAN'`, `'GREATER THAN OR EQUALS'`, `'BETWEEN'`, `'NOT BETWEEN'` , `'IN'`, `'NOT IN'` |
+| `new Filter(operator: LogicalOperator, ...filters : Filter<T>)` | `operator (string)`, `filters Array<Filter>`                             | Creates a new Filter instance which combines 2 ... n **filters** with a Logical operator `'AND', 'OR'`                                                                                                                                                                                                                                            |
 
 `Example 1` : Single filter
 

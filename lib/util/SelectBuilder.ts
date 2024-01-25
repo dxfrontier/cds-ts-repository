@@ -4,16 +4,16 @@ import { type Definition } from '@sap/cds/apis/csn';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { Columns, ShowOnlyColumns } from '../types/types';
+import type { AppendColumns, ColumnFormatter, Columns, ShowOnlyColumns } from '../types/types';
 
 class SelectBuilder<T, Keys> {
-  private select: SELECT<T>;
+  private select: SELECT<any>;
 
-  /* This flag is used in the getExpand method, as both methods are calling the .columns
+  /*
+   * This flag is used in the getExpand method, as both methods are calling the .columns
    */
-  private isColumnsCalledFirst: boolean = false;
-
-  private isExpandCalledFirst: boolean = false;
+  private isColumnsCalled: boolean = false;
+  private isExpandCalled: boolean = false;
 
   constructor(
     private readonly entity: Definition | string,
@@ -106,12 +106,12 @@ class SelectBuilder<T, Keys> {
   public getExpand(...associations: Columns<T>[]): this {
     const associationsColumns = Array.isArray(associations[0]) ? associations[0] : associations;
 
-    this.isExpandCalledFirst = true;
+    this.isExpandCalled = true;
 
     // const private routines for this func
     const _buildAssociatedNamedEntity = (column: any): void => {
       // If .columns() was called first do not expand all
-      if (!this.isColumnsCalledFirst) {
+      if (!this.isColumnsCalled) {
         column('*');
       }
 
@@ -127,6 +127,58 @@ class SelectBuilder<T, Keys> {
     });
 
     return this;
+  }
+
+  /**
+   * Specifies which columns to be used as aggregate columns or to be renamed
+   * @param columns An array of columns
+   * @returns SelectBuilder instance
+   *
+   * @example
+   * const results = await this.builder()
+   * .find({
+   *     name: 'A company name',
+   * })
+   * .columnsFormatter(
+   *    { column: 'price', aggregate: 'AVG', renameAs: 'theAvg' }, // using 'AVG'
+   *    { column: 'stock', renameAs: 'stockRenamed' }, // just renaming
+   * )
+   * .execute();
+   */
+  public columnsFormatter<const ColumnKeys extends ColumnFormatter<T>>(
+    ...columns: ColumnKeys
+  ): SelectBuilder<AppendColumns<T, ColumnKeys>, string | Keys> {
+    // const allColumns = Array.isArray(columns[0]) ? columns[0] : columns;
+
+    const constructedColumns = columns.map((item) => {
+      // const column = item.column as string;
+
+      // Two columns
+      if ('column1' in item && 'column2' in item) {
+        const column1 = item.column1 as string;
+        const column2 = item.column2 as string;
+
+        return `${item.aggregate}(${column1}, ' ',${column2}) as ${item.renameAs}`;
+      }
+
+      // One column
+      if ('aggregate' in item && 'column' in item) {
+        const column = item.column as string;
+        return `${item.aggregate}(${column}) as ${item.renameAs}`;
+      }
+
+      // Just rename the column
+      return `${item.column as string} as ${item.renameAs}`;
+    });
+
+    void this.select.columns(...constructedColumns);
+
+    // We are creating and new instance of SelectBuilder and preserving the select from the current SelectBuilder instance
+    const selectBuilder = new SelectBuilder<AppendColumns<T, ColumnKeys>, typeof this.keys>(this.entity, this.keys);
+
+    selectBuilder.select = this.select;
+
+    return selectBuilder;
   }
 
   /**
@@ -167,10 +219,12 @@ class SelectBuilder<T, Keys> {
 
     void this.select.columns(...(allColumns as unknown as string));
 
-    if (this.isExpandCalledFirst) {
+    if (this.isExpandCalled) {
       // As the .columns() was called after .getExpand(), the '*' will be removed from the .columns array to have correct typing based only on the columns
       _removeExpandAllFields();
     }
+
+    // this.select.SELECT.columns?.reverse();
 
     // We are creating and new instance of SelectBuilder and preserving the select from the current SelectBuilder instance
     const selectBuilder = new SelectBuilder<Pick<T, ShowOnlyColumns<T, ColumnKeys>>, typeof this.keys>(
@@ -179,7 +233,7 @@ class SelectBuilder<T, Keys> {
     );
 
     selectBuilder.select = this.select;
-    selectBuilder.isColumnsCalledFirst = true;
+    selectBuilder.isColumnsCalled = true;
 
     return selectBuilder;
   }

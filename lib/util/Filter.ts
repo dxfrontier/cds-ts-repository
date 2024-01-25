@@ -59,14 +59,26 @@ class Filter<T> {
       if (filter.operator === 'BETWEEN' || filter.operator === 'NOT BETWEEN') {
         this.value1 = filter.value1;
         this.value2 = filter.value2;
+
+        return;
       }
 
       if (filter.operator === 'LIKE') {
         this.value = `%${filter.value}%`;
+
+        return;
       }
 
-      if (filter.operator === 'LIKE') {
-        this.value = `%${filter.value}%`;
+      if (filter.operator === 'STARTS_WITH') {
+        this.value = `${filter.value}%`;
+
+        return;
+      }
+
+      if (filter.operator === 'ENDS_WITH') {
+        this.value = `%${filter.value}`;
+
+        return;
       }
 
       if (
@@ -78,10 +90,14 @@ class Filter<T> {
         filter.operator === 'NOT EQUAL'
       ) {
         this.value = filter.value;
+
+        return;
       }
 
       if (filter.operator === 'IN' || filter.operator === 'NOT IN') {
         this.value = filter.value;
+
+        return;
       }
     }
 
