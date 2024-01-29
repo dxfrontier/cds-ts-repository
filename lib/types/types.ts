@@ -160,9 +160,9 @@ type DynamicColumnTypes<T extends AggregateFields<K>[], K> = {
   [K in T[number]['renameAs']]: K extends Extract<
     T[number],
     { aggregate: NumericAggregateFunctions | DateAggregateFunctions }
-  >['aggregate']
+  >['renameAs']
     ? number
-    : K extends Extract<T[number], { aggregate: StringAggregateFunctions }>['aggregate']
+    : K extends Extract<T[number], { aggregate: StringAggregateFunctions }>['renameAs']
       ? string
       : string; // Just renaming will get by default string
 };

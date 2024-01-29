@@ -148,11 +148,7 @@ class SelectBuilder<T, Keys> {
   public columnsFormatter<const ColumnKeys extends ColumnFormatter<T>>(
     ...columns: ColumnKeys
   ): SelectBuilder<AppendColumns<T, ColumnKeys>, string | Keys> {
-    // const allColumns = Array.isArray(columns[0]) ? columns[0] : columns;
-
     const constructedColumns = columns.map((item) => {
-      // const column = item.column as string;
-
       // Two columns
       if ('column1' in item && 'column2' in item) {
         const column1 = item.column1 as string;

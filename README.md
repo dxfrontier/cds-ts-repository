@@ -398,7 +398,7 @@ The `create` method allows you to create a new entry in the table.
 
 `Parameters`
 
-- `entry (Object)`: An object representing the entry to be created. The object should match the structure expected by `MyEntity`
+- `entry (object)`: An object representing the entry to be created. The object should match the structure expected by `MyEntity`
 
 `Return`
 
@@ -579,7 +579,7 @@ The `getAllAndLimit` method allows you to find and retrieve a list of items with
 
 `Parameters`
 
-- `props` `(Object)`: An object containing the following properties:
+- `props` `(object)`: An object containing the following properties:
   - `limit` `(number)`: The maximum number of items to retrieve.
   - `skip?` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
 
@@ -698,7 +698,7 @@ The `find` method allows you to find and retrieve entries from the table that ma
 | Method                                                                     | Parameters        | Description                                                                                                                                                            |
 | :------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `this.find(): Promise<T \| undefined>`                                     |                   | Get all table items.                                                                                                                                                   |
-| `this.find(keys: Entry<T>): Promise<T \| undefined>`                       | `keys (Object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.find(keys: Entry<T>): Promise<T \| undefined>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
 | `this.find(filter :`**[Filter\<T\>](#filter)**`): Promise<T \| undefined>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
 
 `Return`
@@ -774,7 +774,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 The `findOne` method allows you to find and retrieve a single entry from the table that matches the specified keys.
 `Parameters`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `keys (object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
@@ -817,7 +817,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 | Method                                                                        | Parameters        | Description                                                                                                                                                            |
 | :---------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `this.builder().find(): SelectBuilder<T>`                                     |                   | Get all table items.                                                                                                                                                   |
-| `this.builder().find(keys: Entry<T>): SelectBuilder<T>`                       | `keys (Object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.builder().find(keys: Entry<T>): SelectBuilder<T>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
 | `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
 
 `Return`
@@ -931,24 +931,24 @@ const results = await this.builder()
 
 ###### columnsFormatter
 
-The `columnsFormatter` allows you to specify which columns to be renamed or apply aggregate function
-
-This method can be used :
+The `columnsFormatter` method can be used :
 
 - To `rename` columns in your query results.
 - To apply `aggregate functions` to specific columns, such as calculating averages, sums etc.
 
 `Parameters`
 
-- `columns (Array<object>)` An array of objects specifying the columns to be modified.
+- `columns (object-1, object-n, ...)` An object specifying the columns to be modified.
 
   - `column` `(string)`: The name of the column to be processed.
   - `column1` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
   - `column2` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
   - `aggregate?` `[optional] (string)`: This property, if applied, will `call aggregate function` for the specified `column` name, below you can find the available aggregate functions :
+
     - String : `'LOWER' | 'UPPER' | 'LENGTH' | 'CONCAT' | 'TRIM'`
     - Number : `'AVG' | 'MIN' | 'MAX' | 'SUM' | 'ABS' | 'CEILING' | 'TOTAL' | 'COUNT' | 'ROUND' | 'FLOOR'`
     - Date : `'DAY' | 'MONTH' | 'YEAR' | 'HOUR' | 'MINUTE' | 'SECOND'`
+
   - `renameAs` `(string)`: This property creates a new column with the given name
 
 `Example 1`
@@ -1064,8 +1064,8 @@ The `update` method allows you to update entries in the table that match the spe
 
 `Parameters`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-- `fieldsToUpdate (Object)`: An object representing the fields and their updated values for the matching entries.
+- `keys (object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `fieldsToUpdate (object)`: An object representing the fields and their updated values for the matching entries.
 
 `Return`
 
@@ -1105,8 +1105,8 @@ The `updateLocaleTexts` method allows you to update entries in the table that ma
 
 `Parameters`
 
-- `localeCodeKeys (Object)`: An object containing language codes `'en', 'de', 'fr', 'ro', ... ` and entity keys to filter entries.
-- `fieldsToUpdate (Object)`: An object representing the keys and values to update. Each key corresponds to a property in the entity.
+- `localeCodeKeys (object)`: An object containing language codes `'en', 'de', 'fr', 'ro', ... ` and entity keys to filter entries.
+- `fieldsToUpdate (object)`: An object representing the keys and values to update. Each key corresponds to a property in the entity.
 
 `Return`
 
@@ -1143,7 +1143,7 @@ The `delete` method allows you to delete entries from the table that match the s
 
 `Parameters`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `keys (object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
@@ -1228,7 +1228,7 @@ The `exists` method allows you to check whether entries exist in the table that 
 
 `Parameters`
 
-- `keys (Object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `keys (object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
