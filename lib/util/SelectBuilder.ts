@@ -23,6 +23,21 @@ class SelectBuilder<T, Keys> {
   }
 
   /**
+   * Skip duplicates similar to distinct from SQL
+   * @returns SelectBuilder instance
+   *
+   * @example
+   * const results = await this.builder().find()
+   * .distinct
+   * .columns('country')
+   * .execute();
+   */
+  get distinct(): this {
+    this.select.SELECT.distinct = true;
+    return this;
+  }
+
+  /**
    * Orders the selected columns in ascending order.
    * @param columns An array of column names to order ascending.
    * @returns SelectBuilder instance
@@ -256,6 +271,23 @@ class SelectBuilder<T, Keys> {
     }
 
     void this.select.limit(props.limit);
+    return this;
+  }
+
+  /**
+   * Exclusively locks the selected rows for subsequent updates in the current transaction, thereby preventing concurrent updates by other parallel transactions.
+   */
+  public forUpdate(): this {
+    void this.select.forUpdate();
+    return this;
+  }
+
+  /**
+   * Locks the selected rows in the current transaction, thereby preventing concurrent updates by other parallel transactions, until the transaction is committed or rolled back. Using a shared lock allows all transactions to read the locked record.
+   * If a queried record is already exclusively locked by another transaction, the .forShareLock() method waits for the lock to be released.
+   */
+  public forShareLock(): this {
+    void this.select.forShareLock();
     return this;
   }
 

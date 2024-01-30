@@ -42,6 +42,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [findOne](#findone)
     - [builder](#builder)
       - [.find](#find-1)
+        - [distinct](#distinct)
         - [orderAsc](#orderasc)
         - [orderDesc](#orderdesc)
         - [groupBy](#groupby)
@@ -49,6 +50,8 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
         - [columnsFormatter](#columnsformatter)
         - [limit](#limit)
         - [getExpand](#getexpand)
+        - [forUpdate](#forupdate)
+        - [forShareLock](#forsharelock)
         - [execute](#execute)
     - [update](#update)
     - [updateLocaleTexts](#updatelocaletexts)
@@ -167,12 +170,9 @@ class MyRepository extends BaseRepository<MyEntity> {
     const result13 = await this.count()
   }
 
-  // .... enhance with custom QL methods
-  public customQLMethod(results: MyEntity[], req: TypedRequest<MyEntity>) {
-    const result123 = await this.exists(...)
-    const result143 = await this.count()
-
-    const customQL = SELECT.from(this.entity.name)
+  // Enhance with custom QL methods ...
+  customQLMethod() {
+    const customQL = SELECT(MyEntity).columns(...).where(...)
     // ...
   }
 }
@@ -287,9 +287,10 @@ class MyRepository extends BaseRepository<MyEntity> {
     const result13 = await this.count()
   }
 
-  // .... enhance with custom QL methods
+  // Enhance with custom QL methods ...
   customQLMethod() {
-    const customQL = = SELECT.from(this.entity.name)
+    const customQL = SELECT(MyEntity).columns(...).where(...)
+    // ...
   }
 }
 
@@ -398,7 +399,7 @@ The `create` method allows you to create a new entry in the table.
 
 `Parameters`
 
-- `entry (object)`: An object representing the entry to be created. The object should match the structure expected by `MyEntity`
+- `entry (Object)`: An object representing the entry to be created. The object should match the structure expected by `MyEntity`
 
 `Return`
 
@@ -579,7 +580,7 @@ The `getAllAndLimit` method allows you to find and retrieve a list of items with
 
 `Parameters`
 
-- `props` `(object)`: An object containing the following properties:
+- `props` `(Object)`: An object containing the following properties:
   - `limit` `(number)`: The maximum number of items to retrieve.
   - `skip?` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
 
@@ -698,7 +699,7 @@ The `find` method allows you to find and retrieve entries from the table that ma
 | Method                                                                     | Parameters        | Description                                                                                                                                                            |
 | :------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `this.find(): Promise<T \| undefined>`                                     |                   | Get all table items.                                                                                                                                                   |
-| `this.find(keys: Entry<T>): Promise<T \| undefined>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.find(keys: Entry<T>): Promise<T \| undefined>`                       | `keys (Object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
 | `this.find(filter :`**[Filter\<T\>](#filter)**`): Promise<T \| undefined>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
 
 `Return`
@@ -774,7 +775,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 The `findOne` method allows you to find and retrieve a single entry from the table that matches the specified keys.
 `Parameters`
 
-- `keys (object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
@@ -817,20 +818,39 @@ class MyRepository extends BaseRepository<MyEntity> {
 | Method                                                                        | Parameters        | Description                                                                                                                                                            |
 | :---------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `this.builder().find(): SelectBuilder<T>`                                     |                   | Get all table items.                                                                                                                                                   |
-| `this.builder().find(keys: Entry<T>): SelectBuilder<T>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.builder().find(keys: Entry<T>): SelectBuilder<T>`                       | `keys (Object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
 | `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
 
 `Return`
 
 - `SelectBuilder<T>`: A `SelectBuilder` instance that provides access to the following methods for constructing a `SELECT`:
-  - [orderAsc](#orderasc)
-  - [orderDesc](#orderdesc)
-  - [groupBy](#groupby)
-  - [columns](#columns)
-  - [columnsFormatter](#columnsformatter)
-  - [limit](#limit)
-  - [getExpand](#getexpand)
-  - [execute](#execute)
+
+  - [distinct](#distinct)
+  - [orderAsc()](#orderasc)
+  - [orderDesc()](#orderdesc)
+  - [groupBy()](#groupby)
+  - [columns()](#columns)
+  - [columnsFormatter()](#columnsformatter)
+  - [limit()](#limit)
+  - [getExpand()](#getexpand)
+  - [forUpdate()](#forupdate)
+  - [forShareLock()](#forsharelock)
+  - [execute()](#execute)
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### distinct
+
+Skip duplicates similar to SQL distinct.
+
+`Example`
+
+```ts
+const results = await this.builder()
+  .find() // get all items
+  .distinct.columns('country')
+  .execute();
+```
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -931,24 +951,24 @@ const results = await this.builder()
 
 ###### columnsFormatter
 
-The `columnsFormatter` method can be used :
+The `columnsFormatter` allows you to specify which columns to be renamed or apply aggregate function
+
+This method can be used :
 
 - To `rename` columns in your query results.
 - To apply `aggregate functions` to specific columns, such as calculating averages, sums etc.
 
 `Parameters`
 
-- `columns (object-1, object-n, ...)` An object specifying the columns to be modified.
+- `columns (Array<object>)` An array of objects specifying the columns to be modified.
 
   - `column` `(string)`: The name of the column to be processed.
   - `column1` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
   - `column2` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
   - `aggregate?` `[optional] (string)`: This property, if applied, will `call aggregate function` for the specified `column` name, below you can find the available aggregate functions :
-
     - String : `'LOWER' | 'UPPER' | 'LENGTH' | 'CONCAT' | 'TRIM'`
     - Number : `'AVG' | 'MIN' | 'MAX' | 'SUM' | 'ABS' | 'CEILING' | 'TOTAL' | 'COUNT' | 'ROUND' | 'FLOOR'`
     - Date : `'DAY' | 'MONTH' | 'YEAR' | 'HOUR' | 'MINUTE' | 'SECOND'`
-
   - `renameAs` `(string)`: This property creates a new column with the given name
 
 `Example 1`
@@ -1026,6 +1046,49 @@ const results = await this.builder()
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
+###### forUpdate
+
+Exclusively locks the selected rows for subsequent updates in the current transaction, thereby preventing concurrent updates by other parallel transactions.
+
+`Example`
+
+```ts
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
+  .getExpand('orders', 'reviews')
+  .forUpdate()
+  .execute();
+```
+
+> [!TIP]
+> More info can be found on the official SAP CAP [forUpdate](https://cap.cloud.sap/docs/node.js/cds-ql#forupdate) documentation.
+
+###### forShareLock
+
+Locks the selected rows in the current transaction, thereby preventing concurrent updates by other parallel transactions, until the transaction is committed or rolled back. Using a shared lock allows all transactions to read the locked record.
+
+If a queried record is already exclusively locked by another transaction, the .forShareLock() method waits for the lock to be released.
+
+`Example`
+
+```ts
+// Expand only 'orders' association
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
+  .getExpand('orders', 'reviews')
+  .forShareLock()
+  .execute();
+```
+
+> [!TIP]
+> More info can be found on the official SAP CAP [forShareLock](#https://cap.cloud.sap/docs/node.js/cds-ql#forsharelock) documentation.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
 ###### execute
 
 Finally, to execute the constructed query and retrieve the results as an array of objects, use the execute method. It returns a promise that resolves to the query result.
@@ -1064,8 +1127,8 @@ The `update` method allows you to update entries in the table that match the spe
 
 `Parameters`
 
-- `keys (object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-- `fieldsToUpdate (object)`: An object representing the fields and their updated values for the matching entries.
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `fieldsToUpdate (Object)`: An object representing the fields and their updated values for the matching entries.
 
 `Return`
 
@@ -1105,8 +1168,8 @@ The `updateLocaleTexts` method allows you to update entries in the table that ma
 
 `Parameters`
 
-- `localeCodeKeys (object)`: An object containing language codes `'en', 'de', 'fr', 'ro', ... ` and entity keys to filter entries.
-- `fieldsToUpdate (object)`: An object representing the keys and values to update. Each key corresponds to a property in the entity.
+- `localeCodeKeys (Object)`: An object containing language codes `'en', 'de', 'fr', 'ro', ... ` and entity keys to filter entries.
+- `fieldsToUpdate (Object)`: An object representing the keys and values to update. Each key corresponds to a property in the entity.
 
 `Return`
 
@@ -1143,7 +1206,7 @@ The `delete` method allows you to delete entries from the table that match the s
 
 `Parameters`
 
-- `keys (object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
@@ -1228,7 +1291,7 @@ The `exists` method allows you to check whether entries exist in the table that 
 
 `Parameters`
 
-- `keys (object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `keys (Object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
@@ -1405,7 +1468,7 @@ Please make sure to update tests as appropriate.
 
 ![Licence](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=for-the-badge)
 
-Copyright (c) 2023 DXFrontier
+Copyright (c) 2024 DXFrontier
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -207,13 +207,21 @@ describe('SELECT', () => {
   });
 
   describe('.builder()', () => {
-    describe('======> .filter() - Overload ', () => {
+    describe('======> .filter() - Overload - no arguments (get all items)', () => {
       it('should return 6 record', async () => {
         // Act
         const results = await bookRepository.builder().find().execute();
 
         // Assert
         expect(results?.length).toEqual(6);
+      });
+
+      it('should return 3 distinct records', async () => {
+        // Act
+        const results = await bookRepository.builder().find().distinct.columns('currency_code').execute();
+
+        // Assert
+        expect(results?.length).toEqual(3);
       });
     });
 
