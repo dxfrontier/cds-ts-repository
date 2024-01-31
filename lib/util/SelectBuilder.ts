@@ -251,9 +251,9 @@ class SelectBuilder<T, Keys> {
 
   /**
    * Limits the result set with an optional offset.
-   * @param props
-   * @param props.limit The limit for the result set.
-   * @param props.skip The optional 'skip', this will skip a certain number of items for the result set.
+   * @param options
+   * @param options.limit The limit for the result set.
+   * @param options.skip The optional 'skip', this will skip a certain number of items for the result set.
    * @returns SelectBuilder instance
    *
    * @example
@@ -264,21 +264,33 @@ class SelectBuilder<T, Keys> {
    * .execute();
    *
    */
-  public limit(props: { limit: number; skip?: number }): this {
-    if (props.skip !== null) {
-      void this.select.limit(props.limit, props.skip);
+  public limit(options: { limit: number; skip?: number }): this {
+    if (options.skip !== null) {
+      void this.select.limit(options.limit, options.skip);
       return this;
     }
 
-    void this.select.limit(props.limit);
+    void this.select.limit(options.limit);
     return this;
   }
 
   /**
    * Exclusively locks the selected rows for subsequent updates in the current transaction, thereby preventing concurrent updates by other parallel transactions.
+   * @param options [optional]
+   * @param options.wait an integer specifying the timeout after which to fail with an error in case a lock couldn't be obtained.
+   * @returns SelectBuilder instance
+   * @example
+   * const results = await this.builder().find({
+   *   name: 'A company name',
+   * })
+   * .forUpdate({ wait: 10 })
+   * // or
+   * //.forUpdate()
+   * .execute();
+   *
    */
-  public forUpdate(): this {
-    void this.select.forUpdate();
+  public forUpdate(options?: { wait?: number }): this {
+    void this.select.forUpdate({ wait: options?.wait });
     return this;
   }
 

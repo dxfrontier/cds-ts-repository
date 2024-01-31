@@ -399,7 +399,7 @@ The `create` method allows you to create a new entry in the table.
 
 `Parameters`
 
-- `entry (Object)`: An object representing the entry to be created. The object should match the structure expected by `MyEntity`
+- `entry (object)`: An object representing the entry to be created. The object should match the structure expected by `MyEntity`
 
 `Return`
 
@@ -574,13 +574,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### getAllAndLimit
 
-`(method) this.getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[]>`
+`(method) this.getAllAndLimit(options: { limit: number; skip?: number | undefined }): Promise<T[]>`
 
 The `getAllAndLimit` method allows you to find and retrieve a list of items with optional pagination.
 
 `Parameters`
 
-- `props` `(Object)`: An object containing the following properties:
+- `options` `(object)`: An object containing the following properties:
   - `limit` `(number)`: The maximum number of items to retrieve.
   - `skip?` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
 
@@ -699,7 +699,7 @@ The `find` method allows you to find and retrieve entries from the table that ma
 | Method                                                                     | Parameters        | Description                                                                                                                                                            |
 | :------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `this.find(): Promise<T \| undefined>`                                     |                   | Get all table items.                                                                                                                                                   |
-| `this.find(keys: Entry<T>): Promise<T \| undefined>`                       | `keys (Object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.find(keys: Entry<T>): Promise<T \| undefined>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
 | `this.find(filter :`**[Filter\<T\>](#filter)**`): Promise<T \| undefined>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
 
 `Return`
@@ -775,7 +775,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 The `findOne` method allows you to find and retrieve a single entry from the table that matches the specified keys.
 `Parameters`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `keys (object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
@@ -818,7 +818,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 | Method                                                                        | Parameters        | Description                                                                                                                                                            |
 | :---------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `this.builder().find(): SelectBuilder<T>`                                     |                   | Get all table items.                                                                                                                                                   |
-| `this.builder().find(keys: Entry<T>): SelectBuilder<T>`                       | `keys (Object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.builder().find(keys: Entry<T>): SelectBuilder<T>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
 | `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
 
 `Return`
@@ -951,16 +951,14 @@ const results = await this.builder()
 
 ###### columnsFormatter
 
-The `columnsFormatter` allows you to specify which columns to be renamed or apply aggregate function
-
-This method can be used :
+The `columnsFormatter` can be used :
 
 - To `rename` columns in your query results.
 - To apply `aggregate functions` to specific columns, such as calculating averages, sums etc.
 
 `Parameters`
 
-- `columns (Array<object>)` An array of objects specifying the columns to be modified.
+- `columns (object-1, object-n, ...)`
 
   - `column` `(string)`: The name of the column to be processed.
   - `column1` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
@@ -1005,7 +1003,7 @@ This method allows retrieve a list of items with optional pagination.
 
 `Parameters`
 
-- `props` `(object)`: An object containing the following properties:
+- `options` `(object)`: An object containing the following properties:
   - `limit` `(number)`: The maximum number of items to retrieve.
   - `skip?` `(number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
 
@@ -1050,6 +1048,11 @@ const results = await this.builder()
 
 Exclusively locks the selected rows for subsequent updates in the current transaction, thereby preventing concurrent updates by other parallel transactions.
 
+`Parameters`
+
+- `options` `(object)`: An object containing the following properties:
+  - `wait?` `(number) [optional]`: an integer specifying the timeout after which to fail with an error in case a lock couldn't be obtained.
+
 `Example`
 
 ```ts
@@ -1058,7 +1061,9 @@ const results = await this.builder()
     name: 'A company name',
   })
   .getExpand('orders', 'reviews')
-  .forUpdate()
+  .forUpdate({ wait: 5 })
+  //or
+  //.forUpdate()
   .execute();
 ```
 
@@ -1127,8 +1132,8 @@ The `update` method allows you to update entries in the table that match the spe
 
 `Parameters`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
-- `fieldsToUpdate (Object)`: An object representing the fields and their updated values for the matching entries.
+- `keys (object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `fieldsToUpdate (object)`: An object representing the fields and their updated values for the matching entries.
 
 `Return`
 
@@ -1168,8 +1173,8 @@ The `updateLocaleTexts` method allows you to update entries in the table that ma
 
 `Parameters`
 
-- `localeCodeKeys (Object)`: An object containing language codes `'en', 'de', 'fr', 'ro', ... ` and entity keys to filter entries.
-- `fieldsToUpdate (Object)`: An object representing the keys and values to update. Each key corresponds to a property in the entity.
+- `localeCodeKeys (object)`: An object containing language codes `'en', 'de', 'fr', 'ro', ... ` and entity keys to filter entries.
+- `fieldsToUpdate (object)`: An object representing the keys and values to update. Each key corresponds to a property in the entity.
 
 `Return`
 
@@ -1206,7 +1211,7 @@ The `delete` method allows you to delete entries from the table that match the s
 
 `Parameters`
 
-- `keys (Object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `keys (object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 
@@ -1291,7 +1296,7 @@ The `exists` method allows you to check whether entries exist in the table that 
 
 `Parameters`
 
-- `keys (Object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
+- `keys (object)`: Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
 
 `Return`
 

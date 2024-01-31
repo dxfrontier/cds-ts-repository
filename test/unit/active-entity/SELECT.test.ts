@@ -827,6 +827,7 @@ describe('SELECT', () => {
               .getExpand('reviews')
               .columns('createdAt', 'author', 'reviews', 'price', 'stock', 'descr', 'currency_code')
               .columnsFormatter({ column: 'price', aggregate: 'MIN', renameAs: 'MIN' })
+              .forUpdate()
               .execute();
 
             // Assert
