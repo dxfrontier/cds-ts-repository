@@ -43,18 +43,18 @@ abstract class BaseRepositoryDraft<T> {
 
   /**
    * Retrieves all records from the database with optional limit and offset.
-   * @param props
-   * @param props.limit The limit for the result set.
-   * @param [props.skip] Optional 'skip', which will skip a specified number of items for the result set (default: 0).
+   * @param options
+   * @param options.limit The limit for the result set.
+   * @param [options.skip] Optional 'skip', which will skip a specified number of items for the result set (default: 0).
    * @returns A promise that resolves to an array of records.
    *
    * @example const results = await this.getAllDraftsAndLimit({ limit: 10, skip: 5 });
    */
-  public async getAllDraftsAndLimit(props: {
+  public async getAllDraftsAndLimit(options: {
     limit: number;
     skip?: number | undefined;
   }): Promise<Array<EntryDraft<T>> | undefined> {
-    return await this.coreRepository.getAllAndLimit(props);
+    return await this.coreRepository.getAllAndLimit(options);
   }
 
   /**

@@ -35,14 +35,14 @@ class CoreRepository<T> {
     return await SELECT.distinct.from(this.entity).columns(...allColumns);
   }
 
-  public async getAllAndLimit(props: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
+  public async getAllAndLimit(options: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
     const query = SELECT.from(this.entity);
 
-    if (props.skip !== undefined) {
-      return await query.limit(props.limit, props.skip);
+    if (options.skip !== undefined) {
+      return await query.limit(options.limit, options.skip);
     }
 
-    return await query.limit(props.limit);
+    return await query.limit(options.limit);
   }
 
   public async getLocaleTexts<Column extends keyof T>(
