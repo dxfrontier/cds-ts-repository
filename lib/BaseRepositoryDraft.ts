@@ -2,7 +2,7 @@
 import { type Service } from '@sap/cds';
 
 import type { Columns, DraftEntries, EntryDraft, ShowOnlyColumns } from './types/types';
-import type Filter from './util/Filter';
+import type { Filter } from './util/Filter';
 
 import { CoreRepository } from './util/CoreRepository';
 import { type Constructable } from '@sap/cds/apis/internal/inference';

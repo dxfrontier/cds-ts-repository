@@ -1,5 +1,5 @@
 import { Book } from '#cds-models/CatalogService';
-import Filter from '../../../lib/util/Filter';
+import { Filter } from '../../../lib/util/Filter';
 
 import { getBookRepository } from '../../util/BookRepository';
 import { startTestServer } from '../../util/util';

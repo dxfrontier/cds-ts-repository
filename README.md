@@ -1090,7 +1090,7 @@ const results = await this.builder()
 ```
 
 > [!TIP]
-> More info can be found on the official SAP CAP [forShareLock](#https://cap.cloud.sap/docs/node.js/cds-ql#forsharelock) documentation.
+> More info can be found on the official SAP CAP [forShareLock](https://cap.cloud.sap/docs/node.js/cds-ql#forsharelock) documentation. documentation.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1366,10 +1366,10 @@ Use `Filter` to create complex `WHERE QUERY` filters.
 
 `Overloads`
 
-| Method                                                          | Parameters                                                               | Description                                                                                                                                                                                                                                                                                                                                       |
-| :-------------------------------------------------------------- | :----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `new Filter<T>(options: FilterOptions<T>)`                      | `options ({field : string, operator : FilterOperator, value : string })` | Creates a new filter. `T` should be generated using [CDS-Typer](#generate-cds-typed-entities) <br /><br /> `FilterOperator` values : `'EQUALS'`, `'NOT EQUAL'`, `'LIKE'`, `'STARTS_WITH'`, `'ENDS_WITH'`, `'LESS THAN'`, `'LESS THAN OR EQUALS'`, `'GREATER THAN'`, `'GREATER THAN OR EQUALS'`, `'BETWEEN'`, `'NOT BETWEEN'` , `'IN'`, `'NOT IN'` |
-| `new Filter(operator: LogicalOperator, ...filters : Filter<T>)` | `operator (string)`, `filters Array<Filter>`                             | Creates a new Filter instance which combines 2 ... n **filters** with a Logical operator `'AND', 'OR'`                                                                                                                                                                                                                                            |
+| Method                                                          | Parameters                                                                                                           | Description                                                                                                                                                                                                                                                                                                                                       |
+| :-------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `new Filter<T>(options: FilterOptions<T>)`                      | `options ({field : keyof T (string), operator : FilterOperator, value : string \| number \| string[] \| number[] })` | Creates a new filter. `T` should be generated using [CDS-Typer](#generate-cds-typed-entities) <br /><br /> `FilterOperator` values : `'EQUALS'`, `'NOT EQUAL'`, `'LIKE'`, `'STARTS_WITH'`, `'ENDS_WITH'`, `'LESS THAN'`, `'LESS THAN OR EQUALS'`, `'GREATER THAN'`, `'GREATER THAN OR EQUALS'`, `'BETWEEN'`, `'NOT BETWEEN'` , `'IN'`, `'NOT IN'` |
+| `new Filter(operator: LogicalOperator, ...filters : Filter<T>)` | `operator (string)`, `filters Array<Filter>`                                                                         | Creates a new Filter instance which combines 2 ... n **filters** with a Logical operator `'AND', 'OR'`                                                                                                                                                                                                                                            |
 
 `Example 1` : Single filter
 

@@ -2,7 +2,7 @@ import type { TypedRequest } from '@sap/cds/apis/services';
 
 import { type LanguageCode } from 'iso-639-1';
 import type SelectBuilder from '../util/SelectBuilder';
-import type Filter from '../util/Filter';
+import type { Filter } from '../util/Filter';
 // import { Book } from '#cds-models/CatalogService';
 
 type LooseAutocomplete<T extends string> = T | Omit<string, T>;

@@ -1,5 +1,5 @@
 import type { Entry } from '../types/types';
-import Filter from './Filter';
+import type { Filter } from './Filter';
 
 export const Util = {
   isAllSuccess(items: number[]): boolean {
@@ -10,11 +10,13 @@ export const Util = {
   },
 
   isBetweenOrNotBetween<T>(keys: Filter<T>): boolean {
-    return keys.getFilterOperator() === 'BETWEEN' || keys.getFilterOperator() === 'NOT BETWEEN';
+    const operator = keys.getFilterOperator();
+    return operator === 'BETWEEN' || operator === 'NOT BETWEEN';
   },
 
   isInOrNotIn<T>(keys: Filter<T>): boolean {
-    return keys.getFilterOperator() === 'IN' || keys.getFilterOperator() === 'NOT IN';
+    const operator = keys.getFilterOperator();
+    return operator === 'IN' || operator === 'NOT IN';
   },
 
   mapOperator<T>(keys: Filter<T>) {
@@ -47,12 +49,12 @@ export const Util = {
     }
   },
 
-  isSingleFilter<T>(keys?: Record<string, unknown> | Filter<T> | string): keys is Filter<T> {
-    return keys instanceof Filter && typeof keys === 'object' && !('filters' in keys);
+  isSingleFilter<T>(keys?: Entry<T> | Filter<T> | string): keys is Filter<T> {
+    return typeof keys === 'object' && 'field' in keys && keys.field !== undefined;
   },
 
-  isMultipleFilters<T>(keys?: Record<string, unknown> | Filter<T> | string): keys is Filter<T> {
-    return keys instanceof Filter && 'filters' in keys;
+  isMultipleFilters<T>(keys?: Entry<T> | Filter<T> | string): keys is Filter<T> {
+    return typeof keys === 'object' && 'filters' in keys && Array.isArray(keys.getFilters());
   },
 
   buildSingleFilter<T>(keys: Filter<T>): string {
@@ -76,24 +78,24 @@ export const Util = {
   },
 
   buildSQLQuery<T>(filter: Filter<T>): string {
-    const isLogicalOperatorNotFound: boolean = !('logicalOperator' in filter);
+    const isValueFound: boolean = 'value' in filter || 'value1' in filter;
 
-    if (isLogicalOperatorNotFound) {
+    if (isValueFound && filter.getLogicalOperator() === undefined) {
       if (Util.isSingleFilter(filter)) {
         return this.buildSingleFilter(filter);
       }
     }
 
-    const subQueries = filter.getFilters().map((subFilter) => this.buildSQLQuery(subFilter));
+    const subQueries = filter.getFilters()?.map((subFilter) => this.buildSQLQuery(subFilter));
     let query: string = '';
 
     // Compute the filters in a logical OR or AND
     if (filter.getLogicalOperator() === 'AND') {
-      query = `(${subQueries.join(` ${filter.getLogicalOperator()} `)})`;
+      query = `(${subQueries?.join(` ${filter.getLogicalOperator()} `)})`;
     }
 
     if (filter.getLogicalOperator() === 'OR') {
-      query = `(${subQueries.join(` ${filter.getLogicalOperator()} `)})`;
+      query = `(${subQueries?.join(` ${filter.getLogicalOperator()} `)})`;
     }
 
     return query;
@@ -102,12 +104,12 @@ export const Util = {
   buildQueryKeys<T>(keys?: Entry<T> | Filter<T> | string): string | Entry<T> | undefined {
     // Single filter object
     if (Util.isSingleFilter(keys)) {
-      keys = Util.buildSingleFilter(keys);
+      return Util.buildSingleFilter(keys);
     }
 
     // Multiple filters objects
     if (Util.isMultipleFilters(keys)) {
-      keys = Util.buildSQLQuery(keys);
+      return Util.buildSQLQuery(keys);
     }
 
     // Return non-modified keys or modified keys from the isSingleFilter and isMultipleFilters
