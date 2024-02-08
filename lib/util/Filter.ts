@@ -107,22 +107,6 @@ class Filter<T> {
       this.filters = filters;
     }
   }
-
-  public getFilters(): Filter<T>[] | undefined {
-    return this.filters;
-  }
-
-  public getField(): string {
-    return this.field as string;
-  }
-
-  public getLogicalOperator(): LogicalOperator {
-    return this.logicalOperator;
-  }
-
-  public getFilterOperator(): FilterOperator {
-    return this.operator;
-  }
 }
 
 export { Filter };

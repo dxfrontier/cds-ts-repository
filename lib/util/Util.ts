@@ -10,17 +10,17 @@ export const Util = {
   },
 
   isBetweenOrNotBetween<T>(keys: Filter<T>): boolean {
-    const operator = keys.getFilterOperator();
+    const operator = keys.operator;
     return operator === 'BETWEEN' || operator === 'NOT BETWEEN';
   },
 
   isInOrNotIn<T>(keys: Filter<T>): boolean {
-    const operator = keys.getFilterOperator();
+    const operator = keys.operator;
     return operator === 'IN' || operator === 'NOT IN';
   },
 
   mapOperator<T>(keys: Filter<T>) {
-    switch (keys.getFilterOperator()) {
+    switch (keys.operator) {
       case 'GREATER THAN':
         return '>';
 
@@ -54,12 +54,12 @@ export const Util = {
   },
 
   isMultipleFilters<T>(keys?: Entry<T> | Filter<T> | string): keys is Filter<T> {
-    return typeof keys === 'object' && 'filters' in keys && Array.isArray(keys.getFilters());
+    return typeof keys === 'object' && 'filters' in keys && Array.isArray(keys.filters);
   },
 
   buildSingleFilter<T>(keys: Filter<T>): string {
-    const filterOperator = keys.getFilterOperator();
-    const key = keys.getField();
+    const filterOperator = keys.operator;
+    const key = keys.field as string;
 
     if (Util.isBetweenOrNotBetween(keys)) {
       return `(${key} ${filterOperator} ${keys.value1} AND ${keys.value2})`;
@@ -80,22 +80,22 @@ export const Util = {
   buildSQLQuery<T>(filter: Filter<T>): string {
     const isValueFound: boolean = 'value' in filter || 'value1' in filter;
 
-    if (isValueFound && filter.getLogicalOperator() === undefined) {
+    if (isValueFound && filter.logicalOperator === undefined) {
       if (Util.isSingleFilter(filter)) {
         return this.buildSingleFilter(filter);
       }
     }
 
-    const subQueries = filter.getFilters()?.map((subFilter) => this.buildSQLQuery(subFilter));
+    const subQueries = filter.filters?.map((subFilter) => this.buildSQLQuery(subFilter));
     let query: string = '';
 
     // Compute the filters in a logical OR or AND
-    if (filter.getLogicalOperator() === 'AND') {
-      query = `(${subQueries?.join(` ${filter.getLogicalOperator()} `)})`;
+    if (filter.logicalOperator === 'AND') {
+      query = `(${subQueries?.join(` ${filter.logicalOperator} `)})`;
     }
 
-    if (filter.getLogicalOperator() === 'OR') {
-      query = `(${subQueries?.join(` ${filter.getLogicalOperator()} `)})`;
+    if (filter.logicalOperator === 'OR') {
+      query = `(${subQueries?.join(` ${filter.logicalOperator} `)})`;
     }
 
     return query;
