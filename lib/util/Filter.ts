@@ -1,10 +1,10 @@
 import type { FilterOperator, FilterOptions, LogicalOperator } from '../types/types';
 
 class Filter<T> {
-  private readonly field: keyof T;
-  private readonly operator: FilterOperator;
-  private readonly logicalOperator: LogicalOperator;
-  private readonly filters: Filter<T>[];
+  public readonly field: keyof T;
+  public readonly operator: FilterOperator;
+  public readonly logicalOperator: LogicalOperator;
+  public readonly filters: Filter<T>[];
 
   // Like, In, Not in fields
   public readonly value?: string | number | string[] | number[];
@@ -102,13 +102,13 @@ class Filter<T> {
     }
 
     // Overload 2 => constructor(operator: LogicalOperator, ...filters: Filter<T>[]);
-    if (typeof filter === 'string' && filters.length > 0) {
+    if (typeof filter === 'string' && Array.isArray(filters)) {
       this.logicalOperator = filter;
       this.filters = filters;
     }
   }
 
-  public getFilters(): Filter<T>[] {
+  public getFilters(): Filter<T>[] | undefined {
     return this.filters;
   }
 
@@ -125,4 +125,4 @@ class Filter<T> {
   }
 }
 
-export default Filter;
+export { Filter };

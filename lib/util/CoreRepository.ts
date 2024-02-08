@@ -7,7 +7,7 @@ import Util from './Util';
 import { type Service } from '@sap/cds';
 
 import type { Entry, Locale, InsertResult, FindReturn, Entries, Columns, ShowOnlyColumns } from '../types/types';
-import type Filter from './Filter';
+import type { Filter } from '..';
 
 class CoreRepository<T> {
   constructor(protected readonly entity: string) {
