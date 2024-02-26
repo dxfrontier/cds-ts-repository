@@ -1,6 +1,6 @@
 {
   "name": "@dxfrontier/cds-ts-repository",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "The goal of SAP CAP CDS-QL BaseRepository is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the database like .create(), .createMany(), .getAll(), .update(), .find(), .exists() ...",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -14,7 +14,7 @@
   "scripts": {
     "eslint": "npx eslint .",
     "eslint:fix": "npx eslint . --fix",
-    "eslint:message": "echo 'Eslint started...'",
+    "eslint:message": "echo 'ESLint started ...'",
     "prettier": "npx prettier . --check",
     "prettier:fix": "npx prettier . --write",
     "prettier:message": "echo 'Prettier started ...'",
@@ -24,18 +24,18 @@
     "start:bookshop": "npm run start --prefix ./test/bookshop",
     "prepare": "husky install",
     "build:clean": "echo 'Clean dist folder' && npx rimraf ./dist/{*.js,*.map,*.ts,*.mts,*.mjs}",
-    "build:message": "echo 'Build started...'",
+    "build:message": "echo 'Build started ...'",
     "build:ts": "tsup",
     "build": "run-s build:clean build:message build:ts"
   },
   "dependencies": {
-    "@sap/cds": "^7.6.1",
-    "ts-mixer": "^6.0.3"
+    "@sap/cds": "^7.6.4",
+    "ts-mixer": "^6.0.4"
   },
   "devDependencies": {
     "@cap-js/cds-typer": "^0.16.0",
-    "@cap-js/sqlite": "^1.5.0",
-    "@swc/core": "^1.4.0",
+    "@cap-js/sqlite": "^1.5.1",
+    "@swc/core": "^1.4.2",
     "@types/jest": "^29.5.12",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
@@ -46,8 +46,8 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
-    "husky": "^9.0.10",
-    "iso-639-1": "^3.1.0",
+    "husky": "^9.0.11",
+    "iso-639-1": "^3.1.2",
     "jest": "^29.7.0",
     "lint-staged": "^15.2.2",
     "npm-run-all": "^4.1.5",
@@ -55,7 +55,7 @@
     "prettier": "3.2.5",
     "rimraf": "^5.0.5",
     "ts-jest": "^29.1.2",
-    "tsup": "^8.0.1",
+    "tsup": "^8.0.2",
     "typescript": "^5.3.3"
   },
   "repository": {

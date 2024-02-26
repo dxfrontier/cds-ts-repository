@@ -1,5 +1,6 @@
 import { Book } from '#cds-models/CatalogService';
-import { Filter } from '../../../lib/util/Filter';
+import { Expand } from '../../../lib';
+import { Filter } from '../../../lib/util/helpers/Filter';
 
 import { getBookRepository } from '../../util/BookRepository';
 import { startTestServer } from '../../util/util';
@@ -581,25 +582,102 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .getExpand()', () => {
+      describe('======> .getExpand() - OVERLOAD with {} (object)', () => {
+        it('should return the original object + expanded "genre", "author" and "reviews" properties', async () => {
+          // Arrange
+          const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
+
+          const associations: Expand<Book> = {
+            // expand 'author'
+            author: {},
+
+            // expand 'genre', having only 'ID' and 'name'
+            genre: {
+              select: ['ID', 'parent'],
+            },
+
+            // expand 'reviews', having only 'ID' and 'book_ID' and 'reviewer'
+            reviews: {
+              // select: ['ID', 'book_ID'], // omit the select => full expand of reviews and expand the reviewer with ID
+
+              // expand 'reviewer', having only the 'ID'
+              expand: {
+                reviewer: {
+                  select: ['ID'],
+                },
+              },
+            },
+          };
+
+          // Act
+          const deepExpand = await bookRepository.builder().find({ ID: 201 }).getExpand(associations).execute();
+
+          // deepExpand[0]
+
+          // Assert
+          expect(deepExpand?.length).toBeGreaterThan(0);
+          expect(deepExpand![0]).toHaveProperty('author');
+          expect(deepExpand![0]).toHaveProperty('genre');
+          expect(deepExpand![0]).toHaveProperty('reviews');
+          expect(deepExpand![0]).toHaveProperty('price');
+          expect(deepExpand![0]).toHaveProperty('stock');
+          expect(deepExpand![0].reviews![0]).toHaveProperty('reviewer');
+          expect(deepExpand![0].reviews![0].reviewer).toHaveProperty('ID');
+          expect(findOneForExpandAll).not.toMatchObject(deepExpand![0]);
+        });
+
+        it('should return only the expanded "genre", "author" and "reviews" properties', async () => {
+          // Arrange
+          const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
+
+          // Act
+          const deepExpand = await bookRepository
+            .builder()
+            .find({ ID: 201 })
+            .columns('author', 'genre', 'reviews')
+            .getExpand({
+              // expand full 'author' up to 1 level
+              author: {},
+
+              // expand 'genre', having only 'ID' and 'name'
+              genre: {
+                select: ['ID', 'parent'],
+              },
+
+              // expand 'reviews', having only 'ID' and 'book_ID' and 'reviewer'
+              reviews: {
+                select: ['ID', 'book_ID'],
+
+                // expand 'reviewer', having only the 'ID'
+                expand: {
+                  reviewer: {
+                    select: ['ID'],
+                  },
+                },
+              },
+            })
+            .execute();
+
+          // Assert
+          expect(deepExpand?.length).toBeGreaterThan(0);
+          expect(deepExpand![0]).toHaveProperty('author');
+          expect(deepExpand![0]).toHaveProperty('genre');
+          expect(deepExpand![0]).toHaveProperty('reviews');
+          expect(deepExpand![0].reviews![0]).toHaveProperty('reviewer');
+          expect(deepExpand![0].reviews![0].reviewer).toHaveProperty('ID');
+          expect(deepExpand![0]).not.toHaveProperty('price');
+          expect(deepExpand![0]).not.toHaveProperty('stock');
+          expect(findOneForExpandAll).not.toMatchObject(deepExpand![0]);
+        });
+      });
+
+      describe('======> .getExpand() - OVERLOAD with [] (array)', () => {
         it('should return the original object + expanded "genre" property - .getExpand("genre")', async () => {
           // Arrange
           const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
 
           // Act
-          const expandGenre = await bookRepository.builder().find({ ID: 201 }).getExpand('genre').execute();
-
-          // Assert
-          expect(expandGenre?.length).toBeGreaterThan(0);
-          expect(expandGenre![0]).toHaveProperty('genre');
-          expect(findOneForExpandAll).not.toMatchObject(expandGenre![0]);
-        });
-        it('should return the original object + expanded "genre" property - .getExpand(["genre"])', async () => {
-          // Arrange
-          const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
-
-          // Act
-          const expandGenre = await bookRepository.builder().find({ ID: 201 }).getExpand(['genre']).execute();
+          const expandGenre = await bookRepository.builder().find({ ID: 201 }).getExpand('genre', 'reviews').execute();
 
           // Assert
           expect(expandGenre?.length).toBeGreaterThan(0);
@@ -632,7 +710,7 @@ describe('SELECT', () => {
           const orderItemsDesc = await bookRepository
             .builder()
             .find({ currency_code: 'USD' })
-            .orderDesc(['stock', 'price'])
+            .orderDesc('stock', 'price')
             .execute();
 
           // Assert

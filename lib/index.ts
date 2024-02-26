@@ -1,8 +1,8 @@
 export * from './BaseRepository';
 export * from './BaseRepositoryDraft';
 
-export * from './util/Filter';
+export * from './util/helpers/Filter';
 
-export type * from './types/types';
+export type * from './util/types/types';
 
 export { Mixin } from 'ts-mixer';

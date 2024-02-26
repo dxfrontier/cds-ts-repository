@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { TypedRequest } from '@sap/cds/apis/services';
 
 import { type LanguageCode } from 'iso-639-1';
-import type SelectBuilder from '../util/SelectBuilder';
-import type { Filter } from '../util/Filter';
-// import { Book } from '#cds-models/CatalogService';
+import type SelectBuilder from '../helpers/SelectBuilder';
+import type { Filter } from '../helpers/Filter';
 
 type LooseAutocomplete<T extends string> = T | Omit<string, T>;
 
 type Entry<T> = {
   [K in keyof T]?: T[K];
 };
+
+type AssociationFunction = (...args: unknown[]) => unknown;
 
 type DraftAdministrativeFields = {
   DraftAdministrativeData_DraftUUID?: string;
@@ -177,25 +179,22 @@ type AppendColumns<T, K extends ColumnFormatter<T>> = T & AddNewFields<T, GetCol
 
 // End .columnsFormatter types
 
-// TODO: deep expand of getExpand
-// export type Expand<T> = ExpandType<T> | ExpandType<T>[];
+// Start deep expand of getExpand method
 
-// export type ExpandType<T> = string | ExpandObject<T>;
+type Unpacked<T> = T extends (infer U)[]
+  ? { expand?: Expand<U>; select?: (keyof U)[] }
+  : { expand?: Expand<T>; select?: (keyof T)[] };
 
-// export type ExpandObject<T> = keyof T | NestedExpandOptions<T>;
+type Expand<T> = {
+  [P in keyof T]: Unpacked<T[P]>;
+};
 
-// export type NestedExpandOptions<T> = {
-//   [P in keyof T]?: Unpacked<T[P]>;
-// };
+type ValueExpand = {
+  select: any[];
+  expand: Record<string, unknown>;
+};
 
-// export type Unpacked<T> = T extends (infer U)[] ? U : T;
-
-// export const book: Expand<Book> = {
-//   author: {},
-//   reviews: {
-//     reviewer: {},
-//   },
-// };
+// End deep expand of getExpand method
 
 export type {
   // Common
@@ -209,12 +208,15 @@ export type {
   ShowOnlyColumns,
   Entries,
   DraftEntries,
+  AssociationFunction,
 
   // Builder types
   FindReturn,
   LogicalOperator,
   FilterOperator,
   FilterOptions,
+  Expand,
+  ValueExpand,
 
   // ColumnsFormatter types
   ColumnFormatter,

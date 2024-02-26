@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Entry } from '../types/types';
 import type { Filter } from './Filter';
 
-export const Util = {
+export const util = {
   isAllSuccess(items: number[]): boolean {
     if (items.includes(0)) {
       return false;
@@ -61,11 +62,11 @@ export const Util = {
     const filterOperator = keys.operator;
     const key = keys.field as string;
 
-    if (Util.isBetweenOrNotBetween(keys)) {
+    if (util.isBetweenOrNotBetween(keys)) {
       return `(${key} ${filterOperator} ${keys.value1} AND ${keys.value2})`;
     }
 
-    if (Util.isInOrNotIn(keys)) {
+    if (util.isInOrNotIn(keys)) {
       if (Array.isArray(keys.value)) {
         const remodeledString = keys.value.map((item) => `'${item.toString()}'`);
 
@@ -74,14 +75,14 @@ export const Util = {
     }
 
     // All others operators
-    return `${key} ${Util.mapOperator(keys)} '${keys.value as string}'`;
+    return `${key} ${util.mapOperator(keys)} '${keys.value as string}'`;
   },
 
   buildSQLQuery<T>(filter: Filter<T>): string {
     const isValueFound: boolean = 'value' in filter || 'value1' in filter;
 
     if (isValueFound && filter.logicalOperator === undefined) {
-      if (Util.isSingleFilter(filter)) {
+      if (util.isSingleFilter(filter)) {
         return this.buildSingleFilter(filter);
       }
     }
@@ -103,18 +104,34 @@ export const Util = {
 
   buildQueryKeys<T>(keys?: Entry<T> | Filter<T> | string): string | Entry<T> | undefined {
     // Single filter object
-    if (Util.isSingleFilter(keys)) {
-      return Util.buildSingleFilter(keys);
+    if (util.isSingleFilter(keys)) {
+      return util.buildSingleFilter(keys);
     }
 
     // Multiple filters objects
-    if (Util.isMultipleFilters(keys)) {
-      return Util.buildSQLQuery(keys);
+    if (util.isMultipleFilters(keys)) {
+      return util.buildSQLQuery(keys);
     }
 
-    // Return non-modified keys or modified keys from the isSingleFilter and isMultipleFilters
+    // Return non-modified keys
     return keys;
+  },
+
+  isExpandAll(value: Record<string, any>): boolean {
+    return typeof value === 'object' && Object.keys(value).length === 0;
+  },
+
+  isSelectAndExpand(value: Record<string, any>): boolean {
+    return 'select' in value && 'expand' in value;
+  },
+
+  isSelectOnly(value: Record<string, any>): boolean {
+    return 'select' in value;
+  },
+
+  isExpandOnly(value: Record<string, any>): boolean {
+    return 'expand' in value;
   },
 };
 
-export default Util;
+export default util;
