@@ -1022,16 +1022,82 @@ const results = await this.builder()
 
 ###### getExpand
 
-You can specify which columns you want to retrieve from the table using the getExpand method. It also allows you to expand associated entities.
+Use `getExpand` to specify which columns you want to expand from the table.
 
-`Parameters`
+`Overloads`
 
-- `associations` `(...associations : Columns<T>[])`: The columns to expand, if `associations` argument is provided then the specified `associations / compositions` will be expanded.
+| Type            | Method                                                        | Parameters                       | Description                                                                                                                                                                                                                                                                                                                                                                                                             |
+| :-------------- | :------------------------------------------------------------ | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Single expand` | `getExpand(...associations : Columns<T>[]): SelectBuilder<T>` | `...associations: Array<string>` | An array of strings representing the columns to expand, this will expand only `first level` of `associations`.                                                                                                                                                                                                                                                                                                          |
+| `Deep expand`   | `getExpand(associations : Expand<T>): SelectBuilder<T>`       | `associations: object`           | An object representing the columns to expand. <br /><br /> `Value:` <br /><br /> - `{}` - If empty object is used as a value for an association, the empty object will perform a full expand of the association. <br /><br /> `Properties:` <br /><br /> - `select? : Array<string>` `[optional]`: Fetch only the mentioned columns. <br /> - `expand? : object` `[optional]`: Expand nested associations. <br /><br /> |
 
-`Example`
+`Example 1` : Deep expand
 
 ```ts
-// Expand only 'orders' association
+// expand 'author', 'genre' and 'reviews' associations
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
+  .getExpand({
+    // expand 'author'
+    author: {},
+
+    // expand 'genre', having only 'ID' and 'name'
+    genre: {
+      select: ['ID', 'parent'],
+    },
+
+    // expand 'reviews', having only 'ID', 'book_ID' fields and 'reviewer' association
+    reviews: {
+      select: ['ID', 'book_ID'],
+
+      // expand 'reviewer', having only the 'ID'
+      expand: {
+        reviewer: {
+          select: ['ID'],
+        },
+      },
+    },
+  })
+  .execute();
+```
+
+`Example 2` : Deep expand & `columns()`
+
+```ts
+import { Expand } from '@dxfrontier/cds-ts-repository';
+
+// expand 'author', and 'reviews' associations
+const associations: Expand<MyEntity> = {
+  // expand 'author'
+  author: {},
+
+  // expand 'reviews' having all fields + expand reviewer association
+  reviews: {
+    // expand 'reviewer', having only the 'ID'
+    expand: {
+      reviewer: {
+        select: ['ID'],
+      },
+    },
+  },
+};
+
+const results = await this.builder()
+  .find() // we use overload of 'find' to get all the items of the table
+  .columns('author', 'reviews')
+  .getExpand(associations)
+  .execute();
+```
+
+> [!NOTE]
+> If `columns` is used with `getExpand` the `columns` method will have impact on the final typing.
+
+`Example 3` : Simple expand
+
+```ts
+// expand only 'orders' and 'reviews' associations
 const results = await this.builder()
   .find({
     name: 'A company name',
