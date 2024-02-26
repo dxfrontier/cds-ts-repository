@@ -1063,7 +1063,7 @@ const results = await this.builder()
   .execute();
 ```
 
-`Example 2` : Deep expand & `columns()`
+`Example 2` : Deep expand, `columns()` and using Expand in a variable
 
 ```ts
 import { Expand } from '@dxfrontier/cds-ts-repository';
