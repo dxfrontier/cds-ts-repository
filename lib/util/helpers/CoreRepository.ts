@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import SelectBuilder from './SelectBuilder';
-import Util from './Util';
+import util from './util';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
 import type { Entry, Locale, InsertResult, FindReturn, Entries, Columns, ShowOnlyColumns } from '../types/types';
-import type { Filter } from '..';
+import type { Filter } from '../..';
 
 class CoreRepository<T> {
   constructor(protected readonly entity: string) {
@@ -52,7 +52,7 @@ class CoreRepository<T> {
   }
 
   public async find(keys?: Entry<T> | Filter<T> | string): Promise<T[] | undefined> {
-    const filterKeys = Util.buildQueryKeys(keys);
+    const filterKeys = util.buildQueryKeys(keys);
 
     return await SELECT.from(this.entity).where(filterKeys);
   }
@@ -64,7 +64,7 @@ class CoreRepository<T> {
   public builder(): FindReturn<T> {
     return {
       find: (keys?: Entry<T> | Filter<T> | string): SelectBuilder<T, any> => {
-        const filterKeys = Util.buildQueryKeys(keys);
+        const filterKeys = util.buildQueryKeys(keys);
 
         return new SelectBuilder<T, unknown>(this.entity, filterKeys);
       },
@@ -98,7 +98,7 @@ class CoreRepository<T> {
 
     const deletedItems: number[] = await Promise.all(allPromises);
 
-    return Util.isAllSuccess(deletedItems);
+    return util.isAllSuccess(deletedItems);
   }
 
   public async exists(keys: Entry<T>): Promise<boolean> {

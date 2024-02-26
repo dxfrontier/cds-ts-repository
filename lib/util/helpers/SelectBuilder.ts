@@ -1,10 +1,22 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type Definition } from '@sap/cds/apis/csn';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { AppendColumns, ColumnFormatter, Columns, ShowOnlyColumns } from '../types/types';
+import type {
+  AppendColumns,
+  AssociationFunction,
+  ColumnFormatter,
+  Columns,
+  Expand,
+  ValueExpand,
+  ShowOnlyColumns,
+} from '../types/types';
+
+import util from './util';
+import { constants } from '../constants/constants';
 
 class SelectBuilder<T, Keys> {
   private select: SELECT<any>;
@@ -12,8 +24,8 @@ class SelectBuilder<T, Keys> {
   /*
    * This flag is used in the getExpand method, as both methods are calling the .columns
    */
-  private isColumnsCalled: boolean = false;
-  private isExpandCalled: boolean = false;
+  private columnsCalled: boolean = false;
+  private expandCalled: boolean = false;
 
   constructor(
     private readonly entity: Definition | string,
@@ -104,7 +116,38 @@ class SelectBuilder<T, Keys> {
   }
 
   /**
-   * Retrieves the expands associated entities.
+   * Deep expand of the associated entities.
+   * @param associations An object of column names to expand, representing associated entities.
+   * @returns SelectBuilder instance
+   *
+   * @example
+   * const results = await this.builder()
+   * .find({
+   *     name: 'A company name',
+   * })
+   * .getExpand({
+   *  // expand full 'author' up to 1 level
+   *  author: {},
+   *  // expand 'genre', having only 'ID' and 'name'
+   *  genre: {
+   *    select: ['ID', 'parent'],
+   *  },
+   *  // expand 'reviews', having only 'ID', 'book_ID' and 'reviewer' having only 'ID'
+   *  reviews: {
+   *    select: ['ID', 'book_ID'],
+   *    expand: {
+   *      reviewer: {
+   *        select: ['ID'],
+   *      },
+   *    },
+   *  },
+   * })
+   * .execute();
+   */
+  public getExpand(associations: Expand<T>): this;
+
+  /**
+   * Retrieves the associated entities expanded up to 1 level.
    * @param associations An array of column names to expand, representing associated entities.
    * @returns SelectBuilder instance
    *
@@ -118,27 +161,106 @@ class SelectBuilder<T, Keys> {
    * //.getExpand(['orders', 'reviews'])
    * .execute();
    */
-  public getExpand(...associations: Columns<T>[]): this {
-    const associationsColumns = Array.isArray(associations[0]) ? associations[0] : associations;
+  public getExpand(...associations: Columns<T>[]): this;
 
-    this.isExpandCalled = true;
+  public getExpand(...args: any[]): this {
+    this.expandCalled = true;
+
+    const associationsColumns = Array.isArray(args[0]) ? args[0] : args;
 
     // const private routines for this func
-    const _buildAssociatedNamedEntity = (column: any): void => {
-      // If .columns() was called first do not expand all
-      if (!this.isColumnsCalled) {
-        column('*');
-      }
+    const _processExpandAll = (association: any): void => {
+      association((linkedEntity: AssociationFunction) => {
+        linkedEntity(constants.COMMON.ALL_FIELDS);
+      });
+    };
 
-      associationsColumns?.forEach((association) => {
-        column[association]((linkedEntity: (...args: unknown[]) => unknown) => {
-          linkedEntity('*');
+    const _processOnlySelect = (association: any, value: ValueExpand): void => {
+      association((linkedEntity: AssociationFunction) => {
+        value.select.forEach((item: unknown) => {
+          linkedEntity(item);
         });
       });
     };
 
-    void this.select.columns((column: any) => {
-      _buildAssociatedNamedEntity(column);
+    const _processSelectAndExpand = (association: any, value: ValueExpand): void => {
+      association((linkedEntity: AssociationFunction) => {
+        value.select.forEach((item: unknown) => {
+          linkedEntity(item);
+        });
+
+        _buildDeepExpand(value.expand, linkedEntity);
+      });
+    };
+
+    const _processOnlyExpand = (association: any, value: ValueExpand): void => {
+      association((linkedEntity: AssociationFunction) => {
+        _expandFirstLevel(association);
+        _buildDeepExpand(value.expand, linkedEntity);
+      });
+    };
+
+    const _expandFirstLevel = (columnProjection: any): void => {
+      columnProjection(constants.COMMON.ALL_FIELDS);
+    };
+
+    const _buildDeepExpand = (expandStructure: Record<string, any>, columnProjection: any): void => {
+      for (const key in expandStructure) {
+        const value = expandStructure[key];
+        const association = columnProjection[key];
+
+        // Empty object, expand all
+        if (util.isExpandAll(value)) {
+          _processExpandAll(association);
+        }
+        // Both select and expand
+        else if (util.isSelectAndExpand(value)) {
+          _processSelectAndExpand(association, value);
+        }
+        // Only select
+        else if (util.isSelectOnly(value)) {
+          _processOnlySelect(association, value);
+        }
+        // Only expand
+        else if (util.isExpandOnly(value)) {
+          _processOnlyExpand(association, value);
+        } else {
+          throw new Error(constants.MESSAGES.DEEP_EXPAND_NOT_EXIST);
+        }
+      }
+    };
+
+    const _buildSingleExpand = (columnProjection: any): void => {
+      associationsColumns.forEach((association) => {
+        columnProjection[association]((linkedEntity: AssociationFunction) => {
+          linkedEntity(constants.COMMON.ALL_FIELDS);
+        });
+      });
+    };
+
+    /**
+     * Extremely difficult to work with typing on the projection
+     * That's why we use any instead of SAP type
+     */
+
+    const singleExpand = typeof associationsColumns[0] === 'string';
+    const columnsNotCalled = !this.columnsCalled;
+
+    void this.select.columns((columnProjection: any) => {
+      // If .columns() is not present, then add expand all ('*') otherwise don't add it as columns has impact on the typing.
+      if (columnsNotCalled) {
+        _expandFirstLevel(columnProjection);
+      }
+
+      // Overload 1 : array overload ( single expand )
+      if (singleExpand) {
+        _buildSingleExpand(columnProjection);
+        return;
+      }
+
+      // Overload 2 : object overload ( deep expand )
+      const expandStructure: Record<string, any> = associationsColumns[0];
+      _buildDeepExpand(expandStructure, columnProjection);
     });
 
     return this;
@@ -164,16 +286,16 @@ class SelectBuilder<T, Keys> {
     ...columns: ColumnKeys
   ): SelectBuilder<AppendColumns<T, ColumnKeys>, string | Keys> {
     const constructedColumns = columns.map((item) => {
-      // Two columns
-      if ('column1' in item && 'column2' in item) {
+      const twoColumns = 'column1' in item && 'column2' in item;
+      if (twoColumns) {
         const column1 = item.column1 as string;
         const column2 = item.column2 as string;
 
         return `${item.aggregate}(${column1}, ' ',${column2}) as ${item.renameAs}`;
       }
 
-      // One column
-      if ('aggregate' in item && 'column' in item) {
+      const oneColumn = 'aggregate' in item && 'column' in item;
+      if (oneColumn) {
         const column = item.column as string;
         return `${item.aggregate}(${column}) as ${item.renameAs}`;
       }
@@ -216,7 +338,7 @@ class SelectBuilder<T, Keys> {
     const _removeExpandAllFields = (): void => {
       this.select.SELECT.columns?.forEach((item, index) => {
         const column = item as any;
-        if (column === '*') {
+        if (column === constants.COMMON.ALL_FIELDS) {
           this.select.SELECT.columns?.splice(index, 1);
         }
       });
@@ -230,12 +352,10 @@ class SelectBuilder<T, Keys> {
 
     void this.select.columns(...(allColumns as unknown as string));
 
-    if (this.isExpandCalled) {
+    if (this.expandCalled) {
       // As the .columns() was called after .getExpand(), the '*' will be removed from the .columns array to have correct typing based only on the columns
       _removeExpandAllFields();
     }
-
-    // this.select.SELECT.columns?.reverse();
 
     // We are creating and new instance of SelectBuilder and preserving the select from the current SelectBuilder instance
     const selectBuilder = new SelectBuilder<Pick<T, ShowOnlyColumns<T, ColumnKeys>>, typeof this.keys>(
@@ -244,7 +364,7 @@ class SelectBuilder<T, Keys> {
     );
 
     selectBuilder.select = this.select;
-    selectBuilder.isColumnsCalled = true;
+    selectBuilder.columnsCalled = true;
 
     return selectBuilder;
   }
