@@ -1045,7 +1045,7 @@ const results = await this.builder()
 
     // expand 'genre', having only 'ID' and 'name'
     genre: {
-      select: ['ID', 'parent'],
+      select: ['ID', 'name'],
     },
 
     // expand 'reviews', having only 'ID', 'book_ID' fields and 'reviewer' association
@@ -1063,7 +1063,7 @@ const results = await this.builder()
   .execute();
 ```
 
-`Example 2` : Deep expand, `columns()` and using Expand in a variable
+`Example 2` : Deep expand stored in a variable & using `columns()`
 
 ```ts
 import { Expand } from '@dxfrontier/cds-ts-repository';
@@ -1073,7 +1073,7 @@ const associations: Expand<MyEntity> = {
   // expand 'author'
   author: {},
 
-  // expand 'reviews' having all fields + expand reviewer association
+  // expand 'reviews' having all fields + expand reviewer association having only 'ID'
   reviews: {
     // expand 'reviewer', having only the 'ID'
     expand: {
@@ -1085,7 +1085,7 @@ const associations: Expand<MyEntity> = {
 };
 
 const results = await this.builder()
-  .find() // we use overload of 'find' to get all the items of the table
+  .find() // get all items
   .columns('author', 'reviews')
   .getExpand(associations)
   .execute();

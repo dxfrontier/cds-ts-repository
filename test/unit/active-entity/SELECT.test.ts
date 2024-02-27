@@ -598,7 +598,7 @@ describe('SELECT', () => {
 
             // expand 'reviews', having only 'ID' and 'book_ID' and 'reviewer'
             reviews: {
-              // select: ['ID', 'book_ID'], // omit the select => full expand of reviews and expand the reviewer with ID
+              select: ['ID', 'comment'],
 
               // expand 'reviewer', having only the 'ID'
               expand: {
@@ -646,7 +646,7 @@ describe('SELECT', () => {
 
               // expand 'reviews', having only 'ID' and 'book_ID' and 'reviewer'
               reviews: {
-                select: ['ID', 'book_ID'],
+                // select: ['ID', 'book_ID'], // omit this, take everything in the reviews
 
                 // expand 'reviewer', having only the 'ID'
                 expand: {
@@ -664,6 +664,8 @@ describe('SELECT', () => {
           expect(deepExpand![0]).toHaveProperty('genre');
           expect(deepExpand![0]).toHaveProperty('reviews');
           expect(deepExpand![0].reviews![0]).toHaveProperty('reviewer');
+          expect(deepExpand![0].reviews![0]).toHaveProperty('comment');
+          expect(deepExpand![0].reviews![0]).toHaveProperty('rating');
           expect(deepExpand![0].reviews![0].reviewer).toHaveProperty('ID');
           expect(deepExpand![0]).not.toHaveProperty('price');
           expect(deepExpand![0]).not.toHaveProperty('stock');
