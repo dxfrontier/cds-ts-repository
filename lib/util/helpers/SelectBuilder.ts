@@ -130,7 +130,7 @@ class SelectBuilder<T, Keys> {
    *  author: {},
    *  // expand 'genre', having only 'ID' and 'name'
    *  genre: {
-   *    select: ['ID', 'parent'],
+   *    select: ['ID', 'name'],
    *  },
    *  // expand 'reviews', having only 'ID', 'book_ID' and 'reviewer' having only 'ID'
    *  reviews: {
@@ -177,26 +177,27 @@ class SelectBuilder<T, Keys> {
 
     const _processOnlySelect = (association: any, value: ValueExpand): void => {
       association((linkedEntity: AssociationFunction) => {
-        value.select.forEach((item: unknown) => {
-          linkedEntity(item);
-        });
+        _exposeOnlyFields(value.select, linkedEntity);
       });
     };
 
     const _processSelectAndExpand = (association: any, value: ValueExpand): void => {
       association((linkedEntity: AssociationFunction) => {
-        value.select.forEach((item: unknown) => {
-          linkedEntity(item);
-        });
-
+        _exposeOnlyFields(value.select, linkedEntity);
         _buildDeepExpand(value.expand, linkedEntity);
       });
     };
 
     const _processOnlyExpand = (association: any, value: ValueExpand): void => {
       association((linkedEntity: AssociationFunction) => {
-        _expandFirstLevel(association);
+        _expandFirstLevel(linkedEntity);
         _buildDeepExpand(value.expand, linkedEntity);
+      });
+    };
+
+    const _exposeOnlyFields = (fields: any[], linkedEntity: AssociationFunction): void => {
+      fields.forEach((item: unknown) => {
+        linkedEntity(item);
       });
     };
 
