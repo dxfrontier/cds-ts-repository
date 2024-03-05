@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import SelectBuilder from './SelectBuilder';
+import FindBuilder from './FindBuilder';
 import util from './util';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -8,6 +8,7 @@ import { type Service } from '@sap/cds';
 
 import type { Entry, Locale, InsertResult, FindReturn, Entries, Columns, ShowOnlyColumns } from '../types/types';
 import type { Filter } from '../..';
+import FindOneBuilder from './FindOneBuilder';
 
 class CoreRepository<T> {
   constructor(protected readonly entity: string) {
@@ -63,10 +64,15 @@ class CoreRepository<T> {
 
   public builder(): FindReturn<T> {
     return {
-      find: (keys?: Entry<T> | Filter<T> | string): SelectBuilder<T, any> => {
+      find: (keys?: Entry<T> | Filter<T> | string): FindBuilder<T, any> => {
         const filterKeys = util.buildQueryKeys(keys);
 
-        return new SelectBuilder<T, unknown>(this.entity, filterKeys);
+        return new FindBuilder<T, unknown>(this.entity, filterKeys);
+      },
+      findOne: (keys?: Entry<T> | Filter<T> | string): FindOneBuilder<T, any> => {
+        const filterKeys = util.buildQueryKeys(keys);
+
+        return new FindOneBuilder<T, unknown>(this.entity, filterKeys);
       },
     };
   }

@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Entry } from '../types/types';
+import type { ColumnFormatter, Entry } from '../types/types';
 import type { Filter } from './Filter';
+import { constants } from '../constants/constants';
+
+import type { column_expr } from '@sap/cds';
 
 export const util = {
   isAllSuccess(items: number[]): boolean {
@@ -131,6 +134,46 @@ export const util = {
 
   isExpandOnly(value: Record<string, any>): boolean {
     return 'expand' in value;
+  },
+
+  buildAggregateColumns<T, ColumnKeys extends ColumnFormatter<T>>(...columns: ColumnKeys) {
+    return columns.map((item) => {
+      const twoColumns = 'column1' in item && 'column2' in item;
+      if (twoColumns) {
+        const column1 = item.column1 as string;
+        const column2 = item.column2 as string;
+
+        return `${item.aggregate}(${column1}, ' ',${column2}) as ${item.renameAs}`;
+      }
+
+      const oneColumn = 'aggregate' in item && 'column' in item;
+      if (oneColumn) {
+        const column = item.column as string;
+        return `${item.aggregate}(${column}) as ${item.renameAs}`;
+      }
+
+      // Just rename the column
+      return `${item.column as string} as ${item.renameAs}`;
+    });
+  },
+
+  removeExpandOperator(columns: column_expr[] | undefined) {
+    columns?.some((item, index) => {
+      const column = item as any;
+      if (column === constants.COMMON.ALL_FIELDS) {
+        columns?.splice(index, 1);
+        return true; // STOP ALL_FIELDS found
+      }
+
+      return false;
+    });
+
+    /*
+        Workaround using reverse
+        When .getExpand(['reviews']) is firstly called before .columns(['currency_code','reviews']) somehow this causes duplicates and gives an error.
+        If this is being reversed, this works as expected
+      */
+    columns?.reverse();
   },
 };
 
