@@ -2,23 +2,22 @@
 import type { TypedRequest } from '@sap/cds/apis/services';
 
 import { type LanguageCode } from 'iso-639-1';
-import type SelectBuilder from '../helpers/SelectBuilder';
+import type FindBuilder from '../helpers/FindBuilder';
 import type { Filter } from '../helpers/Filter';
+import type FindOneBuilder from '../helpers/FindOneBuilder';
 
-type LooseAutocomplete<T extends string> = T | Omit<string, T>;
+type Entry<T> = Partial<T>;
+type Entries<T> = Entry<T> | Entry<T>[];
 
-type Entry<T> = {
-  [K in keyof T]?: T[K];
-};
-
-type AssociationFunction = (...args: unknown[]) => unknown;
+type EntryDraft<T> = T & DraftAdministrativeFields;
+type DraftEntries<T> = EntryDraft<T> | EntryDraft<T>[];
 
 type DraftAdministrativeFields = {
   DraftAdministrativeData_DraftUUID?: string;
   HasActiveEntity?: boolean;
 };
 
-type EntryDraft<T> = T & DraftAdministrativeFields;
+type AssociationFunction = (...args: unknown[]) => unknown;
 
 type InsertResult<T> = {
   query: {
@@ -28,6 +27,7 @@ type InsertResult<T> = {
   };
 };
 
+type LooseAutocomplete<T extends string> = T | Omit<string, T>;
 type Locale = {
   locale: LooseAutocomplete<LanguageCode>;
 };
@@ -35,30 +35,28 @@ type Locale = {
 type Columns<T> = keyof T | (keyof T)[];
 type ShowOnlyColumns<T, K> = K extends (keyof T)[] ? K[number] : K extends keyof T ? K : never;
 
-type Entries<T> = Entry<T> | Entry<T>[];
-type DraftEntries<T> = EntryDraft<T> | EntryDraft<T>[];
-
 type FindReturn<T> = {
   /**
-   * Get all records from the table.
-   * @returns SelectBuilder
+   * Get all entries from the table.
+   * @returns FindBuilder
    * @example const results = await this.builder().find().execute()
    *
    * */
-  find(): SelectBuilder<T, string>;
+  find(): FindBuilder<T, string>;
+
   /**
-   * Finds records based on the provided keys.
-   * @param keys An object representing the keys to filter the records.
-   * @returns SelectBuilder
+   * Finds entries based on the provided keys.
+   * @param keys An object representing the keys to filter the entries.
+   * @returns FindBuilder
    * @example const results = await this.builder().find({ name : 'Customer 1', company : 'home' }).execute()
    *
    * */
-  find<Keys extends Entry<T>>(keys: Entry<T>): SelectBuilder<T, Keys>;
+  find<Keys extends Entry<T>>(keys: Entry<T>): FindBuilder<T, Keys>;
 
   /**
-   * Finds records based on the provided filters.
+   * Finds entries based on the provided filters.
    * @param filter A Filter instance
-   * @returns SelectBuilder
+   * @returns FindBuilder
    * @example
    * const filterLike = new Filter<Book>({
    *  field: 'currency_code',
@@ -69,7 +67,32 @@ type FindReturn<T> = {
    * const results = await this.builder().find(filter).execute()
    *
    * */
-  find<T>(filter: Filter<T>): SelectBuilder<T, string>;
+  find<T>(filter: Filter<T>): FindBuilder<T, string>;
+
+  /**
+   * Finds a single entry based on the provided keys.
+   * @param keys An object representing the keys to filter the entries.
+   * @returns FindOneBuilder
+   * @example const oneResult = await this.builder().findOne({ name : 'Customer 1', company : 'home' }).execute()
+   *
+   * */
+  findOne<Keys extends Entry<T>>(keys: Entry<T>): FindOneBuilder<T, Keys>;
+
+  /**
+   * Finds a single entry based on the provided filters.
+   * @param filter A Filter instance
+   * @returns FindOneBuilder
+   * @example
+   * const filterLike = new Filter<Book>({
+   *  field: 'currency_code',
+   *  operator: 'LIKE',
+   *  value: 'GBP',
+   * });
+   *
+   * const oneResult = await this.builder().findOne(filter).execute()
+   *
+   * */
+  findOne<T>(filter: Filter<T>): FindOneBuilder<T, string>;
 };
 
 // Start Filter types
@@ -147,6 +170,7 @@ type AggregateStringTwoColumnsUsingColumn<T> = {
   aggregate?: StringAggregateTwoColumnsFunctions;
   column1: keyof T;
   column2: keyof T;
+  renameAs: string;
 };
 
 type BaseAggregateFields<T> = {
@@ -154,9 +178,18 @@ type BaseAggregateFields<T> = {
   column: keyof T;
 };
 
-type AggregateFields<T> =
-  | (BaseAggregateFields<T> & (AggregateStringUsingColumn | AggregateNumberUsingColumn | AggregateDateUsingColumn))
-  | (AggregateStringTwoColumnsUsingColumn<T> & { renameAs: string });
+type BuilderTypes = 'FIND_ONE' | 'FIND';
+
+type AggregateFields<T, K = BuilderTypes> =
+  | (BaseAggregateFields<T> &
+      /* 
+        If it's 'findOne' then remove the AggregateNumberUsingColumn as this works only when we have more than 1 entry in the table
+        If it's 'find' this means the result will have more than 1 item and we can apply 'AVG', 'MAX', 'MIN' ... 
+       **/
+      (K extends 'FIND_ONE'
+        ? AggregateStringUsingColumn | AggregateDateUsingColumn
+        : AggregateStringUsingColumn | AggregateNumberUsingColumn | AggregateDateUsingColumn))
+  | AggregateStringTwoColumnsUsingColumn<T>;
 
 type DynamicColumnTypes<T extends AggregateFields<K>[], K> = {
   [K in T[number]['renameAs']]: K extends Extract<
@@ -169,7 +202,7 @@ type DynamicColumnTypes<T extends AggregateFields<K>[], K> = {
       : string; // Just renaming will get by default string
 };
 
-type ColumnFormatter<T> = AggregateFields<T>[];
+type ColumnFormatter<T, K = BuilderTypes> = AggregateFields<T, K>[];
 
 type AddNewFields<T, K extends ColumnFormatter<T>> = T & Partial<DynamicColumnTypes<K, T>>;
 

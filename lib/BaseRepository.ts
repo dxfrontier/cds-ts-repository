@@ -2,7 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { Columns, Entries, InsertResult, Entry, Locale, ShowOnlyColumns } from './util/types/types';
+import type { Columns, Entries, InsertResult, Entry, Locale, ShowOnlyColumns, FindReturn } from './util/types/types';
 import type { Filter } from './util/helpers/Filter';
 
 import { CoreRepository } from './util/helpers/CoreRepository';
@@ -18,7 +18,7 @@ abstract class BaseRepository<T> {
   // Public routines
 
   /**
-   * Inserts a single entry into the database.
+   * Inserts a single entry into the table.
    * @param entry An object representing the entry to be created.
    * @returns A promise that resolves to the insert result.
    *
@@ -29,9 +29,9 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Inserts multiple entries into the database.
+   * Inserts multiple entries into the table.
    * @param entries An array of objects representing the entries to be created.
-   * @returns  A promise that resolves to the insert result.
+   * @returns A promise that resolves to the insert result.
    * 
    * @example 
    * const createdInstance = await this.createMany([
@@ -50,8 +50,8 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Retrieves all records from the database.
-   * @returns A promise that resolves to an array of records.
+   * Retrieves all entries from the table.
+   * @returns A promise that resolves to an array of entries.
    *
    * @example const results = await this.getAll();
    */
@@ -60,9 +60,9 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Retrieves distinct records based on specific columns from the database.
-   * @param columns An array of column names to retrieve distinct records for.
-   * @returns A promise that resolves to an array of distinct records.
+   * Retrieves all distinct entries based on specific columns from the table.
+   * @param columns An array of column names to retrieve distinct entries for.
+   * @returns A promise that resolves to an array of distinct entries.
    *
    * @example
    * const results = await this.getDistinctColumns(['currency_code', 'ID', 'name']);
@@ -76,11 +76,11 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Retrieves all records from the database with optional limit and offset.
+   * Retrieves all entries from the table with optional limit and offset.
    * @param options
    * @param options.limit The limit for the result set.
    * @param [options.skip] Optional 'skip', which will skip a specified number of items for the result set (default: 0).
-   * @returns A promise that resolves to an array of records.
+   * @returns A promise that resolves to an array of entries.
    *
    * @example const results = await this.getAllAndLimit({ limit: 10, skip: 5 });
    */
@@ -89,9 +89,9 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Retrieves and updates localized texts for records based on the provided columns.
+   * Retrieves and updates localized texts for the entries in the table.
    * @param columns An array of column names to retrieve localized texts for.
-   * @returns A promise that resolves to an array of records with localized texts.
+   * @returns A promise that resolves to an array of entries with localized texts.
    *
    * @example const results = await this.getLocaleTexts(['descr', 'ID']);
    */
@@ -102,7 +102,7 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Get all records from the database
+   * Get all entries from the table.
    * @returns Promise<T | undefined>
    * @example const results = await this.find().execute()
    *
@@ -110,8 +110,8 @@ abstract class BaseRepository<T> {
   public async find(): Promise<T[] | undefined>;
 
   /**
-   * Finds records based on the provided keys.
-   * @param keys An object representing the keys to filter the records.
+   * Finds entries based on the provided keys.
+   * @param keys An object representing the keys to filter the entries.
    * @returns Promise<T | undefined>
    *
    * @example const results = await this.find({ name: 'Customer', description: 'description' });
@@ -119,7 +119,7 @@ abstract class BaseRepository<T> {
   public async find(keys: Entry<T>): Promise<T[] | undefined>;
 
   /**
-   * Finds records based on the provided filters.
+   * Finds entries based on the provided filters.
    * @param filter A Filter instance
    * @returns Promise<T | undefined>
    * @example
@@ -148,14 +148,13 @@ abstract class BaseRepository<T> {
     return await this.coreRepository.findOne(keys);
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  public builder() {
+  public builder(): FindReturn<T> {
     return this.coreRepository.builder();
   }
 
   /**
-   * Updates records based on the provided keys and fields to update.
-   * @param keys An object representing the keys to filter the records.
+   * Updates entries based on the provided keys and update fields.
+   * @param keys An object representing the keys to filter the entries.
    * @param fieldsToUpdate An object representing the fields and their updated values for the matching entries.
    * @returns A promise that resolves to `true` if the update is successful, `false` otherwise.
    * 
@@ -170,8 +169,8 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Updates locale texts for records based on the provided keys and fields to update.
-   * @param localeCodeKeys An object representing the language code to filter the entries.
+   * Updates locale texts for entries based on the provided keys and fields to update.
+   * @param localeCodeKeys An object representing the language code to filter the entries
    * @param fieldsToUpdate An object representing the fields and their updated values for the matching entries.
    * @returns A promise that resolves to `true` if the update is successful, `false` otherwise.
    *
@@ -184,8 +183,8 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Deletes records based on the provided keys.
-   * @param keys An object representing the keys to filter the records.
+   * Deletes entries based on the provided keys.
+   * @param keys An object representing the keys to filter the entries.
    * @returns A promise that resolves to `true` if the deletion is successful, `false` otherwise.
    *
    * @example
@@ -197,7 +196,7 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Deletes multiple records based on the provided keys.
+   * Deletes multiple entries based on the provided keys.
    * @param entries An array of objects representing the keys to filter the entries.
    * @returns A promise that resolves to `true` if all deletions are successful, `false` otherwise.
    * 
@@ -213,8 +212,8 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Checks if records based on the provided keys exist in the database.
-   * @param keys An object representing the keys to filter the records.
+   * Checks if the entries based on the provided keys exist in the table.
+   * @param keys An object representing the keys to filter the entries.
    * @returns A promise that resolves to `true` if the item exists, `false` otherwise.
    *
    * @example const exists = await this.exists({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba09' });
@@ -224,8 +223,8 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Counts the total number of records in the database.
-   * @returns A promise that resolves to the count of records.
+   * Counts the total number of entries in the table.
+   * @returns A promise that resolves to the count of entries.
    *
    * @example const count = await this.count();
    */

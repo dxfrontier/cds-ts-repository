@@ -45,14 +45,21 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
         - [distinct](#distinct)
         - [orderAsc](#orderasc)
         - [orderDesc](#orderdesc)
+        - [limit](#limit)
         - [groupBy](#groupby)
         - [columns](#columns)
         - [columnsFormatter](#columnsformatter)
-        - [limit](#limit)
         - [getExpand](#getexpand)
         - [forUpdate](#forupdate)
         - [forShareLock](#forsharelock)
         - [execute](#execute)
+      - [.findOne](#findone-1)
+        - [columns](#columns-1)
+        - [columnsFormatter](#columnsformatter-1)
+        - [getExpand](#getexpand-1)
+        - [forUpdate](#forupdate-1)
+        - [forShareLock](#forsharelock-1)
+        - [execute](#execute-1)
     - [update](#update)
     - [updateLocaleTexts](#updatelocaletexts)
     - [delete](#delete)
@@ -815,15 +822,15 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 `Overloads`
 
-| Method                                                                        | Parameters        | Description                                                                                                                                                            |
-| :---------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `this.builder().find(): SelectBuilder<T>`                                     |                   | Get all table items.                                                                                                                                                   |
-| `this.builder().find(keys: Entry<T>): SelectBuilder<T>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
-| `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): SelectBuilder<T>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
+| Method                                                                      | Parameters        | Description                                                                                                                                                            |
+| :-------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `this.builder().find(): FindBuilder<T>`                                     |                   | Get all table items.                                                                                                                                                   |
+| `this.builder().find(keys: Entry<T>): FindBuilder<T>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.builder().find(filter :`**[Filter\<T\>](#filter)**`): FindBuilder<T>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
 
 `Return`
 
-- `SelectBuilder<T>`: A `SelectBuilder` instance that provides access to the following methods for constructing a `SELECT`:
+- `FindBuilder<T>`: A `FindBuilder` instance that provides access to the following methods for constructing a `SELECT`:
 
   - [distinct](#distinct)
   - [orderAsc()](#orderasc)
@@ -900,6 +907,29 @@ const results = await this.builder()
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
+###### limit
+
+This method allows retrieve a list of items with optional pagination.
+
+`Parameters`
+
+- `options` `(object)`: An object containing the following properties:
+  - `limit` `(number)`: The maximum number of items to retrieve.
+  - `skip?` `(number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
+
+`Example`
+
+```ts
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
+  .limit({ limit: 1 })
+  .execute();
+```
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
 ###### groupBy
 
 If you want to group the selected columns, use the groupBy method. Pass an array of column names to group by.
@@ -945,7 +975,7 @@ const results = await this.builder()
 ```
 
 > [!WARNING]
-> If `columns()` method is used together with `getExpand()` / `columnsFormatter()` / `groupBy()` / `orderAsc()` / `orderDesc()`, the `columns()` method can have impact on the final typing`
+> If `columns()` method is used together with `getExpand()` / `columnsFormatter()` / `groupBy()` / `orderAsc()` / `orderDesc()`, the `columns()` method can have impact on the final typing
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -997,39 +1027,16 @@ const results = this.builder()
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-###### limit
-
-This method allows retrieve a list of items with optional pagination.
-
-`Parameters`
-
-- `options` `(object)`: An object containing the following properties:
-  - `limit` `(number)`: The maximum number of items to retrieve.
-  - `skip?` `(number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
-
-`Example`
-
-```ts
-const results = await this.builder()
-  .find({
-    name: 'A company name',
-  })
-  .limit({ limit: 1 })
-  .execute();
-```
-
-<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
-
 ###### getExpand
 
 Use `getExpand` to specify which columns you want to expand from the table.
 
 `Overloads`
 
-| Type            | Method                                                        | Parameters                       | Description                                                                                                                                                                                                                                                                                                                                                                                                             |
-| :-------------- | :------------------------------------------------------------ | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Single expand` | `getExpand(...associations : Columns<T>[]): SelectBuilder<T>` | `...associations: Array<string>` | An array of strings representing the columns to expand, this will expand only `first level` of `associations`.                                                                                                                                                                                                                                                                                                          |
-| `Deep expand`   | `getExpand(associations : Expand<T>): SelectBuilder<T>`       | `associations: object`           | An object representing the columns to expand. <br /><br /> `Value:` <br /><br /> - `{}` - If empty object is used as a value for an association, the empty object will perform a full expand of the association. <br /><br /> `Properties:` <br /><br /> - `select? : Array<string>` `[optional]`: Fetch only the mentioned columns. <br /> - `expand? : object` `[optional]`: Expand nested associations. <br /><br /> |
+| Type            | Method                                                      | Parameters                       | Description                                                                                                                                                                                                                                                                                                                                                                                                             |
+| :-------------- | :---------------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Single expand` | `getExpand(...associations : Columns<T>[]): FindBuilder<T>` | `...associations: Array<string>` | An array of strings representing the columns to expand, this will expand only `first level` of `associations`.                                                                                                                                                                                                                                                                                                          |
+| `Deep expand`   | `getExpand(associations : Expand<T>): FindBuilder<T>`       | `associations: object`           | An object representing the columns to expand. <br /><br /> `Value:` <br /><br /> - `{}` - If empty object is used as a value for an association, the empty object will perform a full expand of the association. <br /><br /> `Properties:` <br /><br /> - `select? : Array<string>` `[optional]`: Fetch only the mentioned columns. <br /> - `expand? : object` `[optional]`: Expand nested associations. <br /><br /> |
 
 `Example 1` : Deep expand
 
@@ -1162,7 +1169,11 @@ const results = await this.builder()
 
 ###### execute
 
-Finally, to execute the constructed query and retrieve the results as an array of objects, use the execute method. It returns a promise that resolves to the query result.
+Finally, to execute the constructed query and retrieve the results as an array of objects, use the execute method. It returns a promise that resolves to the constructed query result.
+
+`Return`
+
+- `Promise<T[] | undefined>`: This method returns a Promise of `T[]` or `undefined` if nothing was found.
 
 `Example 1`
 
@@ -1183,6 +1194,256 @@ const results = await this.builder()
   .limit({ limit: 5 })
   .getExpand('orders')
   .execute();
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+##### .findOne
+
+`Overloads`
+
+| Method                                                                            | Parameters        | Description                                                                                                                                                            |
+| :-------------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `this.builder().findOne(keys: Entry<T>): FindOneBuilder<T>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.builder().findOne(filter :`**[Filter\<T\>](#filter)**`): FindOneBuilder<T>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
+
+`Return`
+
+- `FindOneBuilder<T>`: A `FindOneBuilder` instance that provides access to the following methods for constructing a `SELECT`:
+
+  - [columns](#columns-1)
+  - [columnsFormatter](#columnsformatter-1)
+  - [forUpdate](#forupdate-1)
+  - [forShareLock](#forsharelock-1)
+  - [execute](#execute-1)
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### columns
+
+Specifies which columns to be fetched.
+
+`Parameters`
+
+- `columns (...columns : Columns<T>[])` : An array of name of the columns to show only.
+
+`Example`
+
+```ts
+const oneResult = await this.builder()
+  .findOne({
+    name: 'A company name',
+  })
+  .columns('name', 'currency_code')
+  // or
+  //.columns(['name', 'currency_code'])
+  .execute();
+```
+
+> [!WARNING]
+> If `columns()` method is used together with `getExpand()` / `columnsFormatter()` the `columns()` method can have impact on the final typing
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### columnsFormatter
+
+The `columnsFormatter` can be used :
+
+- To `rename` columns in your query results.
+- To apply `aggregate functions` to specific columns, such as calculating averages, sums etc.
+
+`Parameters`
+
+- `columns (object-1, object-n, ...)`
+
+  - `column` `(string)`: The name of the column to be processed.
+  - `column1` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
+  - `column2` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
+  - `aggregate?` `[optional] (string)`: This property, if applied, will `call aggregate function` for the specified `column` name, below you can find the available aggregate functions :
+    - String : `'LOWER' | 'UPPER' | 'LENGTH' | 'CONCAT' | 'TRIM'`
+    - ~~Number : `'AVG' | 'MIN' | 'MAX' | 'SUM' | 'ABS' | 'CEILING' | 'TOTAL' | 'COUNT' | 'ROUND' | 'FLOOR'.`~~ **Applicable only for** [this.builder().find](#find)
+    - Date : `'DAY' | 'MONTH' | 'YEAR' | 'HOUR' | 'MINUTE' | 'SECOND'`
+  - `renameAs` `(string)`: This property creates a new column with the given name
+
+`Example 1`
+
+```ts
+const oneResult = this.builder()
+  .findOne({ ID: 201 })
+  .getExpand(['reviews'])
+  .columns('reviews', 'bookName', 'authorName')
+  .columnsFormatter({ column1: 'bookName', column2: 'authorName', aggregate: 'CONCAT', renameAs: 'bookAndAuthorName' })
+  .execute();
+
+// above typing will have the following properties
+// 'reviews', 'bookName', 'authorName', 'bookAndAuthorName'
+```
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### getExpand
+
+Use `getExpand` to specify which columns you want to expand from the table.
+
+`Overloads`
+
+| Type            | Method                                                      | Parameters                       | Description                                                                                                                                                                                                                                                                                                                                                                                                             |
+| :-------------- | :---------------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Single expand` | `getExpand(...associations : Columns<T>[]): FindBuilder<T>` | `...associations: Array<string>` | An array of strings representing the columns to expand, this will expand only `first level` of `associations`.                                                                                                                                                                                                                                                                                                          |
+| `Deep expand`   | `getExpand(associations : Expand<T>): FindBuilder<T>`       | `associations: object`           | An object representing the columns to expand. <br /><br /> `Value:` <br /><br /> - `{}` - If empty object is used as a value for an association, the empty object will perform a full expand of the association. <br /><br /> `Properties:` <br /><br /> - `select? : Array<string>` `[optional]`: Fetch only the mentioned columns. <br /> - `expand? : object` `[optional]`: Expand nested associations. <br /><br /> |
+
+`Example 1` : Deep expand
+
+```ts
+// expand 'author', 'genre' and 'reviews' associations
+const oneResult = await this.builder()
+  .findOne({
+    name: 'A company name',
+  })
+  .getExpand({
+    // expand 'author'
+    author: {},
+
+    // expand 'genre', having only 'ID' and 'name'
+    genre: {
+      select: ['ID', 'name'],
+    },
+
+    // expand 'reviews', having only 'ID', 'book_ID' fields and 'reviewer' association
+    reviews: {
+      select: ['ID', 'book_ID'],
+
+      // expand 'reviewer', having only the 'ID'
+      expand: {
+        reviewer: {
+          select: ['ID'],
+        },
+      },
+    },
+  })
+  .execute();
+```
+
+`Example 2` : Deep expand stored in a variable & using `columns()`
+
+```ts
+import { Expand } from '@dxfrontier/cds-ts-repository';
+
+// expand 'author', and 'reviews' associations
+const associations: Expand<MyEntity> = {
+  // expand 'author'
+  author: {},
+
+  // expand 'reviews' having all fields + expand reviewer association having only 'ID'
+  reviews: {
+    // expand 'reviewer', having only the 'ID'
+    expand: {
+      reviewer: {
+        select: ['ID'],
+      },
+    },
+  },
+};
+
+const oneResult = await this.builder()
+  .findOne() // get all items
+  .columns('author', 'reviews')
+  .getExpand(associations)
+  .execute();
+```
+
+> [!NOTE]
+> If `columns` is used with `getExpand` the `columns` method will have impact on the final typing.
+
+`Example 3` : Simple expand
+
+```ts
+// expand only 'orders' and 'reviews' associations
+const oneResult = await this.builder()
+  .findOne({
+    name: 'A company name',
+  })
+  .getExpand('orders', 'reviews')
+  // or
+  //.getExpand(['orders', 'reviews'])
+  .execute();
+```
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### forUpdate
+
+Exclusively locks the selected rows for subsequent updates in the current transaction, thereby preventing concurrent updates by other parallel transactions.
+
+`Parameters`
+
+- `options` `(object)`: An object containing the following properties:
+  - `wait?` `(number) [optional]`: an integer specifying the timeout after which to fail with an error in case a lock couldn't be obtained.
+
+`Example`
+
+```ts
+const oneResult = await this.builder()
+  .findOne({
+    name: 'A company name',
+  })
+  .forUpdate({ wait: 5 })
+  //or
+  //.forUpdate()
+  .execute();
+```
+
+> [!TIP]
+> More info can be found on the official SAP CAP [forUpdate](https://cap.cloud.sap/docs/node.js/cds-ql#forupdate) documentation.
+
+###### forShareLock
+
+Locks the selected rows in the current transaction, thereby preventing concurrent updates by other parallel transactions, until the transaction is committed or rolled back. Using a shared lock allows all transactions to read the locked record.
+
+If a queried record is already exclusively locked by another transaction, the .forShareLock() method waits for the lock to be released.
+
+`Example`
+
+```ts
+// Expand only 'orders' association
+const oneResult = await this.builder()
+  .findOne({
+    name: 'A company name',
+  })
+  .forShareLock()
+  .execute();
+```
+
+> [!TIP]
+> More info can be found on the official SAP CAP [forShareLock](https://cap.cloud.sap/docs/node.js/cds-ql#forsharelock) documentation. documentation.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### execute
+
+Finally, to execute the constructed query and retrieve the result as a single object, use the execute method. It returns a promise that resolves to the constructed query result.
+
+`Return`
+
+- `Promise<T | undefined>`: This method returns a Promise of `T` or `undefined` if nothing was found.
+
+`Example 1`
+
+```ts
+const oneResult = await this.builder()
+  .findOne({
+    name: 'A company name',
+  })
+  .execute();
+```
+
+`Example 2`
+
+```ts
+const oneResult = await this.builder().findOne({ name: 'A company name' }).getExpand('orders').execute();
 ```
 
 > [!NOTE]
@@ -1456,7 +1717,7 @@ class MyRepository extends BaseRepository<MyEntity> {
     });
 
     // Execute the query using the builder find
-    const results = await this.builder().find(filter).orderAsc(['name']).execute();
+    const results = await this.builder().find(filter).orderAsc('name', 'location').execute();
     // OR
     // Execute the query using the find
     const results2 = await this.find(filter);
@@ -1511,7 +1772,7 @@ class MyRepository extends BaseRepository<MyEntity> {
     const filters = new Filter('AND', combinedLikeAndBetweenFilters, filterIn);
 
     // Execute the query using the builder find
-    const results = await this.builder().find(filters).getExpand(['orders']).execute();
+    const results = await this.builder().find(filters).getExpand('orders').execute();
     // OR
     // Execute the query using the .find
     const results2 = await this.find(filters);

@@ -1,6 +1,6 @@
 {
   "name": "@dxfrontier/cds-ts-repository",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "The goal of SAP CAP CDS-QL BaseRepository is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the database like .create(), .createMany(), .getAll(), .update(), .find(), .exists() ...",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -29,7 +29,7 @@
     "build": "run-s build:clean build:message build:ts"
   },
   "dependencies": {
-    "@sap/cds": "^7.6.4",
+    "@sap/cds": "^7.7.0",
     "ts-mixer": "^6.0.4"
   },
   "devDependencies": {
@@ -40,7 +40,7 @@
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "axios": "^1.6.7",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
     "eslint-plugin-import": "^2.29.1",
