@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ColumnFormatter, Entry } from '../types/types';
+import type { ColumnFormatter, Entry, Entity, AutoExpandLevels, ExpandStructure } from '../types/types';
 import type { Filter } from './Filter';
 import { constants } from '../constants/constants';
 
 import type { column_expr } from '@sap/cds';
+import type { Association, struct, type } from '@sap/cds/apis/csn';
 
 export const util = {
   isAllSuccess(items: number[]): boolean {
@@ -120,19 +121,19 @@ export const util = {
     return keys;
   },
 
-  isExpandAll(value: Record<string, any>): boolean {
+  isExpandAll(value: ExpandStructure): boolean {
     return typeof value === 'object' && Object.keys(value).length === 0;
   },
 
-  isSelectAndExpand(value: Record<string, any>): boolean {
+  isSelectAndExpand(value: ExpandStructure): boolean {
     return 'select' in value && 'expand' in value;
   },
 
-  isSelectOnly(value: Record<string, any>): boolean {
+  isSelectOnly(value: ExpandStructure): boolean {
     return 'select' in value;
   },
 
-  isExpandOnly(value: Record<string, any>): boolean {
+  isExpandOnly(value: ExpandStructure): boolean {
     return 'expand' in value;
   },
 
@@ -149,6 +150,7 @@ export const util = {
       const oneColumn = 'aggregate' in item && 'column' in item;
       if (oneColumn) {
         const column = item.column as string;
+
         return `${item.aggregate}(${column}) as ${item.renameAs}`;
       }
 
@@ -162,7 +164,8 @@ export const util = {
       const column = item as any;
       if (column === constants.COMMON.ALL_FIELDS) {
         columns?.splice(index, 1);
-        return true; // STOP ALL_FIELDS found
+
+        return true; // STOP '*' found
       }
 
       return false;
@@ -174,6 +177,47 @@ export const util = {
         If this is being reversed, this works as expected
       */
     columns?.reverse();
+  },
+
+  resolveEntityName(entity: Entity) {
+    // Draft entity
+    if (entity.drafts != null) {
+      return entity.drafts.name;
+    }
+
+    // Active entity
+    return entity.name;
+  },
+
+  isElementExpandable(
+    element: type &
+      struct &
+      Association & {
+        key?: boolean | undefined;
+        virtual?: boolean | undefined;
+        unique?: boolean | undefined;
+        notNull?: boolean | undefined;
+      } & Partial<{ name: string }>,
+  ): boolean {
+    return (
+      (element.type === 'cds.Association' || element.type === 'cds.Composition') &&
+      element.name !== 'DraftAdministrativeData' &&
+      element.name !== 'texts' &&
+      element.name !== 'currency' &&
+      element.name !== 'SiblingEntity'
+    );
+  },
+
+  isPropertyLevelsFound(value: AutoExpandLevels): value is AutoExpandLevels {
+    return Object.prototype.hasOwnProperty.call(value, 'levels') && value.levels !== undefined;
+  },
+
+  noArgs(value: unknown[]): boolean {
+    return value.length === 0;
+  },
+
+  isSingleExpand(value: unknown[]): boolean {
+    return typeof value === 'string';
   },
 };
 

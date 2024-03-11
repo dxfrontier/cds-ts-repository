@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type Definition } from '@sap/cds/apis/csn';
 import { constants } from '../constants/constants';
-import type { Expand, Columns, AssociationFunction, ValueExpand } from '../types/types';
+import type { Expand, Columns, AssociationFunction, ValueExpand, Entity, ExpandStructure } from '../types/types';
 import util from './util';
+
+import type { EntityElements } from '@sap/cds/apis/csn';
 
 /**
  * Common Select builder class, this class contains constructor initialization and common methods use in FindBuilder.ts, FindOneBuilder.ts
@@ -14,10 +15,10 @@ class BaseFind<T, Keys> {
   protected expandCalled: boolean = false;
 
   constructor(
-    protected readonly entity: Definition | string,
+    protected readonly entity: Entity,
     protected readonly keys: Keys | string,
   ) {
-    this.select = SELECT.from(this.entity).where(this.keys);
+    this.select = SELECT.from(util.resolveEntityName(entity)).where(this.keys);
   }
 
   /**
@@ -49,19 +50,30 @@ class BaseFind<T, Keys> {
     return this;
   }
 
-  // /**
-  //  * Automatically expands and exposes associations/compositions of the entity.
-  //  * @returns FindBuilder / FindOneBuilder instance
-  //  *
-  //  * @example
-  //  * const results = await this.builder()
-  //  * .find({
-  //  *     name: 'A company name',
-  //  * })
-  //  * .getExpand()
-  //  * .execute();
-  //  */
-  // public getExpand(): this;
+  /**
+   * Description placeholder
+   * @date 10/03/2024 - 17:20:33
+   *
+   * @public
+   * @param {{ levels: number }} options
+   * @returns {this}
+   */
+
+  /**
+   * Auto expands and exposes associations/compositions of the entity.
+   * @param options
+   * @param options.levels  Depth number to expand the associations, this will do a deep expand equals to the levels number, `depth can start from 1...n`
+   * @returns FindBuilder / FindOneBuilder instance
+   *
+   * @example
+   * const results = await this.builder()
+   * .find({
+   *     name: 'A company name',
+   * })
+   * .getExpand({ levels : 2 })
+   * .execute();
+   */
+  public getExpand(options: { levels: number }): this;
 
   /**
    * Deep expand of the associated entities.
@@ -95,7 +107,7 @@ class BaseFind<T, Keys> {
   public getExpand(associations: Expand<T>): this;
 
   /**
-   * Retrieves the associated entities expanded up to 1 level.
+   * Retrieves the associated entities expanded up to `1 level`.
    * @param associations An array of column names to expand, representing associated entities.
    * @returns FindBuilder / FindOneBuilder instance
    *
@@ -114,7 +126,7 @@ class BaseFind<T, Keys> {
   public getExpand(...args: any[]): this {
     this.expandCalled = true;
 
-    const associationsColumns = Array.isArray(args[0]) ? args[0] : args;
+    const associations = Array.isArray(args[0]) ? args[0] : args;
 
     // const private routines for this func
     const _processExpandAll = (association: any): void => {
@@ -125,13 +137,13 @@ class BaseFind<T, Keys> {
 
     const _processOnlySelect = (association: any, value: ValueExpand): void => {
       association((linkedEntity: AssociationFunction) => {
-        _exposeOnlyFields(value.select, linkedEntity);
+        _exposeFieldsOnly(value.select, linkedEntity);
       });
     };
 
     const _processSelectAndExpand = (association: any, value: ValueExpand): void => {
       association((linkedEntity: AssociationFunction) => {
-        _exposeOnlyFields(value.select, linkedEntity);
+        _exposeFieldsOnly(value.select, linkedEntity);
         _buildDeepExpand(value.expand, linkedEntity);
       });
     };
@@ -143,7 +155,7 @@ class BaseFind<T, Keys> {
       });
     };
 
-    const _exposeOnlyFields = (fields: any[], linkedEntity: AssociationFunction): void => {
+    const _exposeFieldsOnly = (fields: unknown[], linkedEntity: AssociationFunction): void => {
       fields.forEach((item: unknown) => {
         linkedEntity(item);
       });
@@ -153,7 +165,7 @@ class BaseFind<T, Keys> {
       columnProjection(constants.COMMON.ALL_FIELDS);
     };
 
-    const _buildDeepExpand = (expandStructure: Record<string, any>, columnProjection: any): void => {
+    const _buildDeepExpand = (expandStructure: ExpandStructure, columnProjection: any): void => {
       for (const key in expandStructure) {
         const value = expandStructure[key];
         const association = columnProjection[key];
@@ -180,36 +192,79 @@ class BaseFind<T, Keys> {
     };
 
     const _buildSingleExpand = (columnProjection: any): void => {
-      associationsColumns.forEach((association) => {
+      associations.forEach((association) => {
         columnProjection[association]((linkedEntity: AssociationFunction) => {
           linkedEntity(constants.COMMON.ALL_FIELDS);
         });
       });
     };
 
+    const _buildAutoExpandStructure = (elements: EntityElements | undefined, depth = 1): ExpandStructure => {
+      const value = associations[0];
+
+      if (util.isPropertyLevelsFound(value) && value.levels !== undefined) {
+        if (depth > value.levels) {
+          return {}; // STOP when reached depth
+        }
+      }
+
+      // private routine for this func
+      const _buildStructure = (): ExpandStructure => {
+        const expandStructure: ExpandStructure = {};
+
+        for (const key in elements) {
+          const element = elements[key];
+
+          if (util.isElementExpandable(element)) {
+            /*
+             * SAP does not provides us typing on _target as probably is a private property
+             * That's the reason why casting to 'any'
+             */
+            expandStructure[key] = {
+              expand: _buildAutoExpandStructure((element as any)._target.elements, depth + 1),
+            };
+          }
+        }
+
+        return expandStructure;
+      };
+
+      return _buildStructure();
+    };
+
     /**
      * Extremely difficult to work with typing on the projection
-     * That's why we use any instead of SAP type
+     * That's why we use 'any' instead of SAP type
      */
-
-    const singleExpand = typeof associationsColumns[0] === 'string';
-    const columnsNotCalled = !this.columnsCalled;
 
     void this.select.columns((columnProjection: any) => {
       // If .columns() is not present, then add expand all ('*') otherwise don't add it as columns has impact on the typing.
+      const columnsNotCalled = !this.columnsCalled;
+      const value = associations[0];
+
+      // Implicit overload created by Overload 3
+      if (util.noArgs(value)) {
+        throw new Error(constants.MESSAGES.GET_EXPAND_NO_ARGS_MESSAGE);
+      }
+
       if (columnsNotCalled) {
         _expandFirstLevel(columnProjection);
       }
 
-      // Overload 1 : array overload ( single expand )
-      if (singleExpand) {
+      // Overload 1 : object overload ({ levels : number}) ( auto expand )
+      if (util.isPropertyLevelsFound(value)) {
+        _buildDeepExpand(_buildAutoExpandStructure(this.entity.elements), columnProjection);
+        return;
+      }
+
+      // Overload 2 : array overload ( single expand )
+      if (util.isSingleExpand(value)) {
         _buildSingleExpand(columnProjection);
         return;
       }
 
-      // Overload 2 : object overload ( deep expand )
-      const expandStructure: Record<string, any> = associationsColumns[0];
-      _buildDeepExpand(expandStructure, columnProjection);
+      // Overload 3 : object overload ( deep expand )
+      _buildDeepExpand(value, columnProjection);
     });
 
     return this;

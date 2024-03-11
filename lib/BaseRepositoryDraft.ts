@@ -1,17 +1,16 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { Columns, DraftEntries, EntryDraft, ShowOnlyColumns } from './util/types/types';
+import type { Columns, DraftEntries, Entity, EntryDraft, FindReturn, ShowOnlyColumns } from './util/types/types';
 import type { Filter } from './util/helpers/Filter';
 
 import { CoreRepository } from './util/helpers/CoreRepository';
-import { type Constructable } from '@sap/cds/apis/internal/inference';
 
 abstract class BaseRepositoryDraft<T> {
   protected readonly coreRepository: CoreRepository<EntryDraft<T>>;
 
-  constructor(protected readonly entity: Constructable<T>) {
-    this.coreRepository = new CoreRepository(`${this.entity.name}.drafts`);
+  constructor(protected readonly entity: Entity & EntryDraft<T>) {
+    this.coreRepository = new CoreRepository(this.entity);
   }
 
   // Public routines
@@ -95,13 +94,12 @@ abstract class BaseRepositoryDraft<T> {
     return await this.coreRepository.findOne(keys);
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  public builderDraft() {
+  public builderDraft(): FindReturn<EntryDraft<T>> {
     return this.coreRepository.builder();
   }
 
   /**
-   * Updates draft entries based on the provided keys and update fields.
+   * Updates draft entry based on the provided keys and update fields.
    * @param keys An object representing the keys to filter the entries.
    * @param fieldsToUpdate An object representing the fields and their updated values for the matching entries.
    * @returns A promise that resolves to `true` if the update is successful, `false` otherwise.
@@ -117,7 +115,7 @@ abstract class BaseRepositoryDraft<T> {
   }
 
   /**
-   * Deletes draft entries based on the provided keys.
+   * Deletes draft entry based on the provided keys.
    * @param keys An object representing the keys to filter the entries.
    * @returns A promise that resolves to `true` if the deletion is successful, `false` otherwise.
    *

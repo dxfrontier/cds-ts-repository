@@ -2,17 +2,25 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { Columns, Entries, InsertResult, Entry, Locale, ShowOnlyColumns, FindReturn } from './util/types/types';
+import type {
+  Columns,
+  Entries,
+  InsertResult,
+  Entry,
+  Locale,
+  ShowOnlyColumns,
+  FindReturn,
+  Entity,
+} from './util/types/types';
 import type { Filter } from './util/helpers/Filter';
 
 import { CoreRepository } from './util/helpers/CoreRepository';
-import { type Constructable } from '@sap/cds/apis/internal/inference';
 
 abstract class BaseRepository<T> {
   protected readonly coreRepository: CoreRepository<T>;
 
-  constructor(protected readonly entity: Constructable<T>) {
-    this.coreRepository = new CoreRepository(this.entity.name);
+  constructor(protected readonly entity: Entity) {
+    this.coreRepository = new CoreRepository(this.entity);
   }
 
   // Public routines
@@ -89,7 +97,7 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Retrieves and updates localized texts for the entries in the table.
+   * Retrieves localized texts for the entries in the table.
    * @param columns An array of column names to retrieve localized texts for.
    * @returns A promise that resolves to an array of entries with localized texts.
    *
@@ -183,7 +191,7 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Deletes entries based on the provided keys.
+   * Delete entry based on the provided keys.
    * @param keys An object representing the keys to filter the entries.
    * @returns A promise that resolves to `true` if the deletion is successful, `false` otherwise.
    *
@@ -212,7 +220,7 @@ abstract class BaseRepository<T> {
   }
 
   /**
-   * Checks if the entries based on the provided keys exist in the table.
+   * Checks if the entry based on the provided keys exist in the table.
    * @param keys An object representing the keys to filter the entries.
    * @returns A promise that resolves to `true` if the item exists, `false` otherwise.
    *
