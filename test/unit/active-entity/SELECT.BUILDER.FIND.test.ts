@@ -388,6 +388,27 @@ describe('SELECT', () => {
         });
       });
 
+      describe('======> .getExpand() - OVERLOAD with { levels : number } - AUTO EXPAND - AUTO EXPOSE ', () => {
+        it('should return the original object + expanded "genre", "author" and "reviews" properties', async () => {
+          // Arrange
+          const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
+
+          // Act
+          const deepExpand = await bookRepository.builder().find({ ID: 201 }).getExpand({ levels: 3 }).execute();
+
+          // Assert
+          expect(deepExpand?.length).toBeGreaterThan(0);
+          expect(deepExpand![0]).toHaveProperty('author');
+          expect(deepExpand![0]).toHaveProperty('genre');
+          expect(deepExpand![0]).toHaveProperty('reviews');
+          expect(deepExpand![0]).toHaveProperty('price');
+          expect(deepExpand![0]).toHaveProperty('stock');
+          expect(deepExpand![0].reviews![0]).toHaveProperty('reviewer');
+          expect(deepExpand![0].reviews![0].reviewer).toHaveProperty('ID');
+          expect(findOneForExpandAll).not.toMatchObject(deepExpand![0]);
+        });
+      });
+
       describe('======> .getExpand() - OVERLOAD with {} (object)', () => {
         it('should return the original object + expanded "genre", "author" and "reviews" properties', async () => {
           // Arrange

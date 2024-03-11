@@ -14,8 +14,6 @@ describe('SELECT', () => {
   });
 
   describe('.builder().findOne()', () => {
-    // TODO:
-
     describe('======> .getExpand() + .columns() ', () => {
       it('should return only the columns "currency_code, descr, reviews" + expanded "reviews" property', async () => {
         // Arrange
@@ -55,30 +53,30 @@ describe('SELECT', () => {
       });
     });
 
-    // describe('======> .getExpand() - OVERLOAD with no arguments - AUTO EXPAND - AUTO EXPOSE ', () => {
-    //   it('should return the original object + expanded "genre", "author" and "reviews" properties', async () => {
-    //     // Arrange
-    //     const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
+    describe('======> .getExpand() - OVERLOAD with { levels : number } - AUTO EXPAND - AUTO EXPOSE ', () => {
+      it('should return the original object + expanded "genre", "author" and "reviews" properties', async () => {
+        // Arrange
+        const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
 
-    //     // Act
-    //     const deepExpand = await bookRepository.builder().findOne({ ID: 201 }).getExpand().execute();
+        // Act
+        const deepExpand = await bookRepository.builder().findOne({ ID: 201 }).getExpand({ levels: 2 }).execute();
 
-    //     // Assert
-    //     expect(deepExpand).toBeDefined();
-    //     expect(Array.isArray(deepExpand)).toBe(false);
-    //     expect(deepExpand).toHaveProperty('author');
-    //     expect(deepExpand).toHaveProperty('genre');
-    //     expect(deepExpand).toHaveProperty('reviews');
+        // Assert
+        expect(deepExpand).toBeDefined();
+        expect(Array.isArray(deepExpand)).toBe(false);
+        expect(deepExpand).toHaveProperty('author');
+        expect(deepExpand).toHaveProperty('genre');
+        expect(deepExpand).toHaveProperty('reviews');
 
-    //     expect(deepExpand).toHaveProperty('price');
-    //     expect(deepExpand).toHaveProperty('stock');
+        expect(deepExpand).toHaveProperty('price');
+        expect(deepExpand).toHaveProperty('stock');
 
-    //     expect(deepExpand?.reviews![0]).toHaveProperty('reviewer');
-    //     expect(deepExpand?.reviews![0].reviewer).toHaveProperty('ID');
+        expect(deepExpand?.reviews![0]).toHaveProperty('reviewer');
+        expect(deepExpand?.reviews![0].reviewer).toHaveProperty('ID');
 
-    //     expect(findOneForExpandAll).not.toMatchObject(deepExpand!);
-    //   });
-    // });
+        expect(findOneForExpandAll).not.toMatchObject(deepExpand!);
+      });
+    });
 
     describe('======> .getExpand() - OVERLOAD with {} (object)', () => {
       it('should return the original object + expanded "genre", "author" and "reviews" properties', async () => {
