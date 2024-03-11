@@ -1033,12 +1033,33 @@ Use `getExpand` to specify which columns you want to expand from the table.
 
 `Overloads`
 
-| Type            | Method                                                      | Parameters                       | Description                                                                                                                                                                                                                                                                                                                                                                                                             |
-| :-------------- | :---------------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Single expand` | `getExpand(...associations : Columns<T>[]): FindBuilder<T>` | `...associations: Array<string>` | An array of strings representing the columns to expand, this will expand only `first level` of `associations`.                                                                                                                                                                                                                                                                                                          |
-| `Deep expand`   | `getExpand(associations : Expand<T>): FindBuilder<T>`       | `associations: object`           | An object representing the columns to expand. <br /><br /> `Value:` <br /><br /> - `{}` - If empty object is used as a value for an association, the empty object will perform a full expand of the association. <br /><br /> `Properties:` <br /><br /> - `select? : Array<string>` `[optional]`: Fetch only the mentioned columns. <br /> - `expand? : object` `[optional]`: Expand nested associations. <br /><br /> |
+| Type            | Method                                                      | Parameters                       | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| :-------------- | :---------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Single expand` | `getExpand(...associations : Columns<T>[]): FindBuilder<T>` | `...associations: Array<string>` | Use `Single expand` when you want to expand only certain associations from the root level of the entity. <br />--------<br /> An array of strings representing the columns to expand, this will expand only `first level` of `associations`.                                                                                                                                                                                                                                                                             |
+| `Deep expand`   | `getExpand(associations : Expand<T>): FindBuilder<T>`       | `associations: object`           | Use `Deep expand` option when you want to deep expand certain associations. <br />--------<br /> An object representing the columns to expand. <br /><br /> `Value:` <br /><br /> - `{}` - If empty object is used as a value for an association, the empty object will perform a full expand of the association. <br /><br /> `Properties:` <br /><br /> - `select? : Array<string>` `[optional]`: Fetch only the mentioned columns. <br /> - `expand? : object` `[optional]`: Expand nested associations. <br /><br /> |
+| `Auto expand`   | `getExpand(options : { levels : number }): FindBuilder<T>`  | `levels: number`                 | Use `Auto expand` to deep expand all associations within your entity. <br />--------<br /> You can control how deeply the method should expand associations by providing the `levels`.                                                                                                                                                                                                                                                                                                                                   |
 
-`Example 1` : Deep expand
+`Example 1` : Auto expand
+
+- `Root` - Entity
+  - `child` - (association) - expanded
+    - `child` - (composition) - expanded
+    - ...
+  - `child` - (association) - expanded
+    - `child` (association) - expanded
+    - ...
+    -
+
+```ts
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
+  .getExpand({ levels: 2 })
+  .execute();
+```
+
+`Example 2` : Deep expand
 
 ```ts
 // expand 'author', 'genre' and 'reviews' associations
@@ -1070,7 +1091,7 @@ const results = await this.builder()
   .execute();
 ```
 
-`Example 2` : Deep expand stored in a variable & using `columns()`
+`Example 3` : Deep expand stored in a variable & using `columns()`
 
 ```ts
 import { Expand } from '@dxfrontier/cds-ts-repository';
@@ -1101,7 +1122,7 @@ const results = await this.builder()
 > [!NOTE]
 > If `columns` is used with `getExpand` the `columns` method will have impact on the final typing.
 
-`Example 3` : Simple expand
+`Example 4` : Simple expand
 
 ```ts
 // expand only 'orders' and 'reviews' associations
@@ -1216,6 +1237,7 @@ const results = await this.builder()
 
   - [columns](#columns-1)
   - [columnsFormatter](#columnsformatter-1)
+  - [getExpand](#getexpand-1)
   - [forUpdate](#forupdate-1)
   - [forShareLock](#forsharelock-1)
   - [execute](#execute-1)
@@ -1290,12 +1312,33 @@ Use `getExpand` to specify which columns you want to expand from the table.
 
 `Overloads`
 
-| Type            | Method                                                      | Parameters                       | Description                                                                                                                                                                                                                                                                                                                                                                                                             |
-| :-------------- | :---------------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Single expand` | `getExpand(...associations : Columns<T>[]): FindBuilder<T>` | `...associations: Array<string>` | An array of strings representing the columns to expand, this will expand only `first level` of `associations`.                                                                                                                                                                                                                                                                                                          |
-| `Deep expand`   | `getExpand(associations : Expand<T>): FindBuilder<T>`       | `associations: object`           | An object representing the columns to expand. <br /><br /> `Value:` <br /><br /> - `{}` - If empty object is used as a value for an association, the empty object will perform a full expand of the association. <br /><br /> `Properties:` <br /><br /> - `select? : Array<string>` `[optional]`: Fetch only the mentioned columns. <br /> - `expand? : object` `[optional]`: Expand nested associations. <br /><br /> |
+| Type            | Method                                                      | Parameters                       | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| :-------------- | :---------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Single expand` | `getExpand(...associations : Columns<T>[]): FindBuilder<T>` | `...associations: Array<string>` | Use `Single expand` when you want to expand only certain associations from the root level of the entity. <br />--------<br /> An array of strings representing the columns to expand, this will expand only `first level` of `associations`.                                                                                                                                                                                                                                                                             |
+| `Deep expand`   | `getExpand(associations : Expand<T>): FindBuilder<T>`       | `associations: object`           | Use `Deep expand` option when you want to deep expand certain associations. <br />--------<br /> An object representing the columns to expand. <br /><br /> `Value:` <br /><br /> - `{}` - If empty object is used as a value for an association, the empty object will perform a full expand of the association. <br /><br /> `Properties:` <br /><br /> - `select? : Array<string>` `[optional]`: Fetch only the mentioned columns. <br /> - `expand? : object` `[optional]`: Expand nested associations. <br /><br /> |
+| `Auto expand`   | `getExpand(options : { levels : number }): FindBuilder<T>`  | `levels: number`                 | Use `Auto expand` to deep expand all associations within your entity. <br />--------<br /> You can control how deeply the method should expand associations by providing the `levels`.                                                                                                                                                                                                                                                                                                                                   |
 
-`Example 1` : Deep expand
+`Example 1` : Auto expand
+
+- `Root` - Entity
+  - `child` - (association) - expanded
+    - `child` - (composition) - expanded
+    - ...
+  - `child` - (association) - expanded
+    - `child` (association) - expanded
+    - ...
+    -
+
+```ts
+const oneResult = await this.builder()
+  .findOne({
+    name: 'A company name',
+  })
+  .getExpand({ levels: 2 })
+  .execute();
+```
+
+`Example 2` : Deep expand
 
 ```ts
 // expand 'author', 'genre' and 'reviews' associations
@@ -1327,7 +1370,7 @@ const oneResult = await this.builder()
   .execute();
 ```
 
-`Example 2` : Deep expand stored in a variable & using `columns()`
+`Example 3` : Deep expand stored in a variable & using `columns()`
 
 ```ts
 import { Expand } from '@dxfrontier/cds-ts-repository';
@@ -1349,7 +1392,9 @@ const associations: Expand<MyEntity> = {
 };
 
 const oneResult = await this.builder()
-  .findOne() // get all items
+  .findOne({
+    name: 'A company name',
+  })
   .columns('author', 'reviews')
   .getExpand(associations)
   .execute();
@@ -1358,7 +1403,7 @@ const oneResult = await this.builder()
 > [!NOTE]
 > If `columns` is used with `getExpand` the `columns` method will have impact on the final typing.
 
-`Example 3` : Simple expand
+`Example 4` : Simple expand
 
 ```ts
 // expand only 'orders' and 'reviews' associations
@@ -1696,7 +1741,7 @@ Use `Filter` to create complex `WHERE QUERY` filters.
 | Method                                                          | Parameters                                                                                                           | Description                                                                                                                                                                                                                                                                                                                                       |
 | :-------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `new Filter<T>(options: FilterOptions<T>)`                      | `options ({field : keyof T (string), operator : FilterOperator, value : string \| number \| string[] \| number[] })` | Creates a new filter. `T` should be generated using [CDS-Typer](#generate-cds-typed-entities) <br /><br /> `FilterOperator` values : `'EQUALS'`, `'NOT EQUAL'`, `'LIKE'`, `'STARTS_WITH'`, `'ENDS_WITH'`, `'LESS THAN'`, `'LESS THAN OR EQUALS'`, `'GREATER THAN'`, `'GREATER THAN OR EQUALS'`, `'BETWEEN'`, `'NOT BETWEEN'` , `'IN'`, `'NOT IN'` |
-| `new Filter(operator: LogicalOperator, ...filters : Filter<T>)` | `operator (string)`, `filters Array<Filter>`                                                                         | Creates a new Filter instance which combines 2 ... n **filters** with a Logical operator `'AND', 'OR'`                                                                                                                                                                                                                                            |
+| `new Filter(operator: LogicalOperator, ...filters : Filter<T>)` | `operator (string)`, `filters Array<Filter>`                                                                         | Creates a new Filter instance which combines 2 ... n **filters** with a Logical operator `'AND'`, `'OR'`                                                                                                                                                                                                                                          |
 
 `Example 1` : Single filter
 
