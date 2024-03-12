@@ -5,6 +5,12 @@ import { type LanguageCode } from 'iso-639-1';
 import type FindBuilder from '../helpers/FindBuilder';
 import type { Filter } from '../helpers/Filter';
 import type FindOneBuilder from '../helpers/FindOneBuilder';
+import type { EntityElements } from '@sap/cds/apis/csn';
+
+type Entity = { name: string } & Partial<{
+  elements: EntityElements;
+  drafts: { name: string };
+}>;
 
 type Entry<T> = Partial<T>;
 type Entries<T> = Entry<T> | Entry<T>[];
@@ -13,8 +19,8 @@ type EntryDraft<T> = T & DraftAdministrativeFields;
 type DraftEntries<T> = EntryDraft<T> | EntryDraft<T>[];
 
 type DraftAdministrativeFields = {
-  DraftAdministrativeData_DraftUUID?: string;
-  HasActiveEntity?: boolean;
+  DraftAdministrativeData_DraftUUID?: string | null;
+  HasActiveEntity?: boolean | null;
 };
 
 type AssociationFunction = (...args: unknown[]) => unknown;
@@ -218,13 +224,17 @@ type Unpacked<T> = T extends (infer U)[]
   ? { expand?: Expand<U>; select?: (keyof U)[] }
   : { expand?: Expand<T>; select?: (keyof T)[] };
 
+type AutoExpandLevels = { levels?: number };
+
 type Expand<T> = {
   [P in keyof T]: Unpacked<T[P]>;
-};
+} & AutoExpandLevels;
+
+type ExpandStructure = Record<string, any>;
 
 type ValueExpand = {
   select: any[];
-  expand: Record<string, unknown>;
+  expand: ExpandStructure;
 };
 
 // End deep expand of getExpand method
@@ -242,6 +252,8 @@ export type {
   Entries,
   DraftEntries,
   AssociationFunction,
+  Entity,
+  AutoExpandLevels,
 
   // Builder types
   FindReturn,
@@ -250,6 +262,7 @@ export type {
   FilterOptions,
   Expand,
   ValueExpand,
+  ExpandStructure,
 
   // ColumnsFormatter types
   ColumnFormatter,

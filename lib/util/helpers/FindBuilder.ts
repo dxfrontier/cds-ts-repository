@@ -1,21 +1,20 @@
 /* eslint-disable @typescript-eslint/no-useless-constructor */
-import { type Definition } from '@sap/cds/apis/csn';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { AppendColumns, ColumnFormatter, Columns, ShowOnlyColumns } from '../types/types';
+import type { AppendColumns, ColumnFormatter, Columns, Entity, ShowOnlyColumns } from '../types/types';
 
 import util from './util';
 import BaseFind from './BaseFind';
 
 class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
-  constructor(entity: Definition | string, keys: Keys | string) {
+  constructor(entity: Entity, keys: Keys | string) {
     super(entity, keys);
   }
 
   /**
-   * Skip duplicates similar to distinct from SQL
+   * `Skip` duplicates similar to distinct from SQL
    * @returns FindBuilder instance
    *
    * @example

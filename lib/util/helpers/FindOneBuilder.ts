@@ -1,22 +1,22 @@
-import { type Definition } from '@sap/cds/apis/csn';
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
 import BaseFind from './BaseFind';
-import type { ColumnFormatter, AppendColumns, Columns, ShowOnlyColumns } from '../types/types';
+import type { ColumnFormatter, AppendColumns, Columns, ShowOnlyColumns, Entity } from '../types/types';
 import util from './util';
 
 class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
-  constructor(entity: Definition | string, keys: Keys | string) {
+  constructor(entity: Entity, keys: Keys | string) {
     super(entity, keys);
 
     this.initializeSelectOne();
   }
 
-  // Override select initialization from BaseFind class
+  /*
+   * This method is used to override the SELECT from the BaseFind to add SELECT.one.from instead of SELECT.from ...
+   **/
   private initializeSelectOne(): void {
-    this.select = SELECT.one.from(this.entity).where(this.keys);
+    this.select = SELECT.one.from(this.entity.name).where(this.keys);
   }
 
   /**

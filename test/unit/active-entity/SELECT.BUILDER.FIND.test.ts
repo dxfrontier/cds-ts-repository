@@ -14,7 +14,7 @@ describe('SELECT', () => {
   });
 
   describe('.builder().find()', () => {
-    describe('======> .filter() - Overload - no arguments (get all items)', () => {
+    describe('======> .find() - OVERLOAD - no arguments (get all items)', () => {
       it('should return 6 record', async () => {
         // Act
         const results = await bookRepository.builder().find().execute();
@@ -32,8 +32,8 @@ describe('SELECT', () => {
       });
     });
 
-    describe('======> .filter() - Overload - filter / filters ', () => {
-      describe('======> .filter() - NOT EQUAL', () => {
+    describe('======> .find() - OVERLOAD - filter / filters ', () => {
+      describe('======> Filter - NOT EQUAL', () => {
         it('should return 5 record and ID 251 not in the items', async () => {
           const initialResult = await bookRepository.getAll();
           // Arrange
@@ -50,7 +50,7 @@ describe('SELECT', () => {
           expect(initialResult?.length).toBeGreaterThan(results!.length);
         });
       });
-      describe('======> .filter() - EQUALS', () => {
+      describe('======> Filter - EQUALS', () => {
         it('should return 1 record with the ID 251', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -71,7 +71,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - ENDS_WITH', () => {
+      describe('======> Filter - ENDS_WITH', () => {
         it('should return 2 records containing in the "descr" field the string "1850." ', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -90,7 +90,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - STARTS_WITH', () => {
+      describe('======> Filter - STARTS_WITH', () => {
         it('should return 2 records containing in the "descr" field the string "Wuthering" ', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -109,7 +109,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - LIKE', () => {
+      describe('======> Filter - LIKE', () => {
         it('should return 2 records containing in the "descr" field the string "Wuthering" ', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -128,7 +128,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - BETWEEN', () => {
+      describe('======> Filter - BETWEEN', () => {
         it('should return 5 records between stock 11 and 333', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -151,7 +151,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - NOT BETWEEN', () => {
+      describe('======> Filter - NOT BETWEEN', () => {
         it('should return 1 record not between 11 and 333', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -174,7 +174,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - IN', () => {
+      describe('======> Filter - IN', () => {
         it('should return 5 records containing currency code USD and GBP', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -195,7 +195,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - NOT IN', () => {
+      describe('======> Filter - NOT IN', () => {
         it('should return only 1 records containing "JPY"', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -216,7 +216,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - GREATER THAN', () => {
+      describe('======> Filter - GREATER THAN', () => {
         it('should return only 3 records that have stock greater than 12', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -237,7 +237,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - GREATER THAN OR EQUALS', () => {
+      describe('======> Filter - GREATER THAN OR EQUALS', () => {
         it('should return only 5 records that have stock greater or equals to 12', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -258,7 +258,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - LESS THAN', () => {
+      describe('======> Filter - LESS THAN', () => {
         it('should return only 4 records that have stock less than 12', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -279,7 +279,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - LESS THAN OR EQUALS', () => {
+      describe('======> Filter - LESS THAN OR EQUALS', () => {
         it('should return only 4 records that have stock less than 12', async () => {
           // Arrange
           const filter = new Filter<Book>({
@@ -300,7 +300,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .filter() - LIKE - BETWEEN - IN - multiple filters', () => {
+      describe('======> Filter - LIKE - BETWEEN - IN - multiple filters', () => {
         it('should return all records containing (currency_code = "GBP" OR stock BETWEEN 11 and 333) AND ID IN ("203", "201", "207")', async () => {
           // Arrange
           const filterLike = new Filter<Book>({
@@ -349,46 +349,29 @@ describe('SELECT', () => {
       });
     });
 
-    describe('======> .filter() - object ', () => {
-      describe('======> .getExpand() + .columns() ', () => {
-        it('should return only the columns "currency_code, descr, reviews" + expanded "reviews" property', async () => {
+    describe('======> .find() - OVERLOAD - object ', () => {
+      describe('======> .getExpand() - OVERLOAD - AUTO EXPAND - { levels : number }', () => {
+        it('should return the original object + expanded "genre", "author" and "reviews" properties', async () => {
           // Arrange
           const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
 
           // Act
-          // When .getExpand first and after the .columns
-          const reviews = await bookRepository
-            .builder()
-            .find({ ID: 201 })
-            .getExpand(['reviews'])
-            .columns(['currency_code', 'descr', 'reviews'])
-            .execute();
-
-          // When .columns first and after the .getExpand
-          const reviews_2 = await bookRepository
-            .builder()
-            .find({ ID: 201 })
-            .columns('ID', 'currency_code', 'descr', 'reviews')
-            .getExpand('reviews')
-            .execute();
+          const deepExpand = await bookRepository.builder().find({ ID: 201 }).getExpand({ levels: 3 }).execute();
 
           // Assert
-          expect(reviews?.length).toBeGreaterThan(0);
-          expect(reviews![0]).toHaveProperty('reviews');
-          expect(reviews![0]).toHaveProperty('descr');
-          expect(reviews![0]).toHaveProperty('currency_code');
-
-          expect(reviews_2?.length).toBeGreaterThan(0);
-          expect(reviews_2![0]).toHaveProperty('reviews');
-          expect(reviews_2![0]).toHaveProperty('descr');
-          expect(reviews_2![0]).toHaveProperty('currency_code');
-
-          expect(findOneForExpandAll).not.toMatchObject(reviews![0]);
-          expect(findOneForExpandAll).not.toMatchObject(reviews_2![0]);
+          expect(deepExpand?.length).toBeGreaterThan(0);
+          expect(deepExpand![0]).toHaveProperty('author');
+          expect(deepExpand![0]).toHaveProperty('genre');
+          expect(deepExpand![0]).toHaveProperty('reviews');
+          expect(deepExpand![0]).toHaveProperty('price');
+          expect(deepExpand![0]).toHaveProperty('stock');
+          expect(deepExpand![0].reviews![0]).toHaveProperty('reviewer');
+          expect(deepExpand![0].reviews![0].reviewer).toHaveProperty('ID');
+          expect(findOneForExpandAll).not.toMatchObject(deepExpand![0]);
         });
       });
 
-      describe('======> .getExpand() - OVERLOAD with {} (object)', () => {
+      describe('======> .getExpand() - OVERLOAD - {} (object)', () => {
         it('should return the original object + expanded "genre", "author" and "reviews" properties', async () => {
           // Arrange
           const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
@@ -479,7 +462,7 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .getExpand() - OVERLOAD with [] (array)', () => {
+      describe('======> .getExpand() - OVERLOAD - [] (array)', () => {
         it('should return the original object + expanded "genre" property - .getExpand("genre")', async () => {
           // Arrange
           const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
@@ -491,6 +474,44 @@ describe('SELECT', () => {
           expect(expandGenre?.length).toBeGreaterThan(0);
           expect(expandGenre![0]).toHaveProperty('genre');
           expect(findOneForExpandAll).not.toMatchObject(expandGenre![0]);
+        });
+      });
+
+      describe('======> .getExpand() + .columns() ', () => {
+        it('should return only the columns "currency_code, descr, reviews" + expanded "reviews" property', async () => {
+          // Arrange
+          const findOneForExpandAll = await bookRepository.findOne({ ID: 201 });
+
+          // Act
+          // When .getExpand first and after the .columns
+          const reviews = await bookRepository
+            .builder()
+            .find({ ID: 201 })
+            .getExpand(['reviews'])
+            .columns(['currency_code', 'descr', 'reviews'])
+            .execute();
+
+          // When .columns first and after the .getExpand
+          const reviews_2 = await bookRepository
+            .builder()
+            .find({ ID: 201 })
+            .columns('ID', 'currency_code', 'descr', 'reviews')
+            .getExpand('reviews')
+            .execute();
+
+          // Assert
+          expect(reviews?.length).toBeGreaterThan(0);
+          expect(reviews![0]).toHaveProperty('reviews');
+          expect(reviews![0]).toHaveProperty('descr');
+          expect(reviews![0]).toHaveProperty('currency_code');
+
+          expect(reviews_2?.length).toBeGreaterThan(0);
+          expect(reviews_2![0]).toHaveProperty('reviews');
+          expect(reviews_2![0]).toHaveProperty('descr');
+          expect(reviews_2![0]).toHaveProperty('currency_code');
+
+          expect(findOneForExpandAll).not.toMatchObject(reviews![0]);
+          expect(findOneForExpandAll).not.toMatchObject(reviews_2![0]);
         });
       });
 
