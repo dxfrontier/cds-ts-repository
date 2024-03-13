@@ -157,7 +157,7 @@ import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
 // Imported to have visibility over INSERT, SELECT, UPDATE, DELETE ...
 import { Service } from '@sap/cds';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
 
   constructor() {
     super(MyEntity)
@@ -188,7 +188,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### Step 2 : Integrate MyRepository class
 
-Now that you have your `MyRepository`, you can integrate it into your implementation.
+Now that you have `MyRepository` class, you can integrate it into your implementation.
 
 `Steps`
 
@@ -216,7 +216,7 @@ this.after('READ', MyEntity, (results, req) => this.myRepository.anotherMethod(r
 ```ts
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MainService extends cds.ApplicationService {
+export class MainService extends cds.ApplicationService {
   private myRepository: MyRepository = new MyRepository();
   // ...
 
@@ -247,21 +247,25 @@ Start by creating a `MyRepository` class, which will extend the `BaseRepository<
 1. Create a new class `MyRepository`:
 
 ```ts
-class MyRepository
+export class MyRepository {}
 ```
 
 2. Add `@Repository` decorator :
 
 ```ts
 @Repository()
-class MyRepository
+export class MyRepository {}
 ```
 
 3. Extend `MyRepository` class to inherit the `BaseRepository` methods
 
 ```ts
 @Repository()
-class MyRepository BaseRepository<MyEntity> {}
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // CDS-Typer entity
+  }
+}
 ```
 
 `Example`
@@ -274,7 +278,7 @@ import { Repository, Service } from '@dxfrontier/cds-ts-dispatcher'
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
 
 @Repository()
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
 
   constructor() {
     super(MyEntity) // CDS-Typer entity
@@ -300,8 +304,6 @@ class MyRepository extends BaseRepository<MyEntity> {
     // ...
   }
 }
-
-export default MyRepository
 ```
 
 #### Step 2 : Inject MyRepository class
@@ -312,9 +314,10 @@ Now `MyRepository` can be injected using `@Inject` in another class.
 
 ```ts
 @EntityHandler(Book)
-class BookStatsHandler {
+class MyEntityHandler {
   @Inject(MyRepository) private readonly myRepository: MyRepository;
   ...
+}
 ```
 
 > [!NOTE]
