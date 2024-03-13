@@ -51,15 +51,6 @@ class BaseFind<T, Keys> {
   }
 
   /**
-   * Description placeholder
-   * @date 10/03/2024 - 17:20:33
-   *
-   * @public
-   * @param {{ levels: number }} options
-   * @returns {this}
-   */
-
-  /**
    * Auto expands and exposes associations/compositions of the entity.
    * @param options
    * @param options.levels  Depth number to expand the associations, this will do a deep expand equals to the levels number, `depth can start from 1...n`
