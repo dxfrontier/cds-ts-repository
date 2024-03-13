@@ -65,7 +65,7 @@ jobs:
             echo "Version: norelease"
           fi
 
-      - uses: rymndhng/release-on-push-action@0.28.0
+      - uses: rymndhng/release-on-push-action@v0.28.0
         with:
           bump_version_scheme: ${{ env.version }}
           release_name: 'Release <RELEASE_VERSION>'
