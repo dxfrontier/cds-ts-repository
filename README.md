@@ -1,13 +1,22 @@
 <h2> CDS-TS-Repository - BaseRepository </h2>
 
-<img src="https://img.shields.io/badge/SAP-0FAAFF?style=for-the-badge&logo=sap&logoColor=white" /> <img src="https://img.shields.io/badge/ts--node-3178C6?style=for-the-badge&logo=ts-node&logoColor=white" /> <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" /> <img src="https://img.shields.io/badge/Express%20js-000000?style=for-the-badge&logo=express&logoColor=white" /> <img src="https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white" /> <img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white" />
+![SAP](https://img.shields.io/badge/SAP-0FAAFF?style=for-the-badge&logo=sap&logoColor=white)
+![ts-node](https://img.shields.io/badge/ts--node-3178C6?style=for-the-badge&logo=ts-node&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express%20js-000000?style=for-the-badge&logo=express&logoColor=white)
+![json](https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white)
+![npm](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
 
-![NPM Downloads](https://img.shields.io/npm/dm/%40dxfrontier%2Fcds-ts-repository)
-![GitHub issues](https://img.shields.io/github/issues/dxfrontier/cds-ts-repository)
-![GitHub contributors](https://img.shields.io/github/contributors/dxfrontier/cds-ts-repository)
-![NPM Version](https://img.shields.io/npm/v/%40dxfrontier%2Fcds-ts-repository)
+![NPM Downloads](https://img.shields.io/npm/dt/@dxfrontier/cds-ts-repository?logo=npm)
+![NPM Downloads](https://img.shields.io/npm/dm/%40dxfrontier%2Fcds-ts-repository?logo=npm)
+![NPM Version](https://img.shields.io/npm/v/%40dxfrontier%2Fcds-ts-repository?logo=npm)
 
-[![Test](https://github.com/dxfrontier/cds-ts-repository/actions/workflows/tests.yml/badge.svg)](https://github.com/dxfrontier/cds-ts-repository/actions/workflows/tests.yml) ![GitHub Repo stars](https://img.shields.io/github/stars/dxfrontier/cds-ts-repository)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/dxfrontier/cds-ts-repository/release.yml?logo=git)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/dxfrontier/cds-ts-repository/main?logo=git)
+![GitHub issues](https://img.shields.io/github/issues/dxfrontier/cds-ts-repository?logo=git)
+![GitHub contributors](https://img.shields.io/github/contributors/dxfrontier/cds-ts-repository?logo=git)
+![GitHub top language](https://img.shields.io/github/languages/top/dxfrontier/cds-ts-repository?logo=git)
+![GitHub Repo stars](https://img.shields.io/github/stars/dxfrontier/cds-ts-repository?style=flat&logo=git)
 
 The goal of **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`
 
