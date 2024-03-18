@@ -73,6 +73,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [updateLocaleTexts](#updatelocaletexts)
     - [delete](#delete)
     - [deleteMany](#deletemany)
+    - [deleteAll](#deleteall)
     - [exists](#exists)
     - [count](#count)
   - [`Helpers`](#helpers)
@@ -186,8 +187,12 @@ export class MyRepository extends BaseRepository<MyEntity> {
     const result13 = await this.count()
   }
 
+  public anotherMethod(results: MyEntity[], req: TypedRequest<MyEntity>) {
+    // do something
+  }
+
   // Enhance with custom QL methods ...
-  customQLMethod() {
+  public customQLMethod() {
     const customQL = SELECT(MyEntity).columns(...).where(...)
     // ...
   }
@@ -1662,6 +1667,39 @@ class MyRepository extends BaseRepository<MyEntity> {
       { ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' },
       { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
     );
+    // Further logic with deleted
+  }
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### deleteAll
+
+`deleteAll(): Promise<boolean>`
+
+The `deleteAll` method allows you to delete all entries from the table but preserving the table structure, performing a cleanup of the table.
+
+`Return`
+
+- `Promise<boolean>`: This method returns a Promise of `true` if all instances were successfully deleted and `false` otherwise.
+
+`Example 1`
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const deleted = await this.deleteAll();
     // Further logic with deleted
   }
 }

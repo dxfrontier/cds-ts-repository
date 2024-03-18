@@ -118,6 +118,11 @@ class CoreRepository<T> {
     return util.isAllSuccess(deletedItems);
   }
 
+  public async deleteAll(): Promise<boolean> {
+    const response: number = await DELETE.from(this.resolvedEntity);
+    return response > 0;
+  }
+
   public async exists(keys: Entry<T>): Promise<boolean> {
     const found: T[] = await SELECT.from(this.resolvedEntity).where(keys);
     return found.length > 0;
