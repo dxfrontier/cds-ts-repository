@@ -144,6 +144,17 @@ abstract class BaseRepositoryDraft<T> {
   }
 
   /**
+   * Deletes all draft entries from the table but preserving the table structure.
+   * @returns A promise that resolves to `true` if all deletions are successful, `false` otherwise.
+   *
+   * @example
+   * const deleted = await this.deleteAllDrafts();
+   */
+  public async deleteAllDrafts(): Promise<boolean> {
+    return await this.coreRepository.deleteAll();
+  }
+
+  /**
    * Checks if draft instance based on the provided keys exist in the table.
    * @param keys An object representing the keys to filter the entries.
    * @returns A promise that resolves to `true` if the item exists, `false` otherwise.

@@ -214,9 +214,19 @@ abstract class BaseRepository<T> {
       { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
     ]);
    */
-
   public async deleteMany(...entries: Entries<T>[]): Promise<boolean> {
     return await this.coreRepository.deleteMany(...entries);
+  }
+
+  /**
+   * Deletes all entries from the table but preserving the table structure.
+   * @returns A promise that resolves to `true` if all deletions are successful, `false` otherwise.
+   *
+   * @example
+   * const deleted = await this.deleteAll();
+   */
+  public async deleteAll(): Promise<boolean> {
+    return await this.coreRepository.deleteAll();
   }
 
   /**
