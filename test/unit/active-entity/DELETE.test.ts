@@ -11,7 +11,7 @@ describe('DELETE', () => {
   });
 
   describe('.delete()', () => {
-    test('should successfully delete an item from the database', async () => {
+    test('should successfully delete an item from the table', async () => {
       const getAll = await bookRepository.getAll();
       const deleteOperation = await bookRepository.delete({ ID: 201 });
       const getAllAfter = await bookRepository.getAll();
@@ -22,7 +22,7 @@ describe('DELETE', () => {
   });
 
   describe('.deleteMany()', () => {
-    it('should successfully delete multiple items from the database - deleteMany([{ ID : 207 }, { ID : 251 }])', async () => {
+    it('should successfully delete multiple items from the table - deleteMany([{ ID : 207 }, { ID : 251 }])', async () => {
       const getAll = await bookRepository.getAll();
       const deleteAllOperation = await bookRepository.deleteMany([{ ID: 207 }, { ID: 251 }]);
       const getAllAfter = await bookRepository.getAll();
@@ -31,12 +31,23 @@ describe('DELETE', () => {
       expect(getAll!.length).toBeGreaterThan(getAllAfter!.length);
     });
 
-    it('should successfully delete multiple items from the database - deleteMany({ ID: 201 }, { ID: 252 })', async () => {
+    it('should successfully delete multiple items from the table - deleteMany({ ID: 201 }, { ID: 252 })', async () => {
       const getAll = await bookRepository.getAll();
       const deleteAllOperation = await bookRepository.deleteMany({ ID: 203 }, { ID: 252 });
       const getAllAfter = await bookRepository.getAll();
 
       expect(deleteAllOperation).toBe(true);
+      expect(getAll!.length).toBeGreaterThan(getAllAfter!.length);
+    });
+  });
+
+  describe('.deleteAll()', () => {
+    it('should successfully delete all items from the table', async () => {
+      const getAll = await bookRepository.getAll();
+      const deleteAll = await bookRepository.deleteAll();
+      const getAllAfter = await bookRepository.getAll();
+
+      expect(deleteAll).toBe(true);
       expect(getAll!.length).toBeGreaterThan(getAllAfter!.length);
     });
   });
