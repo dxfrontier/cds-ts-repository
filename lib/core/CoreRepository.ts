@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import FindBuilder from './FindBuilder';
-import util from './util';
+import FindBuilder from '../util/helpers/FindBuilder';
+import util from '../util/util';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
@@ -16,8 +16,8 @@ import type {
   ShowOnlyColumns,
   Entity,
 } from '../types/types';
-import type { Filter } from '../..';
-import FindOneBuilder from './FindOneBuilder';
+import type { Filter } from '..';
+import FindOneBuilder from '../util/helpers/FindOneBuilder';
 
 class CoreRepository<T> {
   private readonly resolvedEntity: string;

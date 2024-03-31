@@ -3,9 +3,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type Service } from '@sap/cds';
 
-import type { AppendColumns, ColumnFormatter, Columns, Entity, ShowOnlyColumns } from '../types/types';
+import type { AppendColumns, ColumnFormatter, Columns, Entity, ShowOnlyColumns } from '../../types/types';
 
-import util from './util';
+import util from '../util';
 import BaseFind from './BaseFind';
 
 class FindBuilder<T, Keys> extends BaseFind<T, Keys> {

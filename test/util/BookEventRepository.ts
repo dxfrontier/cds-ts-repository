@@ -1,6 +1,6 @@
 import { Mixin } from 'ts-mixer';
 import { BaseRepository } from '../../lib';
-import { BaseRepositoryDraft } from '../../lib/BaseRepositoryDraft';
+import { BaseRepositoryDraft } from '../../lib/core/BaseRepositoryDraft';
 import type { BookEvent } from '#cds-models/CatalogService';
 
 export const getBookEventRepository = async () => {

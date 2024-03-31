@@ -1,6 +1,7 @@
+import { o } from 'odata';
+
 import { getBookEventRepository } from '../../util/BookEventRepository';
 import { startTestServer } from '../../util/util';
-import { o } from 'odata';
 
 describe('SELECT - drafts', () => {
   const { GET } = startTestServer(__dirname, 'bookshop');

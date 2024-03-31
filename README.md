@@ -7,7 +7,7 @@
 ![json](https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white)
 ![npm](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
 
-![NPM Downloads](https://img.shields.io/npm/dt/@dxfrontier/cds-ts-repository?logo=npm)
+![NPM Downloads](https://img.shields.io/npm/dy/@dxfrontier/cds-ts-repository?logo=npm)
 ![NPM Downloads](https://img.shields.io/npm/dm/%40dxfrontier%2Fcds-ts-repository?logo=npm)
 ![NPM Version](https://img.shields.io/npm/v/%40dxfrontier%2Fcds-ts-repository?logo=npm)
 
@@ -18,7 +18,7 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/dxfrontier/cds-ts-repository?logo=git)
 ![GitHub Repo stars](https://img.shields.io/github/stars/dxfrontier/cds-ts-repository?style=flat&logo=git)
 
-The goal of **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`
+The goal of **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`.
 
 ## Table of Contents
 
@@ -188,7 +188,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public anotherMethod(results: MyEntity[], req: TypedRequest<MyEntity>) {
-    // do something
+    // ...
   }
 
   // Enhance with custom QL methods ...
@@ -209,16 +209,10 @@ Now that you have `MyRepository` class, you can integrate it into your implement
 1. Create a new private field:
 
 ```ts
-private myRepository: MyRepository
+private myRepository: MyRepository = new MyRepository();
 ```
 
-2. Initialize the myRepository :
-
-```ts
-this.myRepository = new MyRepository();
-```
-
-3. Use the handler on the `callback` of the `events` :
+2. Use the handler on the `callback` of the `events` :
 
 ```ts
 this.before('READ', MyEntity, (req) => this.myRepository.aMethod(req));
@@ -232,7 +226,6 @@ import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 export class MainService extends cds.ApplicationService {
   private myRepository: MyRepository = new MyRepository();
-  // ...
 
   init() {
     this.before('READ', MyEntity, (req) => this.myRepository.aMethod(req));
