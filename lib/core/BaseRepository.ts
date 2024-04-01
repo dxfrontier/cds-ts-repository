@@ -11,10 +11,10 @@ import type {
   ShowOnlyColumns,
   FindReturn,
   Entity,
-} from './util/types/types';
-import type { Filter } from './util/helpers/Filter';
+} from '../types/types';
+import type { Filter } from '../util/helpers/Filter';
 
-import { CoreRepository } from './util/helpers/CoreRepository';
+import { CoreRepository } from './CoreRepository';
 
 abstract class BaseRepository<T> {
   protected readonly coreRepository: CoreRepository<T>;

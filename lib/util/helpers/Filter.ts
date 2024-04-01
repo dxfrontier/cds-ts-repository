@@ -1,4 +1,4 @@
-import type { FilterOperator, FilterOptions, LogicalOperator } from '../types/types';
+import type { FilterOperator, FilterOptions, LogicalOperator } from '../../types/types';
 
 class Filter<T> {
   public readonly field: keyof T;

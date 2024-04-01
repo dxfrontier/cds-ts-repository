@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { constants } from '../constants/constants';
-import type { Expand, Columns, AssociationFunction, ValueExpand, Entity, ExpandStructure } from '../types/types';
-import util from './util';
+import { constants } from '../../constants/constants';
+import type { Expand, Columns, AssociationFunction, ValueExpand, Entity, ExpandStructure } from '../../types/types';
+import util from '../util';
 
 import type { EntityElements } from '@sap/cds/apis/csn';
 

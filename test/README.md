@@ -11,5 +11,5 @@ npm install
 Go back to the root folder and run :
 
 ```bash
-npm run test
+npm test
 ```

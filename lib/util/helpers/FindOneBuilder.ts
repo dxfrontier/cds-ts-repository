@@ -2,8 +2,8 @@
 import { type Service } from '@sap/cds';
 
 import BaseFind from './BaseFind';
-import type { ColumnFormatter, AppendColumns, Columns, ShowOnlyColumns, Entity } from '../types/types';
-import util from './util';
+import type { ColumnFormatter, AppendColumns, Columns, ShowOnlyColumns, Entity } from '../../types/types';
+import util from '../util';
 
 class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
   constructor(entity: Entity, keys: Keys | string) {
