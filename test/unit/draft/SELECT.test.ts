@@ -11,7 +11,7 @@ describe('SELECT - drafts', () => {
   beforeAll(async () => {
     const {
       config: { baseURL },
-    } = await GET('https://services.odata.org/Experimental/OData/OData.svc/Products');
+    } = await GET('https://www.abs-gmbh.de/');
 
     const _activateDraft = async (baseURL: string, uuid: string): Promise<void> => {
       await o(`${baseURL}/odata/v4/catalog/`)

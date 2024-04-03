@@ -1,6 +1,7 @@
+import { o } from 'odata';
+
 import { getBookEventRepository } from '../../util/BookEventRepository';
 import { startTestServer } from '../../util/util';
-import { o } from 'odata';
 
 describe('UPDATE - drafts', () => {
   const { GET } = startTestServer(__dirname, 'bookshop');
@@ -9,7 +10,7 @@ describe('UPDATE - drafts', () => {
   beforeAll(async () => {
     const {
       config: { baseURL },
-    } = await GET('https://services.odata.org/Experimental/OData/OData.svc/Products');
+    } = await GET('https://www.abs-gmbh.de/');
 
     const _activateDraft = async (baseURL: string, uuid: string) => {
       await o(`${baseURL}/odata/v4/catalog/`)
