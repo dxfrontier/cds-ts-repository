@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { TypedRequest } from '@sap/cds/apis/services';
 
-import { type LanguageCode } from 'iso-639-1';
+import type { LanguageCode } from 'iso-639-1';
+
 import type FindBuilder from '../util/helpers/FindBuilder';
 import type { Filter } from '../util/helpers/Filter';
 import type FindOneBuilder from '../util/helpers/FindOneBuilder';
