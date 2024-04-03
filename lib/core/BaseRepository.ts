@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type Service } from '@sap/cds';
+import { Service, type } from '@sap/cds';
+
+import { CoreRepository } from './CoreRepository';
 
 import type {
   Columns,
@@ -13,8 +15,6 @@ import type {
   Entity,
 } from '../types/types';
 import type { Filter } from '../util/helpers/Filter';
-
-import { CoreRepository } from './CoreRepository';
 
 abstract class BaseRepository<T> {
   protected readonly coreRepository: CoreRepository<T>;
@@ -177,6 +177,16 @@ abstract class BaseRepository<T> {
   }
 
   /**
+   * Updates existing entries or creates new ones if they do not exist.
+   * @param entries An array of objects representing the entries to be created.
+   *
+   * @returns A promise that resolves to `true` if the update is successful, `false` otherwise.
+   */
+  public async updateOrCreate(...entries: Entries<T>[]): Promise<boolean> {
+    return await this.coreRepository.updateOrCreate(...entries);
+  }
+
+  /**
    * Updates locale texts for entries based on the provided keys and fields to update.
    * @param localeCodeKeys An object representing the language code to filter the entries
    * @param fieldsToUpdate An object representing the fields and their updated values for the matching entries.
@@ -185,7 +195,6 @@ abstract class BaseRepository<T> {
    * @example
    * const updated = await this.updateLocaleTexts({ locale: 'de', ID: 201 }, { name: 'ein neuer Name' });
    */
-
   public async updateLocaleTexts(localeCodeKeys: Entry<T> & Locale, fieldsToUpdate: Entry<T>): Promise<boolean> {
     return await this.coreRepository.updateLocaleTexts(localeCodeKeys, fieldsToUpdate);
   }

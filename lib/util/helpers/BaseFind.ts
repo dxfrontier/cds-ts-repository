@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { constants } from '../../constants/constants';
-import type { Expand, Columns, AssociationFunction, ValueExpand, Entity, ExpandStructure } from '../../types/types';
 import util from '../util';
 
+import type { Expand, Columns, AssociationFunction, ValueExpand, Entity, ExpandStructure } from '../../types/types';
 import type { EntityElements } from '@sap/cds/apis/csn';
 
 /**
@@ -19,6 +19,20 @@ class BaseFind<T, Keys> {
     protected readonly keys: Keys | string,
   ) {
     this.select = SELECT.from(util.resolveEntityName(entity)).where(this.keys);
+  }
+
+  /**
+   * Provides the Metadata of the fields
+   * `Note`: currently SAP does not offer typing on EntityElements
+   * @returns EntityElements
+   * @example
+   * const results = await this.builder().find({
+   *   name: 'A company name',
+   * }).elements
+   *
+   */
+  get elements(): EntityElements {
+    return this.select.elements;
   }
 
   /**
