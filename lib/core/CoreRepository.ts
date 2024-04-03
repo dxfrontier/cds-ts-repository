@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import FindBuilder from '../util/helpers/FindBuilder';
-import util from '../util/util';
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type Service } from '@sap/cds';
+import { Service, type } from '@sap/cds';
+
+import FindBuilder from '../util/helpers/FindBuilder';
+import FindOneBuilder from '../util/helpers/FindOneBuilder';
+import util from '../util/util';
 
 import type {
   Entry,
@@ -17,8 +18,6 @@ import type {
   Entity,
 } from '../types/types';
 import type { Filter } from '..';
-import FindOneBuilder from '../util/helpers/FindOneBuilder';
-
 class CoreRepository<T> {
   private readonly resolvedEntity: string;
 
@@ -91,6 +90,12 @@ class CoreRepository<T> {
   public async update(keys: Entry<T>, fieldsToUpdate: Entry<T>): Promise<boolean> {
     const updated: number = await UPDATE.entity(this.resolvedEntity).where(keys).set(fieldsToUpdate);
     return updated === 1;
+  }
+
+  public async updateOrCreate(...entries: Entries<T>[]): Promise<boolean> {
+    const updatedOrCreated = await UPSERT.into(this.resolvedEntity).entries(...entries);
+
+    return updatedOrCreated > 1;
   }
 
   public async updateLocaleTexts(localeCodeKeys: Entry<T> & Locale, fieldsToUpdate: Entry<T>): Promise<boolean> {

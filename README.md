@@ -51,6 +51,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [findOne](#findone)
     - [builder](#builder)
       - [.find](#find-1)
+        - [elements](#elements)
         - [distinct](#distinct)
         - [orderAsc](#orderasc)
         - [orderDesc](#orderdesc)
@@ -63,6 +64,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
         - [forShareLock](#forsharelock)
         - [execute](#execute)
       - [.findOne](#findone-1)
+        - [elements](#elements-1)
         - [columns](#columns-1)
         - [columnsFormatter](#columnsformatter-1)
         - [getExpand](#getexpand-1)
@@ -70,6 +72,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
         - [forShareLock](#forsharelock-1)
         - [execute](#execute-1)
     - [update](#update)
+    - [updateOrCreate](#updateorcreate)
     - [updateLocaleTexts](#updatelocaletexts)
     - [delete](#delete)
     - [deleteMany](#deletemany)
@@ -842,6 +845,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 - `FindBuilder<T>`: A `FindBuilder` instance that provides access to the following methods for constructing a `SELECT`:
 
+  - [elements](#elements)
   - [distinct](#distinct)
   - [orderAsc()](#orderasc)
   - [orderDesc()](#orderdesc)
@@ -853,6 +857,21 @@ class MyRepository extends BaseRepository<MyEntity> {
   - [forUpdate()](#forupdate)
   - [forShareLock()](#forsharelock)
   - [execute()](#execute)
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### elements
+
+Provides the Metadata of Entity fields.
+
+`Example`
+
+```ts
+const results = this.builder().find().columns('ID', 'currency_code').elements;
+```
+
+> [!WARNING]
+> Currently SAP does not offer typing on the `elements`.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1245,12 +1264,28 @@ const results = await this.builder()
 
 - `FindOneBuilder<T>`: A `FindOneBuilder` instance that provides access to the following methods for constructing a `SELECT`:
 
+  - [elements](#elements-1)
   - [columns](#columns-1)
   - [columnsFormatter](#columnsformatter-1)
   - [getExpand](#getexpand-1)
   - [forUpdate](#forupdate-1)
   - [forShareLock](#forsharelock-1)
   - [execute](#execute-1)
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### elements
+
+Provides the Metadata of Entity fields.
+
+`Example`
+
+```ts
+const oneResult = this.builder().findOne({ currency_code: 'USD' }).columns('ID', 'currency_code').elements;
+```
+
+> [!WARNING]
+> Currently SAP does not offer typing on the `elements`.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1536,6 +1571,54 @@ class MyRepository extends BaseRepository<MyEntity> {
     const updated = await this.update(
       { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
       { name: 'a new name', description: 'a new description' },
+    );
+    // Further logic with updated
+  }
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### updateOrCreate
+
+`updateOrCreate(...entries: Entries<T>[]): Promise<boolean>`
+
+The `updateOrCreate` method is a database operation that will update an existing row if a specified value already exists in a table, and insert a new row if the specified value doesn't already exist, similar to `UPSERT from SQL`.
+
+`Parameters`
+
+- `entries (...entries: Entries<T>[])`: An array of objects representing the entries to be created. Each object should match the structure expected by `MyEntity`.
+
+`Return`
+
+- `Promise<boolean>`: This method returns a Promise of `true` if the update/create operation is `successful`, and `false` otherwise.
+
+`Example`
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const updatedOrCreated = await bookRepository.updateOrCreate(
+      {
+        ID: 123,
+        title: 'Magic Forest',
+        descr: 'A magical journey through enchanted woods!',
+      },
+      {
+        ID: 456,
+        title: 'Mystic Mountain',
+        descr: 'Explore the mysteries of the ancient mountain!',
+      },
     );
     // Further logic with updated
   }

@@ -1,7 +1,7 @@
 import { Book } from '#cds-models/CatalogService';
+
 import { Expand } from '../../../lib';
 import { Filter } from '../../../lib/util/helpers/Filter';
-
 import { getBookRepository } from '../../util/BookRepository';
 import { startTestServer } from '../../util/util';
 
@@ -29,6 +29,17 @@ describe('SELECT', () => {
 
         // Assert
         expect(results?.length).toEqual(3);
+      });
+
+      it('should return the entity elements', async () => {
+        // Act
+        const elements = bookRepository
+          .builder()
+          .find({ currency_code: 'USD' })
+          .columns('ID', 'currency_code').elements;
+
+        // Assert
+        expect(elements).not.toBeUndefined();
       });
     });
 
