@@ -91,7 +91,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
 ### Install CDS-TS-Repository
 
 ```bash
-npm install @dxfrontier/cds-ts-respository
+npm install @dxfrontier/cds-ts-repository
 ```
 
 ### `Generate CDS Typed entities`
