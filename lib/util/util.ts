@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ColumnFormatter, Entry, Entity, AutoExpandLevels, ExpandStructure } from '../types/types';
-import type { Filter } from './helpers/Filter';
+import type { Filter } from './filter/Filter';
 import { constants } from '../constants/constants';
 
 import type { column_expr } from '@sap/cds';

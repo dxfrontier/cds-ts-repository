@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Service, type } from '@sap/cds';
+import type { Service } from '@sap/cds';
 
 import { CoreRepository } from './CoreRepository';
 
 import type { Columns, DraftEntries, Entity, EntryDraft, FindReturn, ShowOnlyColumns } from '../types/types';
-import type { Filter } from '../util/helpers/Filter';
+import type { Filter } from '../util/filter/Filter';
 
 abstract class BaseRepositoryDraft<T> {
   protected readonly coreRepository: CoreRepository<EntryDraft<T>>;
