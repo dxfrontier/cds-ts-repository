@@ -1,6 +1,6 @@
 import { Book } from '#cds-models/CatalogService';
-import { Filter } from '../../../lib/util/helpers/Filter';
 
+import { Filter } from '../../../lib/util/filter/Filter';
 import { getBookRepository } from '../../util/BookRepository';
 import { startTestServer } from '../../util/util';
 

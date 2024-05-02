@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Service, type } from '@sap/cds';
+import type { Service } from '@sap/cds';
 
 import { CoreRepository } from './CoreRepository';
 
@@ -14,7 +13,7 @@ import type {
   FindReturn,
   Entity,
 } from '../types/types';
-import type { Filter } from '../util/helpers/Filter';
+import type { Filter } from '../util/filter/Filter';
 
 abstract class BaseRepository<T> {
   protected readonly coreRepository: CoreRepository<T>;

@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Service, type } from '@sap/cds';
+import type { Service } from '@sap/cds';
 
-import FindBuilder from '../util/helpers/FindBuilder';
-import FindOneBuilder from '../util/helpers/FindOneBuilder';
+import FindBuilder from '../util/find/FindBuilder';
+import FindOneBuilder from '../util/find/FindOneBuilder';
 import util from '../util/util';
 
 import type {

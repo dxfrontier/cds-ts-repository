@@ -1,7 +1,7 @@
 export * from './core/BaseRepository';
 export * from './core/BaseRepositoryDraft';
 
-export * from './util/helpers/Filter';
+export * from './util/filter/Filter';
 
 export type * from './types/types';
 
