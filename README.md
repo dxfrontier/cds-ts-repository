@@ -29,8 +29,8 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [Option 1 - `Recommended`](#option-1---recommended)
     - [Option 2](#option-2)
     - [`Important`](#important)
-- [Architecture](#architecture)
 - [Usage](#usage)
+  - [`Architecture`](#architecture)
   - [`Option 1` : Using `BaseRepository` with `Standard SAP CDS-TS`](#option-1--using-baserepository-with-standard-sap-cds-ts)
     - [Step 1: Create MyRepository class](#step-1-create-myrepository-class)
     - [Step 2 : Integrate MyRepository class](#step-2--integrate-myrepository-class)
@@ -146,7 +146,9 @@ npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-## Architecture
+## Usage
+
+### `Architecture`
 
 **We recommend adhering** to the **Controller-Service-Repository**.
 
@@ -161,8 +163,6 @@ npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
-
-## Usage
 
 ### `Option 1` : Using `BaseRepository` with `Standard SAP CDS-TS`
 
@@ -329,7 +329,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 #### Step 2 : Inject MyRepository class
 
-Now `MyRepository` can be injected using `@Inject` in another class.
+Now `MyRepository` class can be injected in another class using `@Inject` decorator.
 
 `Example`
 
