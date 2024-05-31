@@ -41,18 +41,18 @@ describe('SELECT', () => {
     });
   });
 
-  describe('.getAllAndLimit()', () => {
-    it('It should RETURN : .getAllAndLimit() should have length smaller than .getAll length', async () => {
+  describe('.paginate()', () => {
+    it('It should RETURN : .paginate() should have length smaller than .getAll length', async () => {
       // Arrange
       const getAll = await bookRepository.getAll();
 
       // Act
-      const getAllAndLimit = await bookRepository.getAllAndLimit({ limit: 1 });
-      const getAllAndLimitAndSkip = await bookRepository.getAllAndLimit({ limit: 2, skip: 1 });
+      const paginate = await bookRepository.paginate({ limit: 1 });
+      const getAllAndLimitAndSkip = await bookRepository.paginate({ limit: 2, skip: 1 });
 
       // Assert
-      expect(getAllAndLimit!.length).toBeGreaterThan(0);
-      expect(getAllAndLimit!.length).toBeLessThan(getAll!.length);
+      expect(paginate!.length).toBeGreaterThan(0);
+      expect(paginate!.length).toBeLessThan(getAll!.length);
       expect(getAllAndLimitAndSkip).not.toContain(getAll![0]);
     });
   });
@@ -88,18 +88,18 @@ describe('SELECT', () => {
     });
   });
 
-  describe('.getAllAndLimit()', () => {
+  describe('.paginate()', () => {
     it('should return results with length smaller than .getAll length when limited', async () => {
       // Arrange
       const getAll = await bookRepository.getAll();
 
       // Act
-      const getAllAndLimit = await bookRepository.getAllAndLimit({ limit: 1 });
-      const getAllAndLimitAndSkip = await bookRepository.getAllAndLimit({ limit: 2, skip: 1 });
+      const paginate = await bookRepository.paginate({ limit: 1 });
+      const getAllAndLimitAndSkip = await bookRepository.paginate({ limit: 2, skip: 1 });
 
       // Assert
-      expect(getAllAndLimit!.length).toBeGreaterThan(0);
-      expect(getAllAndLimit!.length).toBeLessThan(getAll!.length);
+      expect(paginate!.length).toBeGreaterThan(0);
+      expect(paginate!.length).toBeLessThan(getAll!.length);
       expect(getAllAndLimitAndSkip).not.toContain(getAll![0]);
     });
   });

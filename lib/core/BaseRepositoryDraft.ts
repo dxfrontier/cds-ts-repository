@@ -42,6 +42,7 @@ abstract class BaseRepositoryDraft<T> {
 
   /**
    * Retrieves all draft entries from the table with optional limit and offset.
+   * @deprecated Use this.paginateDrafts instead of this getAllDraftsAndLimit
    * @param options
    * @param options.limit The limit for the result set.
    * @param [options.skip] Optional 'skip', which will skip a specified number of items for the result set (default: 0).
@@ -50,6 +51,22 @@ abstract class BaseRepositoryDraft<T> {
    * @example const results = await this.getAllDraftsAndLimit({ limit: 10, skip: 5 });
    */
   public async getAllDraftsAndLimit(options: {
+    limit: number;
+    skip?: number | undefined;
+  }): Promise<Array<EntryDraft<T>> | undefined> {
+    return await this.coreRepository.getAllAndLimit(options);
+  }
+
+  /**
+   * Retrieves all draft entries from the table with optional limit and offset.
+   * @param options
+   * @param options.limit The limit for the result set.
+   * @param [options.skip] Optional 'skip', which will skip a specified number of items for the result set (default: 0).
+   * @returns A promise that resolves to an array of entries.
+   *
+   * @example const results = await this.getAllDraftsAndLimit({ limit: 10, skip: 5 });
+   */
+  public async paginateDrafts(options: {
     limit: number;
     skip?: number | undefined;
   }): Promise<Array<EntryDraft<T>> | undefined> {

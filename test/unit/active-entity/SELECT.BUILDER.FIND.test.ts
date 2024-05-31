@@ -668,31 +668,35 @@ describe('SELECT', () => {
         });
       });
 
-      describe('======> .limit()', () => {
+      describe('======> .paginate()', () => {
         it('should return only 1 item when limited to 1', async () => {
           // Act
-          const limit = await bookRepository.builder().find({ currency_code: 'GBP' }).limit({ limit: 1 }).execute();
+          const paginate = await bookRepository
+            .builder()
+            .find({ currency_code: 'GBP' })
+            .paginate({ limit: 1 })
+            .execute();
 
           // Assert
-          expect(limit).toHaveLength(1);
+          expect(paginate).toHaveLength(1);
         });
       });
 
-      describe('======> .limit()', () => {
+      describe('======> .paginate()', () => {
         it('should return only 1 item when limited to 2 with skip 1', async () => {
           // Arrange
           const all = await bookRepository.builder().find({ currency_code: 'GBP' }).execute();
 
           // Act
-          const limit = await bookRepository
+          const paginate = await bookRepository
             .builder()
             .find({ currency_code: 'GBP' })
-            .limit({ limit: 2, skip: 1 })
+            .paginate({ limit: 2, skip: 1 })
             .execute();
 
           // Assert
-          expect(limit).toHaveLength(2);
-          expect(limit).not.toContain(all![0]);
+          expect(paginate).toHaveLength(2);
+          expect(paginate).not.toContain(all![0]);
         });
       });
 

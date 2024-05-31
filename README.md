@@ -45,8 +45,8 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [createMany](#createmany)
     - [getAll](#getall)
     - [getDistinctColumns](#getdistinctcolumns)
-    - [getAllAndLimit](#getallandlimit)
     - [getLocaleTexts](#getlocaletexts)
+    - [paginate](#paginate)
     - [find](#find)
     - [findOne](#findone)
     - [builder](#builder)
@@ -55,7 +55,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
         - [distinct](#distinct)
         - [orderAsc](#orderasc)
         - [orderDesc](#orderdesc)
-        - [limit](#limit)
+        - [paginate](#paginate-1)
         - [groupBy](#groupby)
         - [columns](#columns)
         - [columnsFormatter](#columnsformatter)
@@ -191,7 +191,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
     const result1 = await this.create(...)
     const result2 = await this.createMany(...)
     const result5 = await this.getAll()
-    const result6 = await this.getAllAndLimit(...)
+    const result6 = await this.paginate(...)
     const result7 = await this.find(...)
     const result8 = await this.findOne(...)
     const result9 = await this.delete(...)
@@ -309,7 +309,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
     const result1 = await this.create(...)
     const result2 = await this.createMany(...)
     const result5 = await this.getAll()
-    const result6 = await this.getAllAndLimit(...)
+    const result6 = await this.paginate(...)
     const result7 = await this.find(...)
     const result8 = await this.findOne(...)
     const result9 = await this.delete(...)
@@ -603,82 +603,6 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-#### getAllAndLimit
-
-`(method) this.getAllAndLimit(options: { limit: number; skip?: number | undefined }): Promise<T[]>`
-
-The `getAllAndLimit` method allows you to find and retrieve a list of items with optional pagination.
-
-`Parameters`
-
-- `options` `(object)`: An object containing the following properties:
-  - `limit` `(number)`: The maximum number of items to retrieve.
-  - `skip?` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
-
-`Return`
-
-- `Promise<T[] | undefined>`: A Promise resolving to an array of objects representing instances of type `T` (e.g., `MyEntity`). If no results are found, the Promise resolves to `undefined`.
-
-`Example 1` : Retrieve the first 10 items
-
-```ts
-import { BaseRepository } from '@dxfrontier/cds-ts-repository';
-import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
-
-class MyRepository extends BaseRepository<MyEntity> {
-  constructor() {
-    super(MyEntity); // a CDS Typer entity type
-  }
-
-  public async aMethod() {
-    const results = await this.getAllAndLimit({ limit: 10 });
-
-    // Variant 1
-    if (results) {
-      // do something with results
-    }
-
-    // Variant 2
-    const items = results?.length;
-    const oneItem = results![0];
-    // Further logic with results
-  }
-}
-```
-
-`Example 2` : Retrieve items starting from the 20th item, limit to 5 items
-
-```ts
-import { BaseRepository } from '@dxfrontier/cds-ts-repository';
-import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
-
-class MyRepository extends BaseRepository<MyEntity> {
-  constructor() {
-    super(MyEntity); // a CDS Typer entity type
-  }
-
-  public async aMethod() {
-    const resultsWithSkip = await this.getAllAndLimit({ limit: 5, skip: 20 });
-
-    // Variant 1
-    if (resultsWithSkip) {
-      // do something with results
-    }
-
-    // Variant 2
-    const items = resultsWithSkip?.length;
-    const oneItem = resultsWithSkip![0];
-
-    // Further logic with resultsWithSkip
-  }
-}
-```
-
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
-<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
-
 #### getLocaleTexts
 
 `(method) this.getLocaleTexts<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column> & Locale> | undefined>`
@@ -712,6 +636,82 @@ class MyRepository extends BaseRepository<MyEntity> {
     const items = results?.length;
     const oneItem = results![0];
     // Further logic with results
+  }
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### paginate
+
+`(method) this.paginate(options: { limit: number; skip?: number | undefined }): Promise<T[]>`
+
+The `paginate` method allows you to find and retrieve a list of items with optional pagination similar to `limit` from SQL.
+
+`Parameters`
+
+- `options` `(object)`: An object containing the following properties:
+  - `limit` `(number)`: The maximum number of items to retrieve.
+  - `skip?` `(optional, number)`: This property, if applied, will 'skip' a certain number of items (default: 0).
+
+`Return`
+
+- `Promise<T[] | undefined>`: A Promise resolving to an array of objects representing instances of type `T` (e.g., `MyEntity`). If no results are found, the Promise resolves to `undefined`.
+
+`Example 1` : Retrieve the first 10 items
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const results = await this.paginate({ limit: 10 });
+
+    // Variant 1
+    if (results) {
+      // do something with results
+    }
+
+    // Variant 2
+    const items = results?.length;
+    const oneItem = results![0];
+    // Further logic with results
+  }
+}
+```
+
+`Example 2` : Retrieve items starting from the 20th item, limit to 5 items
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const resultsWithSkip = await this.paginate({ limit: 5, skip: 20 });
+
+    // Variant 1
+    if (resultsWithSkip) {
+      // do something with results
+    }
+
+    // Variant 2
+    const items = resultsWithSkip?.length;
+    const oneItem = resultsWithSkip![0];
+
+    // Further logic with resultsWithSkip
   }
 }
 ```
@@ -863,7 +863,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   - [groupBy()](#groupby)
   - [columns()](#columns)
   - [columnsFormatter()](#columnsformatter)
-  - [limit()](#limit)
+  - [paginate()](#paginate)
   - [getExpand()](#getexpand)
   - [forUpdate()](#forupdate)
   - [forShareLock()](#forsharelock)
@@ -947,9 +947,9 @@ const results = await this.builder()
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-###### limit
+###### paginate
 
-This method allows retrieve a list of items with optional pagination.
+This method allows retrieve a list of items with optional pagination similar to `limit` from SQL.
 
 `Parameters`
 
@@ -964,7 +964,7 @@ const results = await this.builder()
   .find({
     name: 'A company name',
   })
-  .limit({ limit: 1 })
+  .paginate({ limit: 1 })
   .execute();
 ```
 
@@ -1252,7 +1252,7 @@ const results = await this.builder()
 const results = await this.builder()
   .find({ name: 'A company name' })
   .orderAsc(['name'])
-  .limit({ limit: 5 })
+  .paginate({ limit: 5 })
   .getExpand('orders')
   .execute();
 ```
@@ -1943,13 +1943,13 @@ class MyRepository extends BaseRepository<MyEntity> {
 
     /*
     combinedLikeAndBetweenFilters translates to : 
-    descr like 'Wuthering' or stock between 11 and 333
+    customer_name like 'abs' or stock between 11 and 333
     */
     const combinedLikeAndBetweenFilters = new Filter('OR', filterLike, filterBetween);
 
     /* 
     filters translates to : 
-    (descr LIKE 'Wuthering' OR stock BETWEEN 11 and 333) AND ID IN ('203', '201', '207')
+    (customer_name LIKE 'abs' OR stock BETWEEN 11 and 333) AND ID IN ('203', '201', '207')
     */
     const filters = new Filter('AND', combinedLikeAndBetweenFilters, filterIn);
 

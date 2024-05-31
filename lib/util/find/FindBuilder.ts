@@ -166,6 +166,7 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
 
   /**
    * Limits the result set with an optional offset.
+   * @deprecated Use `this.builder().find().paginate` instead of `this.builder().find().limit`
    * @param options
    * @param options.limit The limit for the result set.
    * @param options.skip The optional 'skip', this will skip a certain number of items for the result set.
@@ -186,6 +187,30 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
     }
 
     void this.select.limit(options.limit);
+    return this;
+  }
+
+  /**
+   * Limits the result set with an optional offset.
+   * @param options
+   * @param options.limit The limit for the result set.
+   * @param options.skip The optional 'skip', this will skip a certain number of items for the result set.
+   * @returns FindBuilder instance
+   *
+   * @example
+   * const results = await this.builder().find({
+   *   name: 'A company name',
+   * })
+   * .paginate({ limit: 10, skip: 5 })
+   * .execute();
+   *
+   */
+  public paginate(options: { limit: number; skip?: number }): this {
+    if (options.skip !== undefined && options.skip !== null) {
+      void this.select.limit(options.limit, options.skip);
+    } else {
+      void this.select.limit(options.limit);
+    }
     return this;
   }
 

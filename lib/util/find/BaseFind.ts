@@ -4,7 +4,6 @@ import { constants } from '../../constants/constants';
 import util from '../util';
 
 import type { Expand, Columns, AssociationFunction, ValueExpand, Entity, ExpandStructure } from '../../types/types';
-import type { EntityElements } from '@sap/cds/apis/csn';
 
 /**
  * Common Select builder class, this class contains constructor initialization and common methods use in FindBuilder.ts, FindOneBuilder.ts
@@ -24,14 +23,14 @@ class BaseFind<T, Keys> {
   /**
    * Provides the Metadata of the fields
    * `Note`: currently SAP does not offer typing on EntityElements
-   * @returns EntityElements
+   * @returns unknown
    * @example
    * const results = await this.builder().find({
    *   name: 'A company name',
    * }).elements
    *
    */
-  get elements(): EntityElements {
+  get elements(): unknown {
     return this.select.elements;
   }
 
@@ -204,7 +203,7 @@ class BaseFind<T, Keys> {
       });
     };
 
-    const _buildAutoExpandStructure = (elements: EntityElements | undefined, depth = 1): ExpandStructure => {
+    const _buildAutoExpandStructure = (elements: any | undefined, depth = 1): ExpandStructure => {
       const value = associations[0];
 
       if (util.isPropertyLevelsFound(value) && value.levels !== undefined) {
@@ -226,7 +225,7 @@ class BaseFind<T, Keys> {
              * That's the reason why casting to 'any'
              */
             expandStructure[key] = {
-              expand: _buildAutoExpandStructure((element as any)._target.elements, depth + 1),
+              expand: _buildAutoExpandStructure(element._target.elements, depth + 1),
             };
           }
         }
