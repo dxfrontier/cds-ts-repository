@@ -84,14 +84,29 @@ abstract class BaseRepository<T> {
 
   /**
    * Retrieves all entries from the table with optional limit and offset.
+   * @deprecated Use `this.paginate` instead of `this.getAllAndLimit`
    * @param options
    * @param options.limit The limit for the result set.
    * @param [options.skip] Optional 'skip', which will skip a specified number of items for the result set (default: 0).
    * @returns A promise that resolves to an array of entries.
    *
    * @example const results = await this.getAllAndLimit({ limit: 10, skip: 5 });
+   *
    */
   public async getAllAndLimit(options: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
+    return await this.coreRepository.getAllAndLimit(options);
+  }
+
+  /**
+   * Retrieves all entries from the table with optional limit and offset.
+   * @param options
+   * @param options.limit The limit for the result set.
+   * @param [options.skip] Optional 'skip', which will skip a specified number of items for the result set (default: 0).
+   * @returns A promise that resolves to an array of entries.
+   *
+   * @example const results = await this.paginate({ limit: 10, skip: 5 });
+   */
+  public async paginate(options: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
     return await this.coreRepository.getAllAndLimit(options);
   }
 

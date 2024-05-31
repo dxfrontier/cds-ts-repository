@@ -57,17 +57,17 @@ describe('SELECT - drafts', () => {
     });
   });
 
-  describe('.getAllDraftsAndLimit()', () => {
+  describe('.paginateDrafts()', () => {
     it('should have length smaller than .getAll length with specified limit', async () => {
       // Act
       const getAll = await bookEventDraftRepository.getAllDrafts();
-      const getAllAndLimit = await bookEventDraftRepository.getAllDraftsAndLimit({ limit: 1 });
-      const getAllAndLimitAndSkip = await bookEventDraftRepository.getAllDraftsAndLimit({ limit: 2, skip: 1 });
+      const drafts = await bookEventDraftRepository.paginateDrafts({ limit: 1 });
+      const getAllAndLimitAndSkip = await bookEventDraftRepository.paginateDrafts({ limit: 2, skip: 1 });
 
       // Assert
-      expect(getAllAndLimit!.length).toBeGreaterThan(0);
-      expect(getAllAndLimit!.length).toBeLessThan(getAll!.length);
-      expect(getAllAndLimitAndSkip).not.toContain(getAllAndLimit![0]);
+      expect(drafts!.length).toBeGreaterThan(0);
+      expect(drafts!.length).toBeLessThan(getAll!.length);
+      expect(getAllAndLimitAndSkip).not.toContain(drafts![0]);
     });
   });
 
@@ -173,18 +173,18 @@ describe('SELECT - drafts', () => {
         });
       });
 
-      describe('======> .limit()', () => {
+      describe('======> .paginate()', () => {
         it('should return only 1 item with specified limit', async () => {
           const limit = await bookEventDraftRepository
             .builderDraft()
             .find({ types: 'BOOK_LUNCH' })
-            .limit({ limit: 1 })
+            .paginate({ limit: 1 })
             .execute();
           expect(limit).toHaveLength(1);
         });
       });
 
-      describe('======> .limit() with skip', () => {
+      describe('======> .paginate() with skip', () => {
         it('should return only 1 item when limit is 1 and skip is 1', async () => {
           const all = await bookEventDraftRepository.builderDraft().find({ types: 'BOOK_LUNCH' }).execute();
           const limit = await bookEventDraftRepository

@@ -3,8 +3,7 @@ import type { ColumnFormatter, Entry, Entity, AutoExpandLevels, ExpandStructure 
 import type { Filter } from './filter/Filter';
 import { constants } from '../constants/constants';
 
-import type { column_expr } from '@sap/cds';
-import type { Association, struct, type } from '@sap/cds/apis/csn';
+import type { Association, column_expr, struct, type } from '@sap/cds';
 
 export const util = {
   isAllSuccess(items: number[]): boolean {
