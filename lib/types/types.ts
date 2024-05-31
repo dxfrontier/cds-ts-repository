@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { TypedRequest } from '@sap/cds/apis/services';
+import type { TypedRequest } from '@sap/cds';
 
 import type { LanguageCode } from 'iso-639-1';
 
 import type FindBuilder from '../util/find/FindBuilder';
 import type { Filter } from '../util/filter/Filter';
 import type FindOneBuilder from '../util/find/FindOneBuilder';
-import type { EntityElements } from '@sap/cds/apis/csn';
 
 type Entity = { name: string } & Partial<{
-  elements: EntityElements;
+  elements: unknown;
   drafts: { name: string };
 }>;
 
