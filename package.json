@@ -26,18 +26,24 @@
     "build:clean": "echo 'Clean dist folder' && npx rimraf ./dist/{*.js,*.map,*.ts,*.mts,*.mjs}",
     "build:message": "echo 'Build started ...'",
     "build:ts": "tsup",
+    "commit": "commit",
     "build": "run-s build:clean build:message build:ts"
+
   },
   "dependencies": {
     "@sap/cds": "^7.9.2",
     "ts-mixer": "^6.0.4"
   },
   "devDependencies": {
-    "@cap-js/cds-typer": "^0.20.2",
+    "@cap-js/cds-typer": "^0.21.2",
     "@cap-js/sqlite": "^1.7.1",
     "@types/jest": "^29.5.12",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "@commitlint/prompt-cli": "^19.3.1",
+    "@commitlint/types": "^19.0.3",
     "axios": "^1.7.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -51,10 +57,10 @@
     "lint-staged": "^15.2.5",
     "npm-run-all": "^4.1.5",
     "odata": "^2.0.0",
-    "prettier": "3.2.5",
+    "prettier": "3.3.1",
     "rimraf": "^5.0.7",
     "ts-jest": "^29.1.4",
-    "tsup": "^8.0.2",
+    "tsup": "^8.1.0",
     "typescript": "^5.4.5"
   },
   "repository": {
