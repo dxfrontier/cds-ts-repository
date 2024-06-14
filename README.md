@@ -348,9 +348,7 @@ class MyEntityHandler {
 
 ### `Drafts` : `BaseRepositoryDraft`
 
-The `BaseRepositoryDraft` class extends `BaseRepository` by providing support for draft-enabled entities.
-
-BaseRepositoryDraft repository provides a clear separation of methods for **working with active entities** and **draft instances.**
+The `BaseRepositoryDraft` class extends `BaseRepository` by providing support for draft-enabled entities. The `BaseRepositoryDraft` repository provides a clear separation of methods for **working with active entities** and **draft instances.**
 
 #### Usage
 
@@ -380,14 +378,12 @@ Use `BaseRepositoryDraft` methods when working with `draft entity instances`.
 import { BaseRepository, BaseRepositoryDraft, Mixin } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends Mixin(BaseRepository<MyEntity>, BaseRepositoryDraft<MyEntity>) {
+export class MyRepository extends Mixin(BaseRepository<MyEntity>, BaseRepositoryDraft<MyEntity>) {
   constructor() {
     super(MyEntity);
   }
   // ... define custom CDS-QL actions if BaseRepository ones are not satisfying your needs !
 }
-
-export default BookEventRepository;
 ```
 
 > [!NOTE]
@@ -401,14 +397,12 @@ export default BookEventRepository;
 import { BaseRepository, BaseRepositoryDraft, Mixin } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepositoryDraft<MyEntity> {
+export class MyRepository extends BaseRepositoryDraft<MyEntity> {
   constructor() {
     super(MyEntity);
   }
   // ... define custom CDS-QL actions if BaseRepository ones are not satisfying your needs !
 }
-
-export default BookEventRepository;
 ```
 
 > [!NOTE]
@@ -489,7 +483,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
 
-    const create = {
+    const create: MyEntity = {
       name: 'Customer 1',
       description: 'Customer 1 description',
     },
@@ -498,13 +492,20 @@ class MyRepository extends BaseRepository<MyEntity> {
       description: 'Customer 2 description',
     };
 
-    // as an array of objects
+    // example 1
     const createdInstance = await this.createMany([create]);
 
-    // as a spread of objects
-    const createdInstance2 = await this.createMany(create); // as spread objects
-    // Further logic with createdInstance
-  }
+    // example 2
+    const createdInstance2 = await this.createMany({
+      name: 'Customer 1',
+      description: 'Customer 1 description',
+    },
+    {
+      name: 'Customer 2',
+      description: 'Customer 2 description',
+    });
+
+}
 }
 ```
 
@@ -1754,6 +1755,7 @@ class MyRepository extends BaseRepository<MyEntity> {
       { ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' },
       { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
     );
+
     // Further logic with deleted
   }
 }
