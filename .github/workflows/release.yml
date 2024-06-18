@@ -120,7 +120,7 @@ jobs:
   # This will push the latest build of the project to npm
   publish-npm:
     name: 'Publish: npm public'
-    needs: build
+    needs: check_valid_build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
