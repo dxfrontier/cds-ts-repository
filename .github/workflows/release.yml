@@ -13,7 +13,7 @@ on:
 
 permissions:
   contents: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   # This job will check if the Pull request was merged into main branch
@@ -116,6 +116,18 @@ jobs:
           prerelease: false
           draft: false
           make_latest: true
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          base: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: CHANGELOG.md updated
+          body: CHANGELOG.md updated with latest conventional commits.
+          labels: norelease
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   # This will push the latest build of the project to npm
   publish-npm:
