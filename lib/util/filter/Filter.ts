@@ -1,10 +1,11 @@
 import type { FilterOperator, FilterOptions, LogicalOperator } from '../../types/types';
 
 class Filter<T> {
-  public readonly field: keyof T;
   public readonly operator: FilterOperator;
-  public readonly logicalOperator: LogicalOperator;
-  public readonly filters: Filter<T>[];
+
+  public readonly field?: keyof T;
+  public readonly logicalOperator?: LogicalOperator;
+  public readonly filters?: Filter<T>[];
 
   // Like, In, Not in fields
   public readonly value?: string | number | string[] | number[];
@@ -14,25 +15,31 @@ class Filter<T> {
   public readonly value2?: number | string;
 
   /**
-   * Creates a new Filter instance
-   * @param options An object representing the Filter options
-   * @returns Filter
+   * Creates a `Filter` instance with filter options.
+   *
+   * @param options - An object representing the filter options.
+   * @param options.field - The field of the entity to filter on.
+   * @param options.operator - The operator to apply on the field (e.g., 'LIKE', 'BETWEEN').
+   * @param options.value - The filter value.
+   * @param options.value1 - The first value for 'BETWEEN' and 'NOT BETWEEN' operators.
+   * @param options.value2 - The second value for 'BETWEEN' and 'NOT BETWEEN' operators.
+   *
    * @example
    * const filter = new Filter<Book>({
    *  field: 'name',
    *  operator: 'LIKE',
    *  value: 'Customer',
    * });
-   * */
+   */
   constructor(options: FilterOptions<T>);
 
   /**
-   * Creates a new Filter instance
-   * @param operator  Operator used to combine the filters
-   * @param filters   An array of filters
-   * @returns Filter
-   * @example
+   * Creates a new `Filter` instance with logical operators to combine multiple filters.
    *
+   * @param operator - Operator used to combine the filters (e.g., 'AND', 'OR').
+   * @param filters - An array of `Filter` instances to combine.
+   *
+   * @example
    * const filter1 = new Filter<Book>({
    *    field: 'customer_name',
    *    operator: 'LIKE',
@@ -46,8 +53,8 @@ class Filter<T> {
    *    value2: 333,
    * });
    *
-   * const filters = new Filter('AND', filter1, filter2);
-   * */
+   * const combinedFilters = new Filter<Book>('AND', filter1, filter2);
+   */
   constructor(operator: LogicalOperator, ...filters: Filter<T>[]);
 
   constructor(filter: FilterOptions<T> | LogicalOperator, ...filters: Filter<T>[]) {
