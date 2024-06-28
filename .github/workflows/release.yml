@@ -174,7 +174,7 @@ jobs:
 
   publish-npm-github:
     name: Publish to github npm - internal
-    needs: create_changelog
+    needs: [check_valid_build, create_changelog]
     env:
       NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
