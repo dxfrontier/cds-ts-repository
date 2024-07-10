@@ -1,3 +1,21 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [1.1.1] - 2024-07-10
+
+### ⚙️ Miscellaneous Tasks
+
+- *(config)* Release workflow now shows the full changelog
+- *(config)* Fixing release workflow
+- *(config)* Fixing release workflow
+- *(tests)* Updated tests after cds-typer version increased
+- *(config)* Added docs and .md to be excluded from prettier and eslint
+- *(docs)* Created technical docs out of typedoc descriptions
+- *(config)* Added typedoc to tsconfig
+- *(docs)* Added to all components typedoc descriptions
+- Version bump to 1.1.1
+
 ## [1.1.0] - 2024-06-27
 
 ### 🚜 Refactor
@@ -13,5 +31,336 @@
 - *(config)* Type enum now supports same categories as git cliff
 - *(config)* Added publish to internal git npm
 - Version bump to 1.1.0
+
+## [1.0.22] - 2024-06-14
+
+### ⚙️ Miscellaneous Tasks
+
+- *(config)* Commitlint packages
+- *(config)* Commitlint configuration file and commitlint added to husky
+- *(docs)* Updated readme with some new changes
+- Version bump to 1.0.23
+
+## [1.0.21] - 2024-05-31
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.22
+
+### FIX
+
+- SAP moved/deleted some types
+
+## [1.0.20] - 2024-05-31
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.21
+
+### FEATURE
+
+- Deprecated `limit` and added `paginate`, reworked some code as SAP changed / deleted some types.
+
+## [1.0.19] - 2024-05-28
+
+### ⚙️ Miscellaneous Tasks
+
+- Package versions bump
+- Version bump to 1.0.20
+
+## [1.0.18] - 2024-05-14
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.19
+
+## [1.0.17] - 2024-05-14
+
+### ⚙️ Miscellaneous Tasks
+
+- Added to release workflow publish to github npm
+- Version bump to 1.0.18
+
+### Update
+
+- Added to readme a TIP for cds typer
+
+## [1.0.16] - 2024-05-02
+
+### ⚙️ Miscellaneous Tasks
+
+- Reordering structure of folders, updating the package.json versions.
+- Version bump to 1.0.17
+
+## [1.0.15] - 2024-04-17
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.16
+
+## [1.0.14] - 2024-04-17
+
+### ⚙️ Miscellaneous Tasks
+
+- Package versions.
+- Version bump to 1.0.15
+
+## [1.0.13] - 2024-04-03
+
+### 🚀 Features
+
+- New `.elements` property on builder to get the metadata of the fields and new `updateOrCreate` method similar tu `UPSERT`
+
+### ⚙️ Miscellaneous Tasks
+
+- Reorder of the imports based on type and non type
+- Version bump to 1.0.14
+
+### Update
+
+- Tests
+- README.md with new `.elements` and `updateOrCreate` method
+
+## [1.0.12] - 2024-04-01
+
+### ⚙️ Miscellaneous Tasks
+
+- .devcontainer added for easy dev around teams.
+- Version bump to 1.0.13
+
+### Created
+
+- Vscode/settings.json
+
+### Update
+
+- Gitignore
+
+## [1.0.11] - 2024-03-18
+
+### 🚀 Features
+
+- Implemented new method `deleteAll`, this new method deletes all items in a table.
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.12
+
+### Update
+
+- Tests for the new method deleteAll
+- Readme
+
+## [1.0.10] - 2024-03-14
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.10
+- Version bump to 1.0.11
+
+### Update
+
+- Readme.md and updated workflows versions
+- Readme.md
+
+## [1.0.9] - 2024-03-12
+
+### 🚀 Features
+
+- New overload for the getExpand method, this new overload can be used to auto expand associations without the need to specify which associations should be expanded.
+
+### ⚙️ Miscellaneous Tasks
+
+- Updated versions
+- Version bump to 1.0.9
+
+### Chore
+
+- Added auto expand of getExpand documentation.
+
+### Feature
+
+- Tests updated for auto expand of getExpand method
+
+### Updated
+
+- Tests for getExpand
+
+## [1.0.8] - 2024-03-05
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.8
+
+### Feature
+
+- New findOne builder.
+
+## [1.0.7] - 2024-02-27
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.7
+
+### FIX
+
+- GetExpand auto-expose entities when select? is omitted.
+
+## [1.0.6] - 2024-02-26
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.6
+
+### Update
+
+- Readme
+
+## [1.0.5] - 2024-02-26
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.5
+
+## [1.0.4] - 2024-02-26
+
+### ⚙️ Miscellaneous Tasks
+
+- Package versions increased
+- Version bump to 1.0.4
+
+### Feature
+
+- Now `getExpand` has a new overload for handling deep expand of the associations.
+
+### Update
+
+- Deep expand tests added.
+- Readme updated with deep expand
+
+## [1.0.3] - 2024-02-08
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.3
+
+## [1.0.2] - 2024-02-08
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.2
+
+### FIX
+
+- Filter constructor is not exported.
+
+## [1.0.1] - 2024-01-31
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.1
+
+## [1.0.0] - 2024-01-30
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.0.0
+
+## [0.3.8] - 2024-01-29
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.3.8
+
+### FIX
+
+- ColumnsFormatter typing
+
+## [0.3.7] - 2024-01-25
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.3.7
+
+### Update
+
+- Tests
+- README.md
+- Package.json versions
+- Package-lock.json
+
+## [0.3.6] - 2024-01-18
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.3.6
+
+## [0.3.5] - 2023-12-21
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.3.5
+
+### Updated
+
+- Tests, readme and development process updates
+
+## [0.3.4] - 2023-12-19
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.3.4
+
+### Updated
+
+- Cds-ts-repository package.json to latest versions
+
+## [0.3.3] - 2023-12-18
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.3.3
+
+## [0.3.2] - 2023-12-15
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.3.2
+
+## [0.3.1] - 2023-12-15
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.3.1
+
+## [0.3.0] - 2023-12-05
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.3.0
+
+## [0.2.1] - 2023-11-27
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.2.1
+
+## [0.2.0] - 2023-11-24
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.2.0
+
+## [0.1.9] - 2023-11-15
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.1.9
+
+## [0.1.8] - 2023-11-14
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 0.1.8
 
 <!-- generated by git-cliff -->
