@@ -27,4 +27,22 @@ export type EntitySet<T> = T[] & {
 
 export type DeepRequired<T> = { 
     [K in keyof T]: DeepRequired<T[K]>
-} & Required<T>;
+} & Exclude<Required<T>, null>;
+
+
+/**
+ * Dates and timestamps are strings during runtime, so cds-typer represents them as such.
+ */
+export type CdsDate = `${number}${number}${number}${number}-${number}${number}-${number}${number}`;
+/**
+ * @see {@link CdsDate}
+ */
+export type CdsDateTime = string;
+/**
+ * @see {@link CdsDate}
+ */
+export type CdsTime = `${number}${number}:${number}${number}:${number}${number}`;
+/**
+ * @see {@link CdsDate}
+ */
+export type CdsTimestamp = string;
