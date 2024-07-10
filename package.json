@@ -26,6 +26,8 @@
     "build:clean": "echo 'Clean dist folder' && npx rimraf ./dist/{*.js,*.map,*.ts,*.mts,*.mjs}",
     "build:message": "echo 'Build started ...'",
     "build:ts": "tsup",
+    "build:documentation:message": "echo 'Started creation of documentation based on TypeDoc ...'",
+    "build:documentation": "npx typedoc",
     "commit": "commit",
     "build": "run-s build:clean build:message build:ts"
   },
@@ -61,6 +63,7 @@
     "rimraf": "^6.0.0",
     "ts-jest": "^29.2.1",
     "tsup": "^8.1.0",
+    "typedoc": "^0.26.3",
     "typescript": "^5.5.3"
   },
   "repository": {
