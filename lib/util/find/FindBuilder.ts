@@ -8,13 +8,26 @@ import BaseFind from './BaseFind';
 
 import type { AppendColumns, ColumnFormatter, Columns, Entity, ShowOnlyColumns } from '../../types/types';
 
+/**
+ * Builder class for constructing a query to find multiple entities.
+ * Extends {@link BaseFind} class to inherit common find methods.
+ *
+ * @template T - The entity type being queried.
+ * @template Keys - The type representing the keys or filters for the query.
+ */
 class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
+  /**
+   * Constructs a new `FindBuilder` instance.
+   *
+   * @param entity - The entity type or name to query.
+   * @param keys - The keys or filters for the query.
+   */
   constructor(entity: Entity, keys: Keys | string) {
     super(entity, keys);
   }
 
   /**
-   * `Skip` duplicates similar to distinct from SQL
+   * `Skip` duplicates similar to distinct from SQL.
    * @returns FindBuilder instance
    *
    * @example
@@ -30,7 +43,8 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
 
   /**
    * Orders the selected columns in ascending order.
-   * @param columns An array of column names to order ascending.
+   *
+   * @param columns - An array of column names to order ascending.
    * @returns FindBuilder instance
    *
    * @example
@@ -53,7 +67,8 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
 
   /**
    * Orders the selected columns in descending order.
-   * @param columns An array of column names to order in descending.
+   *
+   * @param columns - An array of column names to order in descending.
    * @returns FindBuilder instance
    *
    * @example
@@ -76,7 +91,8 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
 
   /**
    * Groups the selected columns.
-   * @param columns An array of column names to use for grouping.
+   *
+   * @param columns - An array of column names to use for grouping.
    * @returns FindBuilder instance
    *
    * @example
@@ -95,8 +111,9 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
   }
 
   /**
-   * Specifies which columns to be used as aggregate columns or to be renamed
-   * @param columns An array of columns
+   * Specifies which columns to be used as aggregate columns or to be renamed.
+   *
+   * @param columns - An array of columns.
    * @returns FindBuilder instance
    *
    * @example
@@ -126,8 +143,9 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
   }
 
   /**
-   * Specifies which columns to be fetched
-   * @param columns An array of column names to retrieve.
+   * Specifies which columns to be fetched.
+   *
+   * @param columns - An array of column names to retrieve.
    * @returns FindBuilder instance
    *
    * @example
@@ -138,7 +156,6 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
    * // or
    * //.columns(['name', 'currency_code'])
    * .execute();
-   *
    */
   public columns<ColumnKeys extends Columns<T>>(
     ...columns: ColumnKeys[]
@@ -166,10 +183,11 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
 
   /**
    * Limits the result set with an optional offset.
-   * @deprecated Use `this.builder().find().paginate` instead of `this.builder().find().limit`
-   * @param options
-   * @param options.limit The limit for the result set.
-   * @param options.skip The optional 'skip', this will skip a certain number of items for the result set.
+   *
+   * @deprecated Use `this.builder().find().paginate` instead of `this.builder().find().limit`.
+   * @param options - The options for limiting the result set.
+   * @param options.limit - The limit for the result set.
+   * @param options.skip - Optional. The number of items to skip in the result set.
    * @returns FindBuilder instance
    *
    * @example
@@ -178,7 +196,6 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
    * })
    * .limit({ limit: 10, skip: 5 })
    * .execute();
-   *
    */
   public limit(options: { limit: number; skip?: number }): this {
     if (options.skip !== null) {
@@ -192,9 +209,10 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
 
   /**
    * Limits the result set with an optional offset.
-   * @param options
-   * @param options.limit The limit for the result set.
-   * @param options.skip The optional 'skip', this will skip a certain number of items for the result set.
+   *
+   * @param options - The options for limiting the result set.
+   * @param options.limit - The limit for the result set.
+   * @param options.skip - Optional. The number of items to skip in the result set.
    * @returns FindBuilder instance
    *
    * @example
@@ -203,7 +221,6 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
    * })
    * .paginate({ limit: 10, skip: 5 })
    * .execute();
-   *
    */
   public paginate(options: { limit: number; skip?: number }): this {
     if (options.skip !== undefined && options.skip !== null) {
@@ -216,7 +233,8 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
 
   /**
    * Executes the query and returns the result as an array of objects.
-   * @returns A promise that resolves to the query result.
+   *
+   * @returns A promise that resolves to the array of query results.
    */
   public async execute(): Promise<T[] | undefined> {
     return await this.select;

@@ -6,13 +6,22 @@ import util from '../util';
 import type { Expand, Columns, AssociationFunction, ValueExpand, Entity, ExpandStructure } from '../../types/types';
 
 /**
- * Common Select builder class, this class contains constructor initialization and common methods use in FindBuilder.ts, FindOneBuilder.ts
+ * Common Select builder class, this class contains constructor initialization and common methods used in FindBuilder.ts and FindOneBuilder.ts.
+ *
+ * @template T The type of the entity.
+ * @template Keys The type of the keys used to filter the entity.
  */
 class BaseFind<T, Keys> {
   protected select: SELECT<any>;
   protected columnsCalled: boolean = false;
   protected expandCalled: boolean = false;
 
+  /**
+   * Creates an instance of BaseFind.
+   *
+   * @param entity - The entity for which the SELECT query is being built.
+   * @param keys - The keys used to filter the SELECT query.
+   */
   constructor(
     protected readonly entity: Entity,
     protected readonly keys: Keys | string,
@@ -21,14 +30,15 @@ class BaseFind<T, Keys> {
   }
 
   /**
-   * Provides the Metadata of the fields
-   * `Note`: currently SAP does not offer typing on EntityElements
-   * @returns unknown
+   * Provides the Metadata of the fields.
+   * `Note`: currently SAP does not offer typing on EntityElements.
+   *
+   * @returns Metadata of the fields.
+   *
    * @example
    * const results = await this.builder().find({
    *   name: 'A company name',
-   * }).elements
-   *
+   * }).elements;
    */
   get elements(): unknown {
     return this.select.elements;
@@ -36,18 +46,15 @@ class BaseFind<T, Keys> {
 
   /**
    * Exclusively locks the selected rows for subsequent updates in the current transaction, thereby preventing concurrent updates by other parallel transactions.
+   *
    * @param options [optional]
-   * @param options.wait an integer specifying the timeout after which to fail with an error in case a lock couldn't be obtained.
-   * @returns FindBuilder / FindOneBuilder instance
+   * @param options.wait - An integer specifying the timeout after which to fail with an error in case a lock couldn't be obtained.
+   * @returns The current instance of BaseFind.
+   *
    * @example
    * const results = await this.builder().find({
    *   name: 'A company name',
-   * })
-   * .forUpdate({ wait: 10 })
-   * // or
-   * //.forUpdate()
-   * .execute();
-   *
+   * }).forUpdate({ wait: 10 }).execute();
    */
   public forUpdate(options?: { wait?: number }): this {
     void this.select.forUpdate({ wait: options?.wait });
@@ -55,8 +62,11 @@ class BaseFind<T, Keys> {
   }
 
   /**
-   * Locks the selected rows in the current transaction, thereby preventing concurrent updates by other parallel transactions, until the transaction is committed or rolled back. Using a shared lock allows all transactions to read the locked record.
+   * Locks the selected rows in the current transaction, thereby preventing concurrent updates by other parallel transactions, until the transaction is committed or rolled back.
+   * Using a shared lock allows all transactions to read the locked record.
    * If a queried record is already exclusively locked by another transaction, the .forShareLock() method waits for the lock to be released.
+   *
+   * @returns The current instance of BaseFind.
    */
   public forShareLock(): this {
     void this.select.forShareLock();
@@ -65,31 +75,28 @@ class BaseFind<T, Keys> {
 
   /**
    * Auto expands and exposes associations/compositions of the entity.
-   * @param options
-   * @param options.levels  Depth number to expand the associations, this will do a deep expand equals to the levels number, `depth can start from 1...n`
-   * @returns FindBuilder / FindOneBuilder instance
+   *
+   * @param options - Options for expanding associations.
+   * @param options.levels - Depth number to expand the associations, this will do a deep expand equals to the levels number, `depth can start from 1...n`.
+   * @returns The current instance of BaseFind.
    *
    * @example
-   * const results = await this.builder()
-   * .find({
+   * const results = await this.builder().find({
    *     name: 'A company name',
-   * })
-   * .getExpand({ levels : 2 })
-   * .execute();
+   * }).getExpand({ levels: 2 }).execute();
    */
   public getExpand(options: { levels: number }): this;
 
   /**
    * Deep expand of the associated entities.
-   * @param associations An object of column names to expand, representing associated entities.
-   * @returns FindBuilder / FindOneBuilder instance
+   *
+   * @param associations - An object of column names to expand, representing associated entities.
+   * @returns The current instance of BaseFind.
    *
    * @example
-   * const results = await this.builder()
-   * .find({
+   * const results = await this.builder().find({
    *     name: 'A company name',
-   * })
-   * .getExpand({
+   * }).getExpand({
    *  // expand full 'author' up to 1 level
    *  author: {},
    *  // expand 'genre', having only 'ID' and 'name'
@@ -105,25 +112,22 @@ class BaseFind<T, Keys> {
    *      },
    *    },
    *  },
-   * })
-   * .execute();
+   * }).execute();
    */
   public getExpand(associations: Expand<T>): this;
 
   /**
    * Retrieves the associated entities expanded up to `1 level`.
-   * @param associations An array of column names to expand, representing associated entities.
-   * @returns FindBuilder / FindOneBuilder instance
+   *
+   * @param associations - An array of column names to expand, representing associated entities.
+   * @returns The current instance of BaseFind.
    *
    * @example
-   * const results = await this.builder()
-   * .find({
+   * const results = await this.builder().find({
    *     name: 'A company name',
-   * })
-   * .getExpand('orders', 'reviews')
+   * }).getExpand('orders', 'reviews').execute();
    * // or
-   * //.getExpand(['orders', 'reviews'])
-   * .execute();
+   * //.getExpand(['orders', 'reviews']).execute();
    */
   public getExpand(...associations: Columns<T>[]): this;
 

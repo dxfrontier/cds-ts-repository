@@ -6,9 +6,17 @@ import { CoreRepository } from './CoreRepository';
 import type { Columns, DraftEntries, Entity, EntryDraft, FindReturn, ShowOnlyColumns } from '../types/types';
 import type { Filter } from '../util/filter/Filter';
 
+/**
+ * Abstract class providing base repository functionalities for draft entity operations.
+ * @template T The type of the entity.
+ */
 abstract class BaseRepositoryDraft<T> {
   protected readonly coreRepository: CoreRepository<EntryDraft<T>>;
 
+  /**
+   * Creates an instance of BaseRepositoryDraft.
+   * @param entity The entity this repository manages.
+   */
   constructor(protected readonly entity: Entity & EntryDraft<T>) {
     this.coreRepository = new CoreRepository(this.entity);
   }
@@ -16,10 +24,10 @@ abstract class BaseRepositoryDraft<T> {
   // Public routines
 
   /**
-   * Retrieves all drafts entries from the table.
+   * Retrieves all draft entries from the table.
    * @returns A promise that resolves to an array of entries.
-   *
-   * @example const results = await this.getAllDrafts();
+   * @example
+   * const results = await this.getAllDrafts();
    */
   public async getAllDrafts(): Promise<Array<EntryDraft<T>> | undefined> {
     return await this.coreRepository.getAll();
@@ -29,8 +37,8 @@ abstract class BaseRepositoryDraft<T> {
    * Retrieves all distinct draft entries based on specific columns from the table.
    * @param columns An array of column names to retrieve distinct entries for.
    * @returns A promise that resolves to an array of distinct entries.
-   *
-   * @example const results = await this.getDraftsDistinctColumns(['currency_code', 'ID', 'name']);
+   * @example
+   * const results = await this.getDraftsDistinctColumns(['currency_code', 'ID', 'name']);
    * // or
    * // const results = await this.getDraftsDistinctColumns('currency_code', 'ID', 'name');
    */
@@ -42,13 +50,12 @@ abstract class BaseRepositoryDraft<T> {
 
   /**
    * Retrieves all draft entries from the table with optional limit and offset.
-   * @deprecated Use this.paginateDrafts instead of this getAllDraftsAndLimit
-   * @param options
+   * @deprecated Use `paginateDrafts` instead.
    * @param options.limit The limit for the result set.
    * @param [options.skip] Optional 'skip', which will skip a specified number of items for the result set (default: 0).
    * @returns A promise that resolves to an array of entries.
-   *
-   * @example const results = await this.getAllDraftsAndLimit({ limit: 10, skip: 5 });
+   * @example
+   * const results = await this.getAllDraftsAndLimit({ limit: 10, skip: 5 });
    */
   public async getAllDraftsAndLimit(options: {
     limit: number;
@@ -59,12 +66,11 @@ abstract class BaseRepositoryDraft<T> {
 
   /**
    * Retrieves all draft entries from the table with optional limit and offset.
-   * @param options
    * @param options.limit The limit for the result set.
    * @param [options.skip] Optional 'skip', which will skip a specified number of items for the result set (default: 0).
    * @returns A promise that resolves to an array of entries.
-   *
-   * @example const results = await this.getAllDraftsAndLimit({ limit: 10, skip: 5 });
+   * @example
+   * const results = await this.paginateDrafts({ limit: 10, skip: 5 });
    */
   public async paginateDrafts(options: {
     limit: number;
@@ -77,24 +83,22 @@ abstract class BaseRepositoryDraft<T> {
    * Finds draft entries based on the provided keys.
    * @param keys An object representing the keys to filter the entries.
    * @returns A promise that resolves to an array of matching entries.
-   *
-   * @example const results = await this.findDrafts({ name: 'Customer', description: 'description' });
+   * @example
+   * const results = await this.findDrafts({ name: 'Customer', description: 'description' });
    */
   public async findDrafts(keys: EntryDraft<T>): Promise<T[] | undefined>;
   /**
    * Finds entries based on the provided filters.
-   * @param filter A Filter instance
-   * @returns FindBuilder
+   * @param filter A Filter instance.
+   * @returns A promise that resolves to an array of matching entries.
    * @example
    * const filterLike = new Filter<Book>({
    *  field: 'name',
    *  operator: 'LIKE',
    *  value: 'Customer',
    * });
-   *
-   * const results = await this.findDrafts(filter)
-   *
-   * */
+   * const results = await this.findDrafts(filter);
+   */
   public async findDrafts(filter: Filter<T>): Promise<T[] | undefined>;
   public async findDrafts(keys: EntryDraft<T> | Filter<T>): Promise<Array<EntryDraft<T>> | undefined> {
     return await this.coreRepository.find(keys);
@@ -104,38 +108,40 @@ abstract class BaseRepositoryDraft<T> {
    * Finds a single draft entry based on the provided keys.
    * @param keys An object representing the keys to filter the record.
    * @returns A promise that resolves to a single matching record.
-   *
-   * @example const result = await this.findOneDraft({ name: 'Customer', description: 'description' });
+   * @example
+   * const result = await this.findOneDraft({ name: 'Customer', description: 'description' });
    */
   public async findOneDraft(keys: EntryDraft<T>): Promise<EntryDraft<T> | undefined> {
     return await this.coreRepository.findOne(keys);
   }
 
+  /**
+   * Builds a query for draft entries using the repository's builder.
+   * @returns An instance of FindReturn for building queries.
+   */
   public builderDraft(): FindReturn<EntryDraft<T>> {
     return this.coreRepository.builder();
   }
 
   /**
-   * Updates draft entry based on the provided keys and update fields.
+   * Updates a draft entry based on the provided keys and update fields.
    * @param keys An object representing the keys to filter the entries.
    * @param fieldsToUpdate An object representing the fields and their updated values for the matching entries.
    * @returns A promise that resolves to `true` if the update is successful, `false` otherwise.
-   * 
-   * @example 
+   * @example
    * const updated = await this.updateDraft(
-      { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
-      { name: 'a new name', description: 'a new description' },
-    );
+   *   { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
+   *   { name: 'a new name', description: 'a new description' },
+   * );
    */
   public async updateDraft(keys: EntryDraft<T>, fieldsToUpdate: EntryDraft<T>): Promise<boolean> {
     return await this.coreRepository.update(keys, fieldsToUpdate);
   }
 
   /**
-   * Deletes draft entry based on the provided keys.
+   * Deletes a draft entry based on the provided keys.
    * @param keys An object representing the keys to filter the entries.
    * @returns A promise that resolves to `true` if the deletion is successful, `false` otherwise.
-   *
    * @example
    * const deleted1 = await this.deleteDraft({ name: 'Customer' });
    * const deleted2 = await this.deleteDraft({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' });
@@ -148,22 +154,19 @@ abstract class BaseRepositoryDraft<T> {
    * Deletes multiple drafts based on the provided keys.
    * @param entries An array of objects representing the keys to filter the entries.
    * @returns A promise that resolves to `true` if all deletions are successful, `false` otherwise.
-   * 
    * @example
    * const deleted = await this.deleteManyDrafts([
-      { ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' },
-      { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
-    ]);
+   *   { ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' },
+   *   { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
+   * ]);
    */
-
   public async deleteManyDrafts(entries: DraftEntries<T>[]): Promise<boolean> {
     return await this.coreRepository.deleteMany(...entries);
   }
 
   /**
-   * Deletes all draft entries from the table but preserving the table structure.
+   * Deletes all draft entries from the table but preserves the table structure.
    * @returns A promise that resolves to `true` if all deletions are successful, `false` otherwise.
-   *
    * @example
    * const deleted = await this.deleteAllDrafts();
    */
@@ -172,22 +175,19 @@ abstract class BaseRepositoryDraft<T> {
   }
 
   /**
-   * Checks if draft instance based on the provided keys exist in the table.
+   * Checks if a draft entry based on the provided keys exists in the table.
    * @param keys An object representing the keys to filter the entries.
    * @returns A promise that resolves to `true` if the item exists, `false` otherwise.
-   *
    * @example const exists = await this.existsDraft({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba09' });
-   *
    */
   public async existsDraft(keys: EntryDraft<T>): Promise<boolean> {
     return await this.coreRepository.exists(keys);
   }
 
   /**
-   * Counts the total number of drafts in the table.
+   * Counts the total number of draft entries in the table.
    * @returns A promise that resolves to the count of entries.
-   *
-   * @example const count = await this.count();
+   * @example const count = await this.countDrafts();
    */
   public async countDrafts(): Promise<number> {
     return await this.coreRepository.count();

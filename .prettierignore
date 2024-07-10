@@ -2,6 +2,6 @@
 package.json
 dist
 .github
-.md
+*.md
 
 docs
