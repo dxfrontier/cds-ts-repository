@@ -1,5 +1,9 @@
 import type { FilterOperator, FilterOptions, LogicalOperator } from '../../types/types';
 
+/**
+ * Represents a filter to be applied on entities.
+ * @template T The type of the entity.
+ */
 class Filter<T> {
   public readonly operator: FilterOperator;
 

@@ -18,9 +18,18 @@ import type {
   Entity,
 } from '../types/types';
 import type { Filter } from '..';
+
+/**
+ * Core repository class providing CRUD operations for entities.
+ * @template T The type of the entity.
+ */
 class CoreRepository<T> {
   private readonly resolvedEntity: string;
 
+  /**
+   * Creates an instance of CoreRepository.
+   * @param entity The entity this repository manages.
+   */
   constructor(protected readonly entity: Entity) {
     this.resolvedEntity = util.resolveEntityName(entity);
   }

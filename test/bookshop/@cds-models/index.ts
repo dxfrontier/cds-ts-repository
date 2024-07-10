@@ -4,14 +4,8 @@ import * as __ from './_';
 export type Language = __.Association.to<_sap_common.Language>;
 export type Currency = __.Association.to<_sap_common.Currency>;
 export type Country = __.Association.to<_sap_common.Country>;
+export type Timezone = __.Association.to<_sap_common.Timezone>;
 export type User = string;
-export type HelloRequest = {
-    greeterName?: string | null;
-    toName?: string | null;
-};
-export type HelloResponse = {
-    greetingMessage?: string | null;
-};
 // enum
 export const Roles = {
   USER: "USER",
@@ -21,47 +15,63 @@ export type Roles = "USER" | "ADMIN"
 
 // the following represents the CDS aspect 'cuid'
 export function _cuidAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
-  return class cuid extends Base {
-        ID?: string | null;
-      static actions: {
-    }
+  return class extends Base {
+        ID?: string;
+      static readonly actions: Record<never, never>
   };
 }
 export class cuid extends _cuidAspect(__.Entity) {}
 // the following represents the CDS aspect 'managed'
 export function _managedAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
-  return class managed extends Base {
-        createdAt?: string | null;
+  return class extends Base {
+        createdAt?: __.CdsTimestamp | null;
     /**
     * Canonical user ID
     */
         createdBy?: User | null;
-        modifiedAt?: string | null;
+        modifiedAt?: __.CdsTimestamp | null;
     /**
     * Canonical user ID
     */
         modifiedBy?: User | null;
-      static actions: {
-    }
+      static readonly actions: Record<never, never>
   };
 }
 export class managed extends _managedAspect(__.Entity) {}
 // the following represents the CDS aspect 'temporal'
 export function _temporalAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
-  return class temporal extends Base {
-        validFrom?: string | null;
-        validTo?: string | null;
-      static actions: {
-    }
+  return class extends Base {
+        validFrom?: __.CdsTimestamp | null;
+        validTo?: __.CdsTimestamp | null;
+      static readonly actions: Record<never, never>
   };
 }
 export class temporal extends _temporalAspect(__.Entity) {}
 // the following represents the CDS aspect 'extensible'
 export function _extensibleAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
-  return class extensible extends Base {
+  return class extends Base {
         extensions__?: string | null;
-      static actions: {
-    }
+      static readonly actions: Record<never, never>
   };
 }
 export class extensible extends _extensibleAspect(__.Entity) {}
+export function _HelloRequestAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
+  return class extends Base {
+        greeterName?: string | null;
+        toName?: string | null;
+      static readonly actions: Record<never, never>
+  };
+}
+export class HelloRequest extends _HelloRequestAspect(__.Entity) {}
+Object.defineProperty(HelloRequest, 'name', { value: 'HelloRequest' })
+Object.defineProperty(HelloRequest, 'is_singular', { value: true })
+
+export function _HelloResponseAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
+  return class extends Base {
+        greetingMessage?: string | null;
+      static readonly actions: Record<never, never>
+  };
+}
+export class HelloResponse extends _HelloResponseAspect(__.Entity) {}
+Object.defineProperty(HelloResponse, 'name', { value: 'HelloResponse' })
+Object.defineProperty(HelloResponse, 'is_singular', { value: true })

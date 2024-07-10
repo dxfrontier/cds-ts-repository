@@ -6,7 +6,21 @@ import BaseFind from './BaseFind';
 
 import type { ColumnFormatter, AppendColumns, Columns, ShowOnlyColumns, Entity } from '../../types/types';
 
+/**
+ * Builder class for constructing a query to find a single entity.
+ *
+ * Extends {@link BaseFind} class to inherit common find methods.
+ *
+ * @template T - The entity type being queried.
+ * @template Keys - The type representing the keys or filters for the query.
+ */
 class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
+  /**
+   * Constructs a new `FindOneBuilder` instance.
+   *
+   * @param entity - The entity type or name to query.
+   * @param keys - The keys or filters for the query.
+   */
   constructor(entity: Entity, keys: Keys | string) {
     super(entity, keys);
 
@@ -15,25 +29,26 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
 
   /*
    * This method is used to override the SELECT from the BaseFind to add SELECT.one.from instead of SELECT.from ...
-   **/
+   */
   private initializeSelectOne(): void {
     this.select = SELECT.one.from(this.entity.name).where(this.keys);
   }
 
   /**
-   * Specifies which columns to be used as aggregate columns or to be renamed
-   * @param columns An array of columns
+   * Specifies which columns to be used as aggregate columns or to be renamed.
+   *
+   * @param columns - An array of columns
    * @returns FindOneBuilder instance
    *
    * @example
    * const result = await this.builder()
-   * .findOne({
+   *   .findOne({
    *     name: 'A company name',
-   * })
-   * .columnsFormatter(
-   *    { column: 'stock', renameAs: 'stockRenamed' }, // just renaming
-   * )
-   * .execute();
+   *   })
+   *   .columnsFormatter(
+   *     { column: 'stock', renameAs: 'stockRenamed' }, // just renaming
+   *   )
+   *   .execute();
    */
   public columnsFormatter<const ColumnKeys extends ColumnFormatter<T, 'FIND_ONE'>>(
     ...columns: ColumnKeys
@@ -51,8 +66,9 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
   }
 
   /**
-   * Specifies which columns to be fetched
-   * @param columns An array of column names to retrieve.
+   * Specifies which columns to be fetched for a single record.
+   *
+   * @param columns - An array of column names to retrieve.
    * @returns FindOneBuilder instance
    *
    * @example
@@ -63,7 +79,6 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
    * // or
    * //.columns(['name', 'currency_code'])
    * .execute();
-   *
    */
   public columns<ColumnKeys extends Columns<T>>(
     ...columns: ColumnKeys[]
@@ -90,8 +105,9 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
   }
 
   /**
-   * Executes the query and returns the result as object.
-   * @returns A promise that resolves to the query result.
+   * Executes the query and returns the result as an object.
+   *
+   * @returns A promise that resolves to the single entity result.
    */
   public async execute(): Promise<T | undefined> {
     return await this.select;
