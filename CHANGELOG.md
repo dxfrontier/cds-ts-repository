@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3] - 2024-07-18
+
+### 📚 Documentation
+
+- *(docs)* Readme updated
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 1.1.3
+
 ## [1.1.2] - 2024-07-11
 
 ### 📚 Documentation
