@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@sap/cds": "^7.9.3",
+    "@sap/cds-dk": "^7.9.5",
     "ts-mixer": "^6.0.4"
   },
   "devDependencies": {
