@@ -15,7 +15,6 @@
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/dxfrontier/cds-ts-repository/main?logo=git)
 ![GitHub issues](https://img.shields.io/github/issues/dxfrontier/cds-ts-repository?logo=git)
 ![GitHub contributors](https://img.shields.io/github/contributors/dxfrontier/cds-ts-repository?logo=git)
-![GitHub top language](https://img.shields.io/github/languages/top/dxfrontier/cds-ts-repository?logo=git)
 ![GitHub Repo stars](https://img.shields.io/github/stars/dxfrontier/cds-ts-repository?style=flat&logo=git)
 
 The goal of **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`.
