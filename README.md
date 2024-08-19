@@ -25,17 +25,15 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
 - [Installation](#installation)
   - [Install CDS-TS-Repository](#install-cds-ts-repository)
   - [`Generate CDS Typed entities`](#generate-cds-typed-entities)
-    - [Option 1 - `Recommended`](#option-1---recommended)
-    - [Option 2](#option-2)
     - [`Important`](#important)
+- [`Architecture`](#architecture)
 - [Usage](#usage)
-  - [`Architecture`](#architecture)
-  - [`Option 1` : Using `BaseRepository` with `Standard SAP CDS-TS`](#option-1--using-baserepository-with-standard-sap-cds-ts)
-    - [Step 1: Create MyRepository class](#step-1-create-myrepository-class)
-    - [Step 2 : Integrate MyRepository class](#step-2--integrate-myrepository-class)
+  - [`Option 1` : Using `BaseRepository` with `Standard SAP CAP CDS-TS`](#option-1--using-baserepository-with-standard-sap-cap-cds-ts)
+    - [`Step 1` : Create MyRepository class](#step-1--create-myrepository-class)
+    - [`Step 2` : Integrate MyRepository class](#step-2--integrate-myrepository-class)
   - [`Option 2` : Using `BaseRepository` with `CDS-TS-Dispatcher`](#option-2--using-baserepository-with-cds-ts-dispatcher)
-    - [Step 1 : Create MyRepository class](#step-1--create-myrepository-class)
-    - [Step 2 : Inject MyRepository class](#step-2--inject-myrepository-class)
+    - [`Step 1` : Create MyRepository class](#step-1--create-myrepository-class-1)
+    - [`Step 2` : Inject MyRepository class](#step-2--inject-myrepository-class)
   - [`Drafts` : `BaseRepositoryDraft`](#drafts--baserepositorydraft)
     - [Usage](#usage-1)
     - [Integration](#integration)
@@ -80,7 +78,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [count](#count)
   - [`Helpers`](#helpers)
     - [Filter](#filter)
-- [`Examples`](#examples)
+- [`Samples`](#samples)
 - [Contributing](#contributing)
 - [License](#license)
 - [Authors](#authors)
@@ -95,8 +93,6 @@ npm install @dxfrontier/cds-ts-repository
 
 ### `Generate CDS Typed entities`
 
-#### Option 1 - `Recommended`
-
 Execute the following commands :
 
 ```bash
@@ -109,19 +105,6 @@ npm install
 
 > [!TIP]
 > If above option is being used, this means whenever we change a `.CDS` file the changes will be reflected in the generated `@cds-models` folder.
-
-#### Option 2
-
-Execute the command :
-
-```bash
-npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
-```
-
-- Target folder :`./srv/util/types/entities` - Change to your desired destination folder.
-
-> [!TIP]
-> If above option is being used, you have to run every time the command when you do a change in a `.CDS file`
 
 #### `Important`
 
@@ -145,9 +128,7 @@ npx @cap-js/cds-typer "*" --outputDirectory ./srv/util/types/entities
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-## Usage
-
-### `Architecture`
+## `Architecture`
 
 **We recommend adhering** to the **Controller-Service-Repository**.
 
@@ -163,11 +144,14 @@ A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher]
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-### `Option 1` : Using `BaseRepository` with `Standard SAP CDS-TS`
+
+## Usage
+
+### `Option 1` : Using `BaseRepository` with `Standard SAP CAP CDS-TS`
 
 This guide explains how to use the BaseRepository with the `Standard SAP CDS-TS`, allowing you to work without the need for the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher).
 
-#### Step 1: Create MyRepository class
+#### `Step 1` : Create MyRepository class
 
 Start by creating `MyRepository` class, which will extend the `BaseRepository<T>` to handle operations for your entity.
 
@@ -213,11 +197,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 ```
 
-#### Step 2 : Integrate MyRepository class
+#### `Step 2` : Integrate MyRepository class
 
 Now that you have `MyRepository` class, you can integrate it into your implementation.
-
-`Steps`
 
 1. Create a new private field:
 
@@ -258,11 +240,9 @@ export class MainService extends cds.ApplicationService {
 
 This guide explains how to use the BaseRepository with the [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher).
 
-#### Step 1 : Create MyRepository class
+#### `Step 1` : Create MyRepository class
 
 Start by creating a `MyRepository` class, which will extend the `BaseRepository<T>` to handle operations for your entity.
-
-`Steps`
 
 1. Create a new class `MyRepository`:
 
@@ -326,7 +306,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-#### Step 2 : Inject MyRepository class
+#### `Step 2` : Inject MyRepository class
 
 Now `MyRepository` class can be injected in another class using `@Inject` decorator.
 
@@ -1968,7 +1948,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-## `Examples`
+## `Samples`
 
 Find here a collection of samples for the [CDS-TS-Dispatcher & CDS-TS-Repository](https://github.com/dxfrontier/cds-ts-samples)
 
