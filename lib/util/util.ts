@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ColumnFormatter, Entry, Entity, AutoExpandLevels, ExpandStructure } from '../types/types';
 import type { Filter } from './filter/Filter';
 import { constants } from '../constants/constants';
@@ -132,7 +131,7 @@ export const util = {
     }
 
     const subQueries = filter.filters?.map((subFilter) => this.buildSQLQuery(subFilter));
-    let query: string = '';
+    let query = '';
 
     // Compute the filters in a logical OR or AND
     if (filter.logicalOperator === 'AND') {

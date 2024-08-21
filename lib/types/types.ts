@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { TypedRequest } from '@sap/cds';
 
 import type { LanguageCode } from 'iso-639-1';

@@ -1,7 +1,0 @@
-# Ignore artifacts
-test
-dist
-docs
-
-tsup.config.ts
-jest.config.js

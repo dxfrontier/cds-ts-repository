@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { constants } from '../../constants/constants';
 import util from '../util';
 
@@ -13,8 +11,8 @@ import type { Expand, Columns, AssociationFunction, ValueExpand, Entity, ExpandS
  */
 class BaseFind<T, Keys> {
   protected select: SELECT<any>;
-  protected columnsCalled: boolean = false;
-  protected expandCalled: boolean = false;
+  protected columnsCalled = false;
+  protected expandCalled = false;
 
   /**
    * Creates an instance of BaseFind.

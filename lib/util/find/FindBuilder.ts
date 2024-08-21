@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-useless-constructor */
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Service, type } from '@sap/cds';
+import type { Service } from '@sap/cds';
 
 import util from '../util';
 import BaseFind from './BaseFind';

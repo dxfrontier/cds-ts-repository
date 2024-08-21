@@ -7,7 +7,7 @@ const Configuration: UserConfig = {
     'type-enum': [
       RuleConfigSeverity.Error,
       'always',
-      ['feat', 'fix', 'doc', 'perf', 'refactor', 'style', 'test', 'chore', 'revert', 'delete'],
+      ['build', 'chore', 'ci', 'docs', 'feat', 'fix', 'perf', 'refactor', 'revert', 'style', 'test', 'delete'],
     ],
     'scope-enum': [
       RuleConfigSeverity.Error,
@@ -23,11 +23,12 @@ const Configuration: UserConfig = {
         // Changes that affect the build system or external dependencies.
         'build',
         // docs: Changes to documentation.
-        'docs',
+        'readme',
         // deps: Updates to dependencies.
         'deps',
-        // unit: Updates to the unit tests
-        'tests',
+        // e2e-tests, unit, integration
+        'e2e',
+        'unit',
       ],
     ],
     'scope-empty': [RuleConfigSeverity.Error, 'never'],

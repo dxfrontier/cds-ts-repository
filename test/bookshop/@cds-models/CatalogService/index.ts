@@ -13,23 +13,23 @@ const BookEvent_types = {
 type BookEvent_types = "BOOK_SIGNING" | "AUTHOR_TALK" | "BOOK_LUNCH"
 
 export function _BookEventAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
-  return class extends _._managedAspect(_._cuidAspect(Base)) {
-        createdAt?: __.CdsTimestamp | null;
+  return class BookEvent extends Base {
+        declare createdAt?: __.CdsTimestamp | null;
     /**
     * Canonical user ID
     */
-        createdBy?: _.User | null;
-        modifiedAt?: __.CdsTimestamp | null;
+        declare createdBy?: _.User | null;
+        declare modifiedAt?: __.CdsTimestamp | null;
     /**
     * Canonical user ID
     */
-        modifiedBy?: _.User | null;
-        ID?: string;
-        name?: string | null;
-        types?: BookEvent_types | null;
-        author?: __.Association.to<Author> | null;
+        declare modifiedBy?: _.User | null;
+        declare ID?: string;
+        declare name?: string | null;
+        declare types?: BookEvent_types | null;
+        declare author?: __.Association.to<Author> | null;
       static types = BookEvent_types
-      static readonly actions: Record<never, never>
+      declare static readonly actions: Record<never, never>
   };
 }
 export class BookEvent extends _BookEventAspect(__.Entity) {static drafts: typeof BookEvent}
@@ -40,27 +40,27 @@ $count?: number}
 Object.defineProperty(BookEvents, 'name', { value: 'CatalogService.BookEvents' })
 
 export function _AuthorAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
-  return class extends _._managedAspect(Base) {
-        createdAt?: __.CdsTimestamp | null;
+  return class Author extends Base {
+        declare createdAt?: __.CdsTimestamp | null;
     /**
     * Canonical user ID
     */
-        createdBy?: _.User | null;
-        modifiedAt?: __.CdsTimestamp | null;
+        declare createdBy?: _.User | null;
+        declare modifiedAt?: __.CdsTimestamp | null;
     /**
     * Canonical user ID
     */
-        modifiedBy?: _.User | null;
-        ID?: number;
-        name?: string | null;
-        dateOfBirth?: __.CdsDate | null;
-        dateOfDeath?: __.CdsDate | null;
-        placeOfBirth?: string | null;
-        placeOfDeath?: string | null;
-        books?: __.Association.to.many<Books>;
-        bookEvent?: __.Association.to<BookEvent> | null;
-        bookEvent_ID?: string | null;
-      static readonly actions: Record<never, never>
+        declare modifiedBy?: _.User | null;
+        declare ID?: number;
+        declare name?: string | null;
+        declare dateOfBirth?: __.CdsDate | null;
+        declare dateOfDeath?: __.CdsDate | null;
+        declare placeOfBirth?: string | null;
+        declare placeOfDeath?: string | null;
+        declare books?: __.Association.to.many<Books>;
+        declare bookEvent?: __.Association.to<BookEvent> | null;
+        declare bookEvent_ID?: string | null;
+      declare static readonly actions: Record<never, never>
   };
 }
 export class Author extends _AuthorAspect(__.Entity) {}
@@ -70,37 +70,37 @@ export class Authors extends Array<Author> {$count?: number}
 Object.defineProperty(Authors, 'name', { value: 'CatalogService.Authors' })
 
 export function _BookAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
-  return class extends _._managedAspect(Base) {
-        createdAt?: __.CdsTimestamp | null;
+  return class Book extends Base {
+        declare createdAt?: __.CdsTimestamp | null;
     /**
     * Canonical user ID
     */
-        createdBy?: _.User | null;
-        modifiedAt?: __.CdsTimestamp | null;
+        declare createdBy?: _.User | null;
+        declare modifiedAt?: __.CdsTimestamp | null;
     /**
     * Canonical user ID
     */
-        modifiedBy?: _.User | null;
-        ID?: number;
-        title?: string | null;
-        descr?: string | null;
-        stock?: number | null;
-        price?: number | null;
+        declare modifiedBy?: _.User | null;
+        declare ID?: number;
+        declare title?: string | null;
+        declare descr?: string | null;
+        declare stock?: number | null;
+        declare price?: number | null;
     /**
     * Type for an association to Currencies
     * 
     * See https://cap.cloud.sap/docs/cds/common#type-currency
     */
-        currency?: _.Currency | null;
-        currency_code?: string | null;
-        image?: Buffer | string | {value: import("stream").Readable, $mediaContentType: string, $mediaContentDispositionFilename?: string, $mediaContentDispositionType?: string} | null;
-        author?: __.Association.to<Author> | null;
-        author_ID?: number | null;
-        genre?: __.Association.to<Genre> | null;
-        genre_ID?: number | null;
-        reviews?: __.Association.to.many<_sap_capire_bookshop.Reviews>;
-        stats?: __.Association.to<_sap_capire_bookshop.BookStat> | null;
-      static readonly actions: Record<never, never>
+        declare currency?: _.Currency | null;
+        declare currency_code?: string | null;
+        declare image?: Buffer | string | {value: import("stream").Readable, $mediaContentType: string, $mediaContentDispositionFilename?: string, $mediaContentDispositionType?: string} | null;
+        declare author?: __.Association.to<Author> | null;
+        declare author_ID?: number | null;
+        declare genre?: __.Association.to<Genre> | null;
+        declare genre_ID?: number | null;
+        declare reviews?: __.Association.to.many<_sap_capire_bookshop.Reviews>;
+        declare stats?: __.Association.to<_sap_capire_bookshop.BookStat> | null;
+      declare static readonly actions: Record<never, never>
   };
 }
 export class Book extends _BookAspect(__.Entity) {}
@@ -115,11 +115,11 @@ Object.defineProperty(Books, 'name', { value: 'CatalogService.Books' })
 * See https://cap.cloud.sap/docs/cds/common#entity-currencies
 */
 export function _CurrencyAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
-  return class extends _sap_common._CodeListAspect(Base) {
-        code?: string;
-        symbol?: string | null;
-        minorUnit?: number | null;
-      static readonly actions: Record<never, never>
+  return class Currency extends _sap_common._CodeListAspect(Base) {
+        declare code?: string;
+        declare symbol?: string | null;
+        declare minorUnit?: number | null;
+      declare static readonly actions: typeof _sap_common.CodeList.actions & Record<never, never>
   };
 }
 export class Currency extends _CurrencyAspect(__.Entity) {}
@@ -129,12 +129,12 @@ export class Currencies extends Array<Currency> {$count?: number}
 Object.defineProperty(Currencies, 'name', { value: 'sap.common.Currencies' })
 
 export function _GenreAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
-  return class extends _sap_common._CodeListAspect(Base) {
-        ID?: number;
-        parent?: __.Association.to<_sap_capire_bookshop.Genre> | null;
-        parent_ID?: number | null;
-        children?: __.Composition.of.many<_sap_capire_bookshop.Genres>;
-      static readonly actions: Record<never, never>
+  return class Genre extends _sap_common._CodeListAspect(Base) {
+        declare ID?: number;
+        declare parent?: __.Association.to<_sap_capire_bookshop.Genre> | null;
+        declare parent_ID?: number | null;
+        declare children?: __.Composition.of.many<_sap_capire_bookshop.Genres>;
+      declare static readonly actions: typeof _sap_common.CodeList.actions & Record<never, never>
   };
 }
 export class Genre extends _GenreAspect(__.Entity) {}
