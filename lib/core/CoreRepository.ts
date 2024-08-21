@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Service } from '@sap/cds';
 
@@ -49,13 +47,13 @@ class CoreRepository<T> {
 
   public async getDistinctColumns<ColumnKeys extends Columns<T>>(
     ...columns: ColumnKeys[]
-  ): Promise<Array<Pick<T, ShowOnlyColumns<T, ColumnKeys>>> | undefined> {
+  ): Promise<Pick<T, ShowOnlyColumns<T, ColumnKeys>>[] | undefined> {
     const allColumns = Array.isArray(columns[0]) ? columns[0] : columns;
 
     return await SELECT.distinct.from(this.resolvedEntity).columns(...allColumns);
   }
 
-  public async getAllAndLimit(options: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
+  public async paginate(options: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
     const query = SELECT.from(this.resolvedEntity);
 
     if (options.skip !== undefined) {
@@ -67,7 +65,7 @@ class CoreRepository<T> {
 
   public async getLocaleTexts<Column extends keyof T>(
     columns: Column[],
-  ): Promise<Array<Pick<T, Column> & Locale> | undefined> {
+  ): Promise<(Pick<T, Column> & Locale)[] | undefined> {
     return await SELECT.from(`${this.entity.name}.texts`).columns(...columns, 'locale');
   }
 
@@ -120,7 +118,7 @@ class CoreRepository<T> {
   public async deleteMany(...entries: Entries<T>[]): Promise<boolean> {
     const items = Array.isArray(entries[0]) ? entries[0] : entries;
 
-    const allPromises: Array<DELETE<any>> = [];
+    const allPromises: DELETE<any>[] = [];
 
     items.forEach((instance) => {
       const itemDelete = DELETE.from(this.resolvedEntity).where(instance);

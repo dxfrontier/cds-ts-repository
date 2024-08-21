@@ -74,21 +74,8 @@ abstract class BaseRepository<T> {
    */
   public async getDistinctColumns<ColumnKeys extends Columns<T>>(
     ...columns: ColumnKeys[]
-  ): Promise<Array<Pick<T, ShowOnlyColumns<T, ColumnKeys>>> | undefined> {
+  ): Promise<Pick<T, ShowOnlyColumns<T, ColumnKeys>>[] | undefined> {
     return await this.coreRepository.getDistinctColumns(...columns);
-  }
-
-  /**
-   * Retrieves all entries from the table with optional limit and offset.
-   * @deprecated Use `paginate` instead.
-   * @param options.limit The limit for the result set.
-   * @param [options.skip] Optional 'skip', which will skip a specified number of items for the result set (default: 0).
-   * @returns A promise that resolves to an array of entries.
-   * @example
-   * const results = await this.getAllAndLimit({ limit: 10, skip: 5 });
-   */
-  public async getAllAndLimit(options: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
-    return await this.coreRepository.getAllAndLimit(options);
   }
 
   /**
@@ -100,7 +87,7 @@ abstract class BaseRepository<T> {
    * const results = await this.paginate({ limit: 10, skip: 5 });
    */
   public async paginate(options: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
-    return await this.coreRepository.getAllAndLimit(options);
+    return await this.coreRepository.paginate(options);
   }
 
   /**
@@ -112,7 +99,7 @@ abstract class BaseRepository<T> {
    */
   public async getLocaleTexts<Column extends keyof T>(
     columns: Column[],
-  ): Promise<Array<Pick<T, Column> & Locale> | undefined> {
+  ): Promise<(Pick<T, Column> & Locale)[] | undefined> {
     return await this.coreRepository.getLocaleTexts(columns);
   }
 

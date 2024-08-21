@@ -29,7 +29,7 @@ abstract class BaseRepositoryDraft<T> {
    * @example
    * const results = await this.getAllDrafts();
    */
-  public async getAllDrafts(): Promise<Array<EntryDraft<T>> | undefined> {
+  public async getAllDrafts(): Promise<EntryDraft<T>[] | undefined> {
     return await this.coreRepository.getAll();
   }
 
@@ -44,24 +44,8 @@ abstract class BaseRepositoryDraft<T> {
    */
   public async getDraftsDistinctColumns<ColumnKeys extends Columns<EntryDraft<T>>>(
     ...columns: ColumnKeys[]
-  ): Promise<Array<Pick<EntryDraft<T>, ShowOnlyColumns<EntryDraft<T>, ColumnKeys>>> | undefined> {
+  ): Promise<Pick<EntryDraft<T>, ShowOnlyColumns<EntryDraft<T>, ColumnKeys>>[] | undefined> {
     return await this.coreRepository.getDistinctColumns(...columns);
-  }
-
-  /**
-   * Retrieves all draft entries from the table with optional limit and offset.
-   * @deprecated Use `paginateDrafts` instead.
-   * @param options.limit The limit for the result set.
-   * @param [options.skip] Optional 'skip', which will skip a specified number of items for the result set (default: 0).
-   * @returns A promise that resolves to an array of entries.
-   * @example
-   * const results = await this.getAllDraftsAndLimit({ limit: 10, skip: 5 });
-   */
-  public async getAllDraftsAndLimit(options: {
-    limit: number;
-    skip?: number | undefined;
-  }): Promise<Array<EntryDraft<T>> | undefined> {
-    return await this.coreRepository.getAllAndLimit(options);
   }
 
   /**
@@ -75,8 +59,8 @@ abstract class BaseRepositoryDraft<T> {
   public async paginateDrafts(options: {
     limit: number;
     skip?: number | undefined;
-  }): Promise<Array<EntryDraft<T>> | undefined> {
-    return await this.coreRepository.getAllAndLimit(options);
+  }): Promise<EntryDraft<T>[] | undefined> {
+    return await this.coreRepository.paginate(options);
   }
 
   /**
@@ -100,7 +84,7 @@ abstract class BaseRepositoryDraft<T> {
    * const results = await this.findDrafts(filter);
    */
   public async findDrafts(filter: Filter<T>): Promise<T[] | undefined>;
-  public async findDrafts(keys: EntryDraft<T> | Filter<T>): Promise<Array<EntryDraft<T>> | undefined> {
+  public async findDrafts(keys: EntryDraft<T> | Filter<T>): Promise<EntryDraft<T>[] | undefined> {
     return await this.coreRepository.find(keys);
   }
 
