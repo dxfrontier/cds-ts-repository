@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2024-08-21
+
+### 🚜 Refactor
+
+- *(types)* Some types have been refactored after ESLint was triggered
+
+### ⚙️ Miscellaneous Tasks
+
+- *(build)* Migrated to ESLint v9
+- *(build)* Commitlintrc adapted with new type enums
+- *(readme)* Readme updated
+- *(build)* Husky commit-msg and pre-commit updated
+- *(unit)* Cds-typer new generated entities
+- *(e2e)* Added 2 instead of cents for the minorUnit as deployed it failed
+- Version bump to 2.0.0
+
 ## [1.1.3] - 2024-07-18
 
 ### 📚 Documentation
