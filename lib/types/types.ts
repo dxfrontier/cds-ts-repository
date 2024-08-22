@@ -119,15 +119,17 @@ type FilterOperatorWhenArrayValues = 'IN' | 'NOT IN';
 
 type FilterOperator = FilterOperatorWhenSingleValue | FilterOperatorWhenTwoValues | FilterOperatorWhenArrayValues;
 
+type FilterValue = string | number | null;
+
 type FilterSingleValue = {
   operator: FilterOperatorWhenSingleValue;
-  value: string | number;
+  value: FilterValue;
 };
 
 type FilterBetween = {
   operator: FilterOperatorWhenTwoValues;
-  value1: string | number;
-  value2: string | number;
+  value1: FilterValue;
+  value2: FilterValue;
 };
 
 type FilterInAndNotIn = {
@@ -256,6 +258,7 @@ export type {
 
   // Builder types
   FindReturn,
+  FilterValue,
   LogicalOperator,
   FilterOperator,
   FilterOptions,

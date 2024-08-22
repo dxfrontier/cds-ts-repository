@@ -1,4 +1,4 @@
-import type { FilterOperator, FilterOptions, LogicalOperator } from '../../types/types';
+import type { FilterOperator, FilterOptions, FilterValue, LogicalOperator } from '../../types/types';
 
 /**
  * Represents a filter to be applied on entities.
@@ -12,11 +12,11 @@ class Filter<T> {
   public readonly filters?: Filter<T>[];
 
   // Like, In, Not in fields
-  public readonly value?: string | number | string[] | number[];
+  public readonly value?: FilterValue | string[] | number[];
 
   // Between fields
-  public readonly value1?: number | string;
-  public readonly value2?: number | string;
+  public readonly value1?: FilterValue;
+  public readonly value2?: FilterValue;
 
   /**
    * Creates a `Filter` instance with filter options.
