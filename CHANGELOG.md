@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2024-08-23
+
+### 🐛 Bug Fixes
+
+- *(filter)* Now Filter accepts as value also 'null'
+
+### ⚙️ Miscellaneous Tasks
+
+- *(unit)* Updated unit tests with 'not equals null'
+- *(types)* Removed eslint and Service type as it was not needed
+- Version bump to 2.0.1
+
 ## [2.0.0] - 2024-08-21
 
 ### 🚜 Refactor
