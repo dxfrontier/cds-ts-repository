@@ -61,6 +61,24 @@ describe('SELECT', () => {
           expect(initialResult?.length).toBeGreaterThan(results!.length);
         });
       });
+
+      describe('======> Filter - NOT EQUALS (null)', () => {
+        it('should return 6 records', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'ID',
+            operator: 'NOT EQUAL',
+            value: null,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(6);
+        });
+      });
+
       describe('======> Filter - EQUALS', () => {
         it('should return 1 record with the ID 251', async () => {
           // Arrange
