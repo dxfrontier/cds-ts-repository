@@ -119,7 +119,7 @@ type FilterOperatorWhenArrayValues = 'IN' | 'NOT IN';
 
 type FilterOperator = FilterOperatorWhenSingleValue | FilterOperatorWhenTwoValues | FilterOperatorWhenArrayValues;
 
-type FilterValue = string | number | null;
+type FilterValue = string | number | null | boolean;
 
 type FilterSingleValue = {
   operator: FilterOperatorWhenSingleValue;
