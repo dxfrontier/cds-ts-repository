@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.2] - 2024-08-23
+
+### 🐛 Bug Fixes
+
+- *(filter)* Now Filter accepts as value 'true / false' (boolean)
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 2.0.2
+
 ## [2.0.1] - 2024-08-23
 
 ### 🐛 Bug Fixes
