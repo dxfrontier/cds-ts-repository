@@ -26,7 +26,6 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
   - [Install CDS-TS-Repository](#install-cds-ts-repository)
   - [`Generate CDS Typed entities`](#generate-cds-typed-entities)
     - [`Important`](#important)
-- [`Architecture`](#architecture)
 - [Usage](#usage)
   - [`Option 1` : Using `BaseRepository` with `Standard SAP CAP CDS-TS`](#option-1--using-baserepository-with-standard-sap-cap-cds-ts)
     - [`Step 1` : Create MyRepository class](#step-1--create-myrepository-class)
@@ -36,7 +35,6 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [`Step 2` : Inject MyRepository class](#step-2--inject-myrepository-class)
   - [`Drafts` : `BaseRepositoryDraft`](#drafts--baserepositorydraft)
     - [Usage](#usage-1)
-    - [Integration](#integration)
   - [`Methods`](#methods)
     - [create](#create)
     - [createMany](#createmany)
@@ -127,23 +125,6 @@ npm install
 > - **`import { Book } from '#cds-models/CatalogService';`**
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
-
-## `Architecture`
-
-**We recommend adhering** to the **Controller-Service-Repository**.
-
-1. `Controller` - Responsible for managing the REST interface to the core business logic implemented in `ServiceLogic`.
-2. `Service` - Contains business logic implementations
-3. `Repository` - This component is dedicated to handling entity manipulation operations by leveraging the power of [CDS-QL](https://cap.cloud.sap/docs/node.js/cds-ql).
-
-`Controller-Service-Repository` suggested folder structure
-
-![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/cds-ts-dispatcher/architecture_folder_structure.png?raw=true) <= expanded folders => ![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/cds-ts-dispatcher/architecture_folder_structure_expanded.png?raw=true)
-
-A much more detailed version of this pattern can be found on [CDS-TS-Dispatcher](https://github.com/dxfrontier/cds-ts-dispatcher)
-
-<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
-
 
 ## Usage
 
@@ -327,9 +308,9 @@ class MyEntityHandler {
 
 ### `Drafts` : `BaseRepositoryDraft`
 
-The `BaseRepositoryDraft` class extends `BaseRepository` by providing support for draft-enabled entities. The `BaseRepositoryDraft` repository provides a clear separation of methods for **working with active entities** and **draft instances.**
+The `BaseRepositoryDraft` class extends `BaseRepository` by providing support for draft-enabled entities. 
 
-#### Usage
+The `BaseRepositoryDraft` repository provides a clear separation of methods for **working with active entities** and **draft instances.**
 
 Use `BaseRepository` methods when dealing with `active entity instances`.
 
@@ -349,7 +330,7 @@ Use `BaseRepositoryDraft` methods when working with `draft entity instances`.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-#### Integration
+#### Usage
 
 `Example 1`: Integrate `BaseRepository` & `BaseRepositoryDraft` using `Mixin`
 
@@ -367,7 +348,9 @@ export class MyRepository extends Mixin(BaseRepository<MyEntity>, BaseRepository
 
 > [!NOTE]
 > MyRepository class will inherit all methods for active entities and drafts.
+> 
 > Active entity methods: .create, createMany, update, exists, delete, deleteMany ...
+>
 > Draft entity methods: .updateDraft, existsDraft, deleteDraft, deleteManyDrafts ...
 
 `Example 2`: Use only `BaseRepositoryDraft` methods
@@ -384,12 +367,8 @@ export class MyRepository extends BaseRepositoryDraft<MyEntity> {
 }
 ```
 
-> [!NOTE]
-> MyRepository class will inherit all methods for drafts.
-> Draft entity methods: .updateDraft, existsDraft, deleteDraft, deleteManyDrafts ...
-
 > [!IMPORTANT]
-> Enable `MyEntity` as `@odata.draft.enabled: true` to use `BaseRepositoryDraft` methods.
+> Entity `MyEntity` must be annotated with `@odata.draft.enabled: true` to use `BaseRepositoryDraft` methods.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1858,7 +1837,7 @@ Use `Filter` to create complex `WHERE QUERY` filters.
 
 | Method                                                          | Parameters                                                                                                           | Description                                                                                                                                                                                                                                                                                                                                       |
 | :-------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `new Filter<T>(options: FilterOptions<T>)`                      | `options ({field : keyof T (string), operator : FilterOperator, value : string \| number \| string[] \| number[] })` | Creates a new filter. `T` should be generated using [CDS-Typer](#generate-cds-typed-entities) <br /><br /> `FilterOperator` values : `'EQUALS'`, `'NOT EQUAL'`, `'LIKE'`, `'STARTS_WITH'`, `'ENDS_WITH'`, `'LESS THAN'`, `'LESS THAN OR EQUALS'`, `'GREATER THAN'`, `'GREATER THAN OR EQUALS'`, `'BETWEEN'`, `'NOT BETWEEN'` , `'IN'`, `'NOT IN'` |
+| `new Filter<T>(options: FilterOptions<T>)`                      | `options ({field : keyof T (string), operator : FilterOperator, value : string | number | boolean | null | string[] | number[] })` | Creates a new filter. `T` should be generated using [CDS-Typer](#generate-cds-typed-entities) <br /><br /> `FilterOperator` values : `'EQUALS'`, `'NOT EQUAL'`, `'LIKE'`, `'STARTS_WITH'`, `'ENDS_WITH'`, `'LESS THAN'`, `'LESS THAN OR EQUALS'`, `'GREATER THAN'`, `'GREATER THAN OR EQUALS'`, `'BETWEEN'`, `'NOT BETWEEN'` , `'IN'`, `'NOT IN'` |
 | `new Filter(operator: LogicalOperator, ...filters : Filter<T>)` | `operator (string)`, `filters Array<Filter>`                                                                         | Creates a new Filter instance which combines 2 ... n **filters** with a Logical operator `'AND'`, `'OR'`                                                                                                                                                                                                                                          |
 
 `Example 1` : Single filter
@@ -1873,16 +1852,16 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
+    // create filter
     const filter = new Filter<MyEntity>({
       field: 'name',
       operator: 'LIKE',
       value: 'Customer',
     });
 
-    // Execute the query using the builder find
+    // execute filter using .find
     const results = await this.builder().find(filter).orderAsc('name', 'location').execute();
     // OR
-    // Execute the query using the find
     const results2 = await this.find(filter);
   }
 }
@@ -1903,12 +1882,14 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
+    // create filter 1
     const filterLike = new Filter<MyEntity>({
       field: 'customer_name',
       operator: 'LIKE',
       value: 'abs',
     });
 
+    // create filter 2
     const filterBetween = new Filter<MyEntity>({
       field: 'stock',
       operator: 'BETWEEN',
@@ -1916,28 +1897,25 @@ class MyRepository extends BaseRepository<MyEntity> {
       value2: 333,
     });
 
+    // create filter n ...
+    // ...
+
+    // combinedFilters translates to => customer_name like 'abs' or stock between 11 and 333
+    const combinedFilters = new Filter('OR', filterLike, filterBetween);
+
+    // create filter 3 
     const filterIn = new Filter<MyEntity>({
       field: 'ID',
       operator: 'IN',
       value: [201, 203, 207],
     });
 
-    /*
-    combinedLikeAndBetweenFilters translates to : 
-    customer_name like 'abs' or stock between 11 and 333
-    */
-    const combinedLikeAndBetweenFilters = new Filter('OR', filterLike, filterBetween);
+    // filters translates to (customer_name LIKE 'abs' OR stock BETWEEN 11 and 333) AND ID IN (201, 203, 207)
+    const filters = new Filter('AND', combinedFilters, filterIn);
 
-    /* 
-    filters translates to : 
-    (customer_name LIKE 'abs' OR stock BETWEEN 11 and 333) AND ID IN ('203', '201', '207')
-    */
-    const filters = new Filter('AND', combinedLikeAndBetweenFilters, filterIn);
-
-    // Execute the query using the builder find
-    const results = await this.builder().find(filters).getExpand('orders').execute();
+    // execute filter using .find
+    const results = await this.builder().find(filters).execute();
     // OR
-    // Execute the query using the .find
     const results2 = await this.find(filters);
   }
 }
