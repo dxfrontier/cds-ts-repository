@@ -9,6 +9,7 @@ import type {
   ShowOnlyColumns,
   FindReturn,
   Entity,
+  ExtractSingular,
 } from '../types/types';
 import type { Filter } from '../util/filter/Filter';
 
@@ -17,7 +18,7 @@ import type { Filter } from '../util/filter/Filter';
  * @template T The type of the entity.
  */
 abstract class BaseRepository<T> {
-  protected readonly coreRepository: CoreRepository<T>;
+  protected readonly coreRepository: CoreRepository<ExtractSingular<T>>;
 
   /**
    * Creates an instance of BaseRepository.
@@ -34,7 +35,7 @@ abstract class BaseRepository<T> {
    * @example
    * const created = await this.create({name : 'John'})
    */
-  public async create(entry: Entry<T>): Promise<InsertResult<T>> {
+  public async create(entry: Entry<ExtractSingular<T>>): Promise<InsertResult<ExtractSingular<T>>> {
     return await this.coreRepository.create(entry);
   }
 
@@ -48,7 +49,7 @@ abstract class BaseRepository<T> {
    *  { name: 'Customer 2', description: 'Customer 2 description' },
    * ]);
    */
-  public async createMany(...entries: Entries<T>[]): Promise<InsertResult<T>> {
+  public async createMany(...entries: Entries<ExtractSingular<T>>[]): Promise<InsertResult<ExtractSingular<T>>> {
     return await this.coreRepository.createMany(...entries);
   }
 
@@ -58,7 +59,7 @@ abstract class BaseRepository<T> {
    * @example
    * const results = await this.getAll();
    */
-  public async getAll(): Promise<T[] | undefined> {
+  public async getAll(): Promise<ExtractSingular<T>[] | undefined> {
     return await this.coreRepository.getAll();
   }
 
@@ -69,9 +70,9 @@ abstract class BaseRepository<T> {
    * @example
    * const results = await this.getDistinctColumns(['currency_code', 'ID', 'name']);
    */
-  public async getDistinctColumns<ColumnKeys extends Columns<T>>(
+  public async getDistinctColumns<ColumnKeys extends Columns<ExtractSingular<T>>>(
     ...columns: ColumnKeys[]
-  ): Promise<Pick<T, ShowOnlyColumns<T, ColumnKeys>>[] | undefined> {
+  ): Promise<Pick<ExtractSingular<T>, ShowOnlyColumns<ExtractSingular<T>, ColumnKeys>>[] | undefined> {
     return await this.coreRepository.getDistinctColumns(...columns);
   }
 
@@ -83,7 +84,10 @@ abstract class BaseRepository<T> {
    * @example
    * const results = await this.paginate({ limit: 10, skip: 5 });
    */
-  public async paginate(options: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
+  public async paginate(options: {
+    limit: number;
+    skip?: number | undefined;
+  }): Promise<ExtractSingular<T>[] | undefined> {
     return await this.coreRepository.paginate(options);
   }
 
@@ -94,9 +98,9 @@ abstract class BaseRepository<T> {
    * @example
    * const results = await this.getLocaleTexts(['descr', 'ID']);
    */
-  public async getLocaleTexts<Column extends keyof T>(
+  public async getLocaleTexts<Column extends keyof ExtractSingular<T>>(
     columns: Column[],
-  ): Promise<(Pick<T, Column> & Locale)[] | undefined> {
+  ): Promise<(Pick<ExtractSingular<T>, Column> & Locale)[] | undefined> {
     return await this.coreRepository.getLocaleTexts(columns);
   }
 
@@ -106,7 +110,7 @@ abstract class BaseRepository<T> {
    * @example
    * const results = await this.find();
    */
-  public async find(): Promise<T[] | undefined>;
+  public async find(): Promise<ExtractSingular<T>[] | undefined>;
 
   /**
    * Finds entries based on the provided keys.
@@ -115,7 +119,7 @@ abstract class BaseRepository<T> {
    * @example
    * const results = await this.find({ name: 'Customer', description: 'description' });
    */
-  public async find(keys: Entry<T>): Promise<T[] | undefined>;
+  public async find(keys: Entry<ExtractSingular<T>>): Promise<ExtractSingular<T>[] | undefined>;
 
   /**
    * Finds entries based on the provided filters.
@@ -129,9 +133,11 @@ abstract class BaseRepository<T> {
    * });
    * const results = await this.find(filter);
    */
-  public async find(filter: Filter<T>): Promise<T[] | undefined>;
+  public async find(filter: Filter<ExtractSingular<T>>): Promise<ExtractSingular<T>[] | undefined>;
 
-  public async find(keys?: Entry<T> | Filter<T>): Promise<T[] | undefined> {
+  public async find(
+    keys?: Entry<ExtractSingular<T>> | Filter<ExtractSingular<T>>,
+  ): Promise<ExtractSingular<T>[] | undefined> {
     return await this.coreRepository.find(keys);
   }
 
@@ -142,7 +148,7 @@ abstract class BaseRepository<T> {
    * @example
    * const result = await this.findOne({ name: 'Customer', description: 'description' });
    */
-  public async findOne(keys: Entry<T>): Promise<T | undefined> {
+  public async findOne(keys: Entry<ExtractSingular<T>>): Promise<ExtractSingular<T> | undefined> {
     return await this.coreRepository.findOne(keys);
   }
 
@@ -150,7 +156,7 @@ abstract class BaseRepository<T> {
    * Builds a query using the repository's builder.
    * @returns An instance of FindReturn for building queries.
    */
-  public builder(): FindReturn<T> {
+  public builder(): FindReturn<ExtractSingular<T>> {
     return this.coreRepository.builder();
   }
 
@@ -165,7 +171,7 @@ abstract class BaseRepository<T> {
    *  { name: 'a new name', description: 'a new description' },
    * );
    */
-  public async update(keys: Entry<T>, fieldsToUpdate: Entry<T>): Promise<boolean> {
+  public async update(keys: Entry<ExtractSingular<T>>, fieldsToUpdate: Entry<ExtractSingular<T>>): Promise<boolean> {
     return await this.coreRepository.update(keys, fieldsToUpdate);
   }
 
@@ -174,7 +180,7 @@ abstract class BaseRepository<T> {
    * @param entries An array of objects representing the entries to be created.
    * @returns A promise that resolves to `true` if the update is successful, `false` otherwise.
    */
-  public async updateOrCreate(...entries: Entries<T>[]): Promise<boolean> {
+  public async updateOrCreate(...entries: Entries<ExtractSingular<T>>[]): Promise<boolean> {
     return await this.coreRepository.updateOrCreate(...entries);
   }
 
@@ -186,7 +192,10 @@ abstract class BaseRepository<T> {
    * @example
    * const updated = await this.updateLocaleTexts({ locale: 'de', ID: 201 }, { name: 'ein neuer Name' });
    */
-  public async updateLocaleTexts(localeCodeKeys: Entry<T> & Locale, fieldsToUpdate: Entry<T>): Promise<boolean> {
+  public async updateLocaleTexts(
+    localeCodeKeys: Entry<ExtractSingular<T>> & Locale,
+    fieldsToUpdate: Entry<ExtractSingular<T>>,
+  ): Promise<boolean> {
     return await this.coreRepository.updateLocaleTexts(localeCodeKeys, fieldsToUpdate);
   }
 
@@ -198,7 +207,7 @@ abstract class BaseRepository<T> {
    * const deleted1 = await this.delete({ name: 'Customer' });
    * const deleted2 = await this.delete({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' });
    */
-  public async delete(keys: Entry<T>): Promise<boolean> {
+  public async delete(keys: Entry<ExtractSingular<T>>): Promise<boolean> {
     return await this.coreRepository.delete(keys);
   }
 
@@ -212,7 +221,7 @@ abstract class BaseRepository<T> {
    *  { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
    * ]);
    */
-  public async deleteMany(...entries: Entries<T>[]): Promise<boolean> {
+  public async deleteMany(...entries: Entries<ExtractSingular<T>>[]): Promise<boolean> {
     return await this.coreRepository.deleteMany(...entries);
   }
 
@@ -233,7 +242,7 @@ abstract class BaseRepository<T> {
    * @example
    * const exists = await this.exists({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba09' });
    */
-  public async exists(keys: Entry<T>): Promise<boolean> {
+  public async exists(keys: Entry<ExtractSingular<T>>): Promise<boolean> {
     return await this.coreRepository.exists(keys);
   }
 
