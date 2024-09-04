@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.4] - 2024-09-04
+
+### 🐛 Bug Fixes
+
+- *(active-entity)* Enforce singular type for active/draft entities in BaseRepository<T>
+
+### ⚙️ Miscellaneous Tasks
+
+- *(build)* Added deployment workflow and changed release yml
+- *(unit)* Updated unit tests
+- Version bump to 2.0.4
+
 ## [2.0.3] - 2024-09-02
 
 ### 📚 Documentation
