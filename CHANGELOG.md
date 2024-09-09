@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.5] - 2024-09-09
+
+### 🐛 Bug Fixes
+
+- *(active-entity)* Removed deprecated limit from the Find builder
+
+### 🧪 Testing
+
+- *(unit)* Removed limit and addaed paginate to test
+
+### ⚙️ Miscellaneous Tasks
+
+- Version bump to 2.0.5
+
 ## [2.0.4] - 2024-09-04
 
 ### 🐛 Bug Fixes
