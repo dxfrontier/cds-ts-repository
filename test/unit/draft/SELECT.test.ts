@@ -190,7 +190,7 @@ describe('SELECT - drafts', () => {
           const limit = await bookEventDraftRepository
             .builderDraft()
             .find({ types: 'BOOK_LUNCH' })
-            .limit({ limit: 1, skip: 1 })
+            .paginate({ limit: 1, skip: 1 })
             .execute();
 
           expect(limit).toHaveLength(1);
