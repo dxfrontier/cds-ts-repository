@@ -1,6 +1,6 @@
 {
   "name": "@dxfrontier/cds-ts-repository",
-  "version": "2.0.5",
+  "version": "3.0.0",
   "description": "The goal of SAP CAP CDS-QL BaseRepository is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the database like .create(), .createMany(), .getAll(), .update(), .find(), .exists() ...",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -14,37 +14,30 @@
   "scripts": {
     "lint:message": "echo 'ESLint started ...'",
     "lint:fix": "eslint . --fix",
-
     "format:message": "echo 'Prettier started ...'",
     "format:fix": "prettier . --write",
-
     "lint:format:fix": "run-s lint:message lint:fix format:message format:fix",
-
     "test": "jest",
     "test:newman:e2e:tests": "newman run ./test/e2e/collection.json --environment ./test/e2e/environments.json --bail",
     "test:e2e": "start-server-and-test start:bookshop http://localhost:4004 test:newman:e2e:tests",
-
     "docs:message": "echo 'Started creation of documentation based on TypeDoc ...'",
     "docs:build": "typedoc",
     "docs:serve": "http-server -p 8081 ./lib/docs",
     "docs:open": "open-cli http://127.0.0.1:8081",
     "docs:serve-open": "run-p docs:serve docs:open",
-    
     "start:bookshop:mock:business:partner": "npm run start:business:partner:mocked --prefix ./test/bookshop",
     "start:bookshop:server": "npm run start --prefix ./test/bookshop",
     "start:bookshop": "concurrently \"npm run start:bookshop:mock:business:partner\" \"sleep 3 && npm run start:bookshop:server && sleep 2\"",
-
     "build:message": "echo 'Build started ...'",
     "build:clean:dist": "echo 'Clean dist folder' && rimraf ./dist/{*.js,*.map,*.ts,*.mts,*.mjs}",
     "build:ts": "tsup",
     "build": "run-s build:message build:clean:dist build:ts",
-    
     "prepare": "husky",
     "commit": "commit"
   },
   "dependencies": {
     "@sap/cds": "^8.3.1",
-    "@sap/cds-dk":"^8.3.0",
+    "@sap/cds-dk": "^8.3.0",
     "ts-mixer": "^6.0.4"
   },
   "devDependencies": {
