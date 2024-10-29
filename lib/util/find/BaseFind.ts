@@ -22,9 +22,15 @@ class BaseFind<T, Keys> {
    */
   constructor(
     protected readonly entity: Entity,
-    protected readonly keys: Keys | string,
+    protected readonly keys: Keys | string | undefined,
   ) {
-    this.select = SELECT.from(util.resolveEntityName(entity)).where(this.keys);
+    const query = SELECT.from(util.resolveEntityName(entity));
+
+    if (this.keys) {
+      query.where(this.keys);
+    }
+
+    this.select = query;
   }
 
   /**

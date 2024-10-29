@@ -4,7 +4,14 @@ import type { Service } from '@sap/cds';
 import util from '../util';
 import BaseFind from './BaseFind';
 
-import type { AppendColumns, ColumnFormatter, Columns, Entity, ShowOnlyColumns } from '../../types/types';
+import type {
+  AppendColumns,
+  ColumnFormatter,
+  Columns,
+  Entity,
+  ExternalServiceProps,
+  ShowOnlyColumns,
+} from '../../types/types';
 
 /**
  * Builder class for constructing a query to find multiple entities.
@@ -20,7 +27,11 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
    * @param entity - The entity type or name to query.
    * @param keys - The keys or filters for the query.
    */
-  constructor(entity: Entity, keys: Keys | string) {
+  constructor(
+    protected readonly entity: Entity,
+    protected readonly keys: Keys | string | undefined,
+    protected readonly externalService?: ExternalServiceProps,
+  ) {
     super(entity, keys);
   }
 
@@ -133,7 +144,11 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
     void this.select.columns(...aggregateColumns);
 
     // Created new instance of FindBuilder and preserving the select from the current instance
-    const selectBuilder = new FindBuilder<AppendColumns<T, ColumnKeys>, typeof this.keys>(this.entity, this.keys);
+    const selectBuilder = new FindBuilder<AppendColumns<T, ColumnKeys>, typeof this.keys>(
+      this.entity,
+      this.keys,
+      this.externalService,
+    );
 
     selectBuilder.select = this.select;
 
@@ -171,6 +186,7 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
     const selectBuilder = new FindBuilder<Pick<T, ShowOnlyColumns<T, ColumnKeys>>, typeof this.keys>(
       this.entity,
       this.keys,
+      this.externalService,
     );
 
     selectBuilder.select = this.select;
@@ -209,6 +225,10 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
    * @returns A promise that resolves to the array of query results.
    */
   public async execute(): Promise<T[] | undefined> {
+    if (this.externalService) {
+      return await this.externalService.run(this.select);
+    }
+
     return await this.select;
   }
 }
