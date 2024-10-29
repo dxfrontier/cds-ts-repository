@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.1] - 2024-10-29
+
+### ⚙️ Miscellaneous Tasks
+
+- *(gitignore)* Removed @cds-models from gitingore
+- *(tests)* Added the cds-modesl of the API_BUSINESS_PARTNER
+- *(tests)* Regenerated cds-models
+- Version bump to 3.0.1
+
 ## [3.0.0] - 2024-10-29
 
 ### 🚀 Features
