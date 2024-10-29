@@ -23,3 +23,6 @@ jobs:
 
       - name: Start unit / integration tests
         run: npm test
+
+      - name: Start e2e tests
+        run: npm run test:e2e
