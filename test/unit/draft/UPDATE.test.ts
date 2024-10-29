@@ -3,14 +3,15 @@ import { o } from 'odata';
 import { getBookEventRepository } from '../../util/BookEventRepository';
 import { startTestServer } from '../../util/util';
 
+const { GET } = startTestServer(__dirname, 'bookshop');
+
 describe('UPDATE - drafts', () => {
-  const { GET } = startTestServer(__dirname, 'bookshop');
   let bookEventDraftRepository: Awaited<ReturnType<typeof getBookEventRepository>>;
 
   beforeAll(async () => {
     const {
       config: { baseURL },
-    } = await GET('https://www.abs-gmbh.de/');
+    } = await GET('http://www.google.com');
 
     const _activateDraft = async (baseURL: string, uuid: string) => {
       await o(`${baseURL}/odata/v4/catalog/`)

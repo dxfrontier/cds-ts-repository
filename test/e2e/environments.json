@@ -1,0 +1,27 @@
+{
+  "id": "22cee63f-afcf-490c-9471-93cf11fff769",
+  "name": "CDS-TS-Repository-environments",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4004/odata/v4",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "catalogService",
+      "value": "catalog",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "booksEntity",
+      "value": "Books",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2024-10-29T07:55:34.651Z",
+  "_postman_exported_using": "Postman/11.18.0"
+}

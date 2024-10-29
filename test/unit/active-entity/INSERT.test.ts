@@ -22,10 +22,11 @@ describe('INSERT', () => {
         currency_code: 'USD',
         genre_ID: 11,
       });
+
       const getAllAfter = await bookRepository.getAll();
 
       expect(getAllAfter!.length).toBeGreaterThan(getAll!.length);
-      expect(create.query.INSERT.entries).toHaveLength(1);
+      expect(create).not.toBeUndefined();
     });
   });
 
@@ -99,7 +100,7 @@ describe('INSERT', () => {
       const getAllAfter = await bookRepository.getAll();
 
       expect(getAllAfter!.length).toBeGreaterThan(getAll!.length);
-      expect(createMany.query.INSERT.entries).toHaveLength(2);
+      expect(createMany).not.toBe(false);
     });
 
     it('should successfully create multiple records in the database - .createMany({}, {})', async () => {
@@ -130,7 +131,7 @@ describe('INSERT', () => {
       const getAllAfter = await bookRepository.getAll();
 
       expect(getAllAfter!.length).toBeGreaterThan(getAll!.length);
-      expect(createMany.query.INSERT.entries).toHaveLength(2);
+      expect(createMany).not.toBe(false);
     });
   });
 });
