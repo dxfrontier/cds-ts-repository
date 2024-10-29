@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0] - 2024-10-29
+
+### 🚀 Features
+
+- *(deps)* Added packages needed for e2e tests and updated versions
+- *(externalService)* New ExternalService decorator to bind external service to the BaseRepository
+
+### 🐛 Bug Fixes
+
+- *(jest)* Increased jest time
+
+### 🚜 Refactor
+
+- *(commitlint)* Removed the mandatory scopes
+
+### 🧪 Testing
+
+- *(e2e)* Added e2e tests for ExternalService decorator
+
+### ⚙️ Miscellaneous Tasks
+
+- *(readme)* Added documentation for ExternalService decorator
+- *(build)* Updated tests workflow with e2e tests
+- Version bump to 3.0.0
+- *(tests)* Fixed the tests workflow
+- *(delete)* Deleted unused files
+- *(e2e)* Fixed e2e tests by adding the testing in another job in the workflow
+
 ## [2.0.5] - 2024-09-09
 
 ### 🐛 Bug Fixes
