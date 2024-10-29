@@ -1,7 +1,3 @@
-# CDS-Typer generated entities
-
-test/bookshop/@cds-models/*
-
 # Logs
 logs
 *.log
