@@ -1,20 +1,45 @@
-import type { ColumnFormatter, Entry, Entity, AutoExpandLevels, ExpandStructure } from '../types/types';
+import type {
+  ColumnFormatter,
+  Entry,
+  Entity,
+  AutoExpandLevels,
+  ExpandStructure,
+  ExternalServiceProps,
+} from '../types/types';
 import type { Filter } from './filter/Filter';
 import { constants } from '../constants/constants';
 
 import type { Association, column_expr, struct, type } from '@sap/cds';
 
 export const util = {
+  findExternalServiceEntity(entity: Entity, externalService: ExternalServiceProps): Entity {
+    return externalService.entities[this.subtractExternalEntity(entity.name)];
+  },
+  /**
+   * This function will from a string the entity.
+   * @param entity - The entity name
+   * @returns Returns formatted entity
+   * @example
+   * subtractExternalEntity('API_BUSINESS_PARTNER.A_BusinessPartner')
+   *
+   * @returns Returns the subtracted entity E.g 'A_BusinessPartner'
+   */
+  subtractExternalEntity(entity: string): string {
+    return entity.substring(entity.lastIndexOf('.') + 1);
+  },
+
   /**
    * Checks if all items in the array are non-zero.
    * @param items - An array of numbers.
-   * @returns Returns true if all items are non-zero, false otherwise.
+   * @returns Returns true if all items are non-zero or empty, false otherwise.
    */
-  isAllSuccess(items: number[]): boolean {
-    if (items.includes(0)) {
-      return false;
-    }
-    return true;
+  isAllSuccess(items: (number | string)[]): boolean {
+    if (items.length === 0) return false;
+
+    const isString = typeof items[0] === 'string';
+    const isNumber = typeof items[0] === 'number';
+
+    return isString ? items.every((item) => item === '') : isNumber ? items.every((item) => item === 1) : false;
   },
 
   /**

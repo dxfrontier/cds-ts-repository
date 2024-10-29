@@ -8,21 +8,34 @@ import type {
   FindReturn,
   ShowOnlyColumns,
   ExtractSingular,
+  BaseRepositoryConstructor,
 } from '../types/types';
 import type { Filter } from '../util/filter/Filter';
+import util from '../util/util';
 
 /**
  * Abstract class providing base repository functionalities for draft entity operations.
  * @template T The type of the entity.
  */
 abstract class BaseRepositoryDraft<T> {
-  protected readonly coreRepository: CoreRepository<EntryDraft<ExtractSingular<T>>>;
+  protected coreRepository: CoreRepository<EntryDraft<ExtractSingular<T>>>;
 
   /**
    * Creates an instance of BaseRepositoryDraft.
    * @param entity The entity this repository manages.
    */
-  constructor(protected readonly entity: Entity & EntryDraft<ExtractSingular<T>>) {
+  constructor(protected entity: Entity & EntryDraft<ExtractSingular<T>>) {
+    const constructor = this.constructor as BaseRepositoryConstructor;
+
+    if (constructor.externalService) {
+      // casting is needed as findExternalServiceEntity returns Entity and we need Entity + DraftAdministrativeFields
+      this.entity = util.findExternalServiceEntity(this.entity, constructor.externalService) as Entity &
+        EntryDraft<ExtractSingular<T>>;
+      this.coreRepository = new CoreRepository(this.entity, constructor.externalService);
+
+      return;
+    }
+
     this.coreRepository = new CoreRepository(this.entity);
   }
 

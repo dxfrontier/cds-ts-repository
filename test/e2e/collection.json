@@ -1,0 +1,90 @@
+{
+  "info": {
+    "_postman_id": "2d1878b2-9700-4438-9e01-4907b67f7cb0",
+    "name": "CDS-TS-Repository",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "1369492"
+  },
+  "item": [
+    {
+      "name": "@ExternalService",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "",
+              "pm.test(\"Verify the presence and value of the 'create' header\", function () {",
+              "    const createHeader = pm.response.headers.get('create');",
+              "    pm.expect(createHeader).to.exist.and.to.equal('true');",
+              "});",
+              "",
+              "",
+              "pm.test(\"Verify the presence and value of the createdMany header\", function () {",
+              "    pm.response.to.have.header(\"createdMany\");",
+              "    pm.expect(pm.response.headers.get(\"createdMany\")).to.equal(\"true\");",
+              "});",
+              "",
+              "",
+              "pm.test(\"Paginate header is present and its value is larger than 0\", function () {",
+              "    pm.expect(pm.response.headers.get(\"paginate\")).to.exist;",
+              "    pm.expect(parseInt(pm.response.headers.get(\"paginate\"))).to.be.above(0);",
+              "});",
+              "",
+              "",
+              "pm.test(\"PaginateWithSkip header is present and its value is larger than 0\", function () {",
+              "  pm.expect(pm.response.headers.get(\"paginateWithSkip\")).to.exist;",
+              "  pm.expect(parseInt(pm.response.headers.get(\"paginateWithSkip\"))).to.be.above(0);",
+              "});",
+              "",
+              "",
+              "pm.test(\"Verify the presence and value of the 'find' header\", function () {",
+              "    pm.expect(pm.response.headers.get(\"find\")).to.exist;",
+              "    pm.expect(parseInt(pm.response.headers.get(\"find\"))).to.be.above(0);",
+              "});",
+              "",
+              "pm.test(\"Verify the presence and value of the 'findOne' header\", function () {",
+              "    pm.expect(pm.response.headers.get(\"findOne\")).to.exist.and.to.equal(\"1004155\");",
+              "});",
+              "",
+              "pm.test(\"Verify the length of the 'builderFind' header\", function () {",
+              "    const builderFindHeader = pm.response.headers.get('builderFind');",
+              "    pm.expect(builderFindHeader).to.exist;",
+              "    pm.expect(builderFindHeader.length).to.be.greaterThan(0);",
+              "});",
+              "",
+              "pm.test(\"Verify the truthiness of the 'deleted' header\", function () {",
+              "    pm.expect(pm.response.headers.get(\"deleted\")).to.equal(\"true\");",
+              "});",
+              "",
+              "pm.test(\"Verify the truthiness of the 'deletedMany' header\", function () {",
+              "    pm.expect(pm.response.headers.get(\"deletedMany\")).to.equal(\"true\");",
+              "});",
+              "",
+              "pm.test(\"Verify the truthiness of the 'exists' header\", function () {",
+              "    pm.expect(pm.response.headers.get(\"exists\")).to.equal(\"false\");",
+              "});",
+              "",
+              "pm.test(\"Verify the truthiness of the 'deletedMany' header\", function () {",
+              "    const count = pm.response.headers.get('count');",
+              "    pm.expect(count.length).to.be.greaterThan(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/{{catalogService}}/{{booksEntity}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["{{catalogService}}", "{{booksEntity}}"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

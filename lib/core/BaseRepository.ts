@@ -1,17 +1,18 @@
 import { CoreRepository } from './CoreRepository';
-
+// import { util } from '../util/util';
 import type {
   Columns,
   Entries,
-  InsertResult,
   Entry,
   Locale,
   ShowOnlyColumns,
   FindReturn,
   Entity,
   ExtractSingular,
+  BaseRepositoryConstructor,
 } from '../types/types';
 import type { Filter } from '../util/filter/Filter';
+import util from '../util/util';
 
 /**
  * Abstract class providing base repository functionalities for entity operations.
@@ -25,17 +26,26 @@ abstract class BaseRepository<T> {
    * @param entity The entity this repository manages.
    */
   constructor(protected readonly entity: Entity) {
+    const constructor = this.constructor as BaseRepositoryConstructor;
+
+    if (constructor.externalService) {
+      this.entity = util.findExternalServiceEntity(this.entity, constructor.externalService);
+      this.coreRepository = new CoreRepository(this.entity, constructor.externalService);
+
+      return;
+    }
+
     this.coreRepository = new CoreRepository(this.entity);
   }
 
   /**
    * Inserts a single entry into the table.
    * @param entry An object representing the entry to be created.
-   * @returns A promise that resolves to the insert result.
+   * @returns A promise that resolves to the inserted result.
    * @example
    * const created = await this.create({name : 'John'})
    */
-  public async create(entry: Entry<ExtractSingular<T>>): Promise<InsertResult<ExtractSingular<T>>> {
+  public async create(entry: Entry<ExtractSingular<T>>): Promise<boolean> {
     return await this.coreRepository.create(entry);
   }
 
@@ -49,7 +59,7 @@ abstract class BaseRepository<T> {
    *  { name: 'Customer 2', description: 'Customer 2 description' },
    * ]);
    */
-  public async createMany(...entries: Entries<ExtractSingular<T>>[]): Promise<InsertResult<ExtractSingular<T>>> {
+  public async createMany(...entries: Entries<ExtractSingular<T>>[]): Promise<boolean> {
     return await this.coreRepository.createMany(...entries);
   }
 
@@ -98,10 +108,8 @@ abstract class BaseRepository<T> {
    * @example
    * const results = await this.getLocaleTexts(['descr', 'ID']);
    */
-  public async getLocaleTexts<Column extends keyof ExtractSingular<T>>(
-    columns: Column[],
-  ): Promise<(Pick<ExtractSingular<T>, Column> & Locale)[] | undefined> {
-    return await this.coreRepository.getLocaleTexts(columns);
+  public async getLocaleTexts<ColumnKeys extends Columns<ExtractSingular<T>>>(...columns: ColumnKeys[]) {
+    return await this.coreRepository.getLocaleTexts(...columns);
   }
 
   /**

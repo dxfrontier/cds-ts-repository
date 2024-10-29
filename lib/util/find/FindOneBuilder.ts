@@ -4,7 +4,14 @@ import { Service, type } from '@sap/cds';
 import util from '../util';
 import BaseFind from './BaseFind';
 
-import type { ColumnFormatter, AppendColumns, Columns, ShowOnlyColumns, Entity } from '../../types/types';
+import type {
+  ColumnFormatter,
+  AppendColumns,
+  Columns,
+  ShowOnlyColumns,
+  Entity,
+  ExternalServiceProps,
+} from '../../types/types';
 
 /**
  * Builder class for constructing a query to find a single entity.
@@ -21,7 +28,11 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
    * @param entity - The entity type or name to query.
    * @param keys - The keys or filters for the query.
    */
-  constructor(entity: Entity, keys: Keys | string) {
+  constructor(
+    protected readonly entity: Entity,
+    protected readonly keys: Keys | string | undefined,
+    protected readonly externalService?: ExternalServiceProps,
+  ) {
     super(entity, keys);
 
     this.initializeSelectOne();
@@ -31,7 +42,13 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
    * This method is used to override the SELECT from the BaseFind to add SELECT.one.from instead of SELECT.from ...
    */
   private initializeSelectOne(): void {
-    this.select = SELECT.one.from(this.entity.name).where(this.keys);
+    const query = SELECT.one.from(this.entity.name);
+
+    if (this.keys) {
+      query.where(this.keys);
+    }
+
+    this.select = query;
   }
 
   /**
@@ -110,6 +127,10 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
    * @returns A promise that resolves to the single entity result.
    */
   public async execute(): Promise<T | undefined> {
+    if (this.externalService) {
+      return await this.externalService.run(this.select);
+    }
+
     return await this.select;
   }
 }

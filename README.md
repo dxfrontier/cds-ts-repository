@@ -76,6 +76,8 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [count](#count)
   - [`Helpers`](#helpers)
     - [Filter](#filter)
+  - [`Decorators`](#decorators)
+    - [@ExternalService](#externalservice)
 - [`Samples`](#samples)
 - [Contributing](#contributing)
 - [License](#license)
@@ -376,7 +378,7 @@ export class MyRepository extends BaseRepositoryDraft<MyEntity> {
 
 #### create
 
-`(method) this.create(entry: Entry<T>) : Promise<InsertResult<T>>`.
+`(method) this.create(entry: Entry<T>) : Promise<boolean>`.
 
 The `create` method allows you to create a new entry in the table.
 
@@ -386,7 +388,7 @@ The `create` method allows you to create a new entry in the table.
 
 `Return`
 
-- `Promise<InsertResult<T>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
+- `Promise<boolean>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
 
 `Example`
 
@@ -416,7 +418,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 #### createMany
 
-`(method) this.createMany(...entries: Entries<T>[]) : Promise<InsertResult<T>>`.
+`(method) this.createMany(...entries: Entries<T>[]) : Promise<boolean>`.
 
 The `createMany` method allows you to add multiple entries in the table.
 
@@ -426,7 +428,7 @@ The `createMany` method allows you to add multiple entries in the table.
 
 `Return`
 
-- `Promise<InsertResult<T>>`: This method returns a `Promise` that resolves when the insertion operation is completed successfully.
+- `Promise<boolean>`: This method returns a `Promise` that resolves when the insertion operation is completed successfully.
 
 `Example 1`
 
@@ -522,7 +524,9 @@ The `getDistinctColumns` method retrieves distinct values for the specified colu
 
 `Parameters`
 
-- `columns` `(Array<string>)`: An array of column names to retrieve distinct records for. Each column name should be of a type that matches the entity's schema.
+`Parameters`
+
+- `columns (...columns : Columns<T>[])` : An array of column names to retrieve distinct records for. Each column name should be of a type that matches the entity's schema.
 
 `Return`
 
@@ -568,6 +572,10 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 The `getLocaleTexts` method is designed to retrieve a list of items with localized text.
 
+`Parameters`
+
+- `columns (...columns : Columns<T>[])` : An array of name of the columns to extract the localized text.
+
 `Return`
 
 - `Promise<Array<Pick<T, Column> & Locale> | undefined>`: A Promise resolving to an array of objects containing the selected columns from the entity along with locale information. If no results are found, the Promise resolves to `undefined`.
@@ -585,6 +593,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
     const results = await this.getLocaleTexts(['descr', 'ID']);
+    // or
+    const results = await this.getLocaleTexts('descr', 'ID');
 
     // Variant 1
     if (results) {
@@ -1925,6 +1935,54 @@ class MyRepository extends BaseRepository<MyEntity> {
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+### `Decorators`
+
+#### @ExternalService
+
+**@ExternalService**(`service` : `string`)
+
+The `@ExternalService` decorator is used to connect the `BaseRepository / BaseRepositoryDraft` to the class as pointing to an external service.
+
+This decorator connects the class to the specified external service via SAP Cloud SDK's `cds.connect.to` method.
+
+`Parameters`
+
+- `service` : The name / or the namespace of the external service to connect to.
+
+`Example`
+
+```ts
+import { Repository } from '@dxfrontier/cds-ts-dispatcher';
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { ExternalService } from '@dxfrontier/cds-ts-repository';
+
+import { A_BusinessPartner } from '../../@cds-models/API_BUSINESS_PARTNER'; // <= This can be different, depending on your location of the @cds-models
+
+@Repository()
+@ExternalService('API_BUSINESS_PARTNER')
+class BusinessPartnerRepository extends BaseRepository<A_BusinessPartner> {
+  constructor() {
+    super(A_BusinessPartner);
+  }
+  // ... define custom CDS-QL actions if BaseRepository ones are not satisfying your needs !
+}
+
+export default BusinessPartnerRepository;
+
+```
+> [!TIP]
+> You can find all external services [SAP Business Accelerator Hub](https://api.sap.com/)
+
+> [!TIP]
+> The service was imported using the command : `cds import API_BUSINESS_PARTNER.edmx` and as a result a new folder `external` under `srv/external/` was created containing schema of the entity.
+
+> [!TIP]
+> The entity `A_BusinessPartner` was generated automatically by the [cds-typer](https://cap.cloud.sap/docs/tools/cds-typer) after `cds import` command was used.
+
+> [!NOTE]
+> API_BUSINESS_PARTNER is just for showing, it can differ from use case to use case.
+
 
 ## `Samples`
 
