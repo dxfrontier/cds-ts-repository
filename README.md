@@ -1971,6 +1971,7 @@ class BusinessPartnerRepository extends BaseRepository<A_BusinessPartner> {
 export default BusinessPartnerRepository;
 
 ```
+
 > [!TIP]
 > You can find all external services [SAP Business Accelerator Hub](https://api.sap.com/)
 
