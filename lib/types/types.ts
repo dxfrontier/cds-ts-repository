@@ -31,6 +31,8 @@ type Entity = { name: string } & Partial<{
 type Entry<T> = Partial<T>;
 type Entries<T> = Entry<T> | Entry<T>[];
 
+type Draft<T> = EntryDraft<ExtractSingular<T>>;
+
 type EntryDraft<T> = T & DraftAdministrativeFields;
 type DraftEntries<T> = EntryDraft<T> | EntryDraft<T>[];
 
@@ -274,6 +276,7 @@ export type {
   BaseRepositoryConstructor,
   ExtractSingular,
   Entry,
+  Draft,
   EntryDraft,
   Locale,
   InsertResult,

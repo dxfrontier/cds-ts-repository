@@ -42,7 +42,7 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
    * This method is used to override the SELECT from the BaseFind to add SELECT.one.from instead of SELECT.from ...
    */
   private initializeSelectOne(): void {
-    const query = SELECT.one.from(this.entity.name);
+    const query = SELECT.one.from(this.resolvedEntity);
 
     if (this.keys) {
       query.where(this.keys);
@@ -74,12 +74,7 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
 
     void this.select.columns(...aggregateColumns);
 
-    // Created new instance of FindOneBuilder and preserving the select from the current instance
-    const selectOneBuilder = new FindOneBuilder<AppendColumns<T, ColumnKeys>, typeof this.keys>(this.entity, this.keys);
-
-    selectOneBuilder.select = this.select;
-
-    return selectOneBuilder;
+    return this as FindOneBuilder<AppendColumns<T, ColumnKeys>, string | Keys>;
   }
 
   /**
@@ -109,16 +104,9 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
       util.removeExpandOperator(this.select.SELECT.columns);
     }
 
-    // Created new instance of FindOneBuilder and preserving the select from the current instance
-    const selectOneBuilder = new FindOneBuilder<Pick<T, ShowOnlyColumns<T, ColumnKeys>>, typeof this.keys>(
-      this.entity,
-      this.keys,
-    );
+    this.columnsCalled = true;
 
-    selectOneBuilder.select = this.select;
-    selectOneBuilder.columnsCalled = true;
-
-    return selectOneBuilder;
+    return this as FindOneBuilder<Pick<T, ShowOnlyColumns<T, ColumnKeys>>, string | Keys>;
   }
 
   /**

@@ -143,16 +143,7 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
 
     void this.select.columns(...aggregateColumns);
 
-    // Created new instance of FindBuilder and preserving the select from the current instance
-    const selectBuilder = new FindBuilder<AppendColumns<T, ColumnKeys>, typeof this.keys>(
-      this.entity,
-      this.keys,
-      this.externalService,
-    );
-
-    selectBuilder.select = this.select;
-
-    return selectBuilder;
+    return this as FindBuilder<AppendColumns<T, ColumnKeys>, string | Keys>;
   }
 
   /**
@@ -182,17 +173,9 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
       util.removeExpandOperator(this.select.SELECT.columns);
     }
 
-    // Created new instance of FindBuilder and preserving the select from the current instance
-    const selectBuilder = new FindBuilder<Pick<T, ShowOnlyColumns<T, ColumnKeys>>, typeof this.keys>(
-      this.entity,
-      this.keys,
-      this.externalService,
-    );
+    this.columnsCalled = true;
 
-    selectBuilder.select = this.select;
-    selectBuilder.columnsCalled = true;
-
-    return selectBuilder;
+    return this as FindBuilder<Pick<T, ShowOnlyColumns<T, ColumnKeys>>, string | Keys>;
   }
 
   /**
