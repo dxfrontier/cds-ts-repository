@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.2] - 2024-11-06
+
+### 🐛 Bug Fixes
+
+- *(draft)* Draft builder now is finding a draft and is returning the correct type for draft
+
+### ⚙️ Miscellaneous Tasks
+
+- *(gitattributes)* Added gitattributes to have the corrent stats on github
+- *(test)* Updated drafts tests for better catching of errors
+- Version bump to 3.0.2
+
 ## [3.0.1] - 2024-10-29
 
 ### ⚙️ Miscellaneous Tasks
