@@ -13,6 +13,7 @@ class BaseFind<T, Keys> {
   protected select: SELECT<any>;
   protected columnsCalled = false;
   protected expandCalled = false;
+  protected resolvedEntity: string;
 
   /**
    * Creates an instance of BaseFind.
@@ -24,7 +25,13 @@ class BaseFind<T, Keys> {
     protected readonly entity: Entity,
     protected readonly keys: Keys | string | undefined,
   ) {
-    const query = SELECT.from(util.resolveEntityName(entity));
+    this.resolvedEntity = util.resolveEntityName(entity);
+
+    this.initializeSelect();
+  }
+
+  private initializeSelect() {
+    const query = SELECT.from(this.resolvedEntity);
 
     if (this.keys) {
       query.where(this.keys);
@@ -32,7 +39,6 @@ class BaseFind<T, Keys> {
 
     this.select = query;
   }
-
   /**
    * Provides the Metadata of the fields.
    * `Note`: currently SAP does not offer typing on EntityElements.

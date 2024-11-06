@@ -4,11 +4,11 @@ import type {
   Columns,
   DraftEntries,
   Entity,
-  EntryDraft,
   FindReturn,
   ShowOnlyColumns,
   ExtractSingular,
   BaseRepositoryConstructor,
+  Draft,
 } from '../types/types';
 import type { Filter } from '../util/filter/Filter';
 import util from '../util/util';
@@ -18,19 +18,18 @@ import util from '../util/util';
  * @template T The type of the entity.
  */
 abstract class BaseRepositoryDraft<T> {
-  protected coreRepository: CoreRepository<EntryDraft<ExtractSingular<T>>>;
+  protected coreRepository: CoreRepository<Draft<T>>;
 
   /**
    * Creates an instance of BaseRepositoryDraft.
    * @param entity The entity this repository manages.
    */
-  constructor(protected entity: Entity & EntryDraft<ExtractSingular<T>>) {
+  constructor(protected entity: Entity & Draft<T>) {
     const constructor = this.constructor as BaseRepositoryConstructor;
 
     if (constructor.externalService) {
       // casting is needed as findExternalServiceEntity returns Entity and we need Entity + DraftAdministrativeFields
-      this.entity = util.findExternalServiceEntity(this.entity, constructor.externalService) as Entity &
-        EntryDraft<ExtractSingular<T>>;
+      this.entity = util.findExternalServiceEntity(this.entity, constructor.externalService) as Entity & Draft<T>;
       this.coreRepository = new CoreRepository(this.entity, constructor.externalService);
 
       return;
@@ -47,7 +46,7 @@ abstract class BaseRepositoryDraft<T> {
    * @example
    * const results = await this.getAllDrafts();
    */
-  public async getAllDrafts(): Promise<EntryDraft<ExtractSingular<T>>[] | undefined> {
+  public async getAllDrafts(): Promise<Draft<T>[] | undefined> {
     return await this.coreRepository.getAll();
   }
 
@@ -60,11 +59,9 @@ abstract class BaseRepositoryDraft<T> {
    * // or
    * // const results = await this.getDraftsDistinctColumns('currency_code', 'ID', 'name');
    */
-  public async getDraftsDistinctColumns<ColumnKeys extends Columns<EntryDraft<ExtractSingular<T>>>>(
+  public async getDraftsDistinctColumns<ColumnKeys extends Columns<Draft<T>>>(
     ...columns: ColumnKeys[]
-  ): Promise<
-    Pick<EntryDraft<ExtractSingular<T>>, ShowOnlyColumns<EntryDraft<ExtractSingular<T>>, ColumnKeys>>[] | undefined
-  > {
+  ): Promise<Pick<Draft<T>, ShowOnlyColumns<Draft<T>, ColumnKeys>>[] | undefined> {
     return await this.coreRepository.getDistinctColumns(...columns);
   }
 
@@ -76,10 +73,7 @@ abstract class BaseRepositoryDraft<T> {
    * @example
    * const results = await this.paginateDrafts({ limit: 10, skip: 5 });
    */
-  public async paginateDrafts(options: {
-    limit: number;
-    skip?: number | undefined;
-  }): Promise<EntryDraft<ExtractSingular<T>>[] | undefined> {
+  public async paginateDrafts(options: { limit: number; skip?: number | undefined }): Promise<Draft<T>[] | undefined> {
     return await this.coreRepository.paginate(options);
   }
 
@@ -90,7 +84,7 @@ abstract class BaseRepositoryDraft<T> {
    * @example
    * const results = await this.findDrafts({ name: 'Customer', description: 'description' });
    */
-  public async findDrafts(keys: EntryDraft<ExtractSingular<T>>): Promise<ExtractSingular<T>[] | undefined>;
+  public async findDrafts(keys: Draft<T>): Promise<Draft<T>[] | undefined>;
   /**
    * Finds entries based on the provided filters.
    * @param filter A Filter instance.
@@ -103,10 +97,8 @@ abstract class BaseRepositoryDraft<T> {
    * });
    * const results = await this.findDrafts(filter);
    */
-  public async findDrafts(filter: Filter<ExtractSingular<T>>): Promise<ExtractSingular<T>[] | undefined>;
-  public async findDrafts(
-    keys: EntryDraft<ExtractSingular<T>> | Filter<ExtractSingular<T>>,
-  ): Promise<EntryDraft<ExtractSingular<T>>[] | undefined> {
+  public async findDrafts(filter: Filter<Draft<T>>): Promise<Draft<T>[] | undefined>;
+  public async findDrafts(keys: Draft<T> | Filter<Draft<T>>): Promise<Draft<T>[] | undefined> {
     return await this.coreRepository.find(keys);
   }
 
@@ -117,7 +109,7 @@ abstract class BaseRepositoryDraft<T> {
    * @example
    * const result = await this.findOneDraft({ name: 'Customer', description: 'description' });
    */
-  public async findOneDraft(keys: EntryDraft<ExtractSingular<T>>): Promise<EntryDraft<ExtractSingular<T>> | undefined> {
+  public async findOneDraft(keys: Draft<T>): Promise<Draft<T> | undefined> {
     return await this.coreRepository.findOne(keys);
   }
 
@@ -125,7 +117,7 @@ abstract class BaseRepositoryDraft<T> {
    * Builds a query for draft entries using the repository's builder.
    * @returns An instance of FindReturn for building queries.
    */
-  public builderDraft(): FindReturn<EntryDraft<ExtractSingular<T>>> {
+  public builderDraft(): FindReturn<Draft<T>> {
     return this.coreRepository.builder();
   }
 
@@ -140,10 +132,7 @@ abstract class BaseRepositoryDraft<T> {
    *   { name: 'a new name', description: 'a new description' },
    * );
    */
-  public async updateDraft(
-    keys: EntryDraft<ExtractSingular<T>>,
-    fieldsToUpdate: EntryDraft<ExtractSingular<T>>,
-  ): Promise<boolean> {
+  public async updateDraft(keys: Draft<T>, fieldsToUpdate: Draft<T>): Promise<boolean> {
     return await this.coreRepository.update(keys, fieldsToUpdate);
   }
 
@@ -155,7 +144,7 @@ abstract class BaseRepositoryDraft<T> {
    * const deleted1 = await this.deleteDraft({ name: 'Customer' });
    * const deleted2 = await this.deleteDraft({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' });
    */
-  public async deleteDraft(keys: EntryDraft<ExtractSingular<T>>): Promise<boolean> {
+  public async deleteDraft(keys: Draft<T>): Promise<boolean> {
     return await this.coreRepository.delete(keys);
   }
 
@@ -189,7 +178,7 @@ abstract class BaseRepositoryDraft<T> {
    * @returns A promise that resolves to `true` if the item exists, `false` otherwise.
    * @example const exists = await this.existsDraft({ ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba09' });
    */
-  public async existsDraft(keys: EntryDraft<ExtractSingular<T>>): Promise<boolean> {
+  public async existsDraft(keys: Draft<T>): Promise<boolean> {
     return await this.coreRepository.exists(keys);
   }
 

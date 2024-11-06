@@ -28,20 +28,21 @@ describe('UPDATE - drafts', () => {
   describe('.updateDraft()', () => {
     it('should successfully update an item in the database', async () => {
       // Arrange
-      const findAnItem = await bookEventDraftRepository.findOneDraft({ ID: '7e9b3cd2-1f78-4d48-8b0f-6a62dcf0f592' });
+      const draftIdToUpdate = '3d5e8f7c-6a9b-4d02-af87-91b480a573d1';
+      const newDraftData = { name: 'a new name' };
+
+      const originalDraft = await bookEventDraftRepository.findOneDraft({ ID: draftIdToUpdate });
+      expect(originalDraft).toBeDefined(); // Ensure the original draft exists
 
       // Act
-      const updatedItem = await bookEventDraftRepository.updateDraft(
-        { ID: '3d5e8f7c-6a9b-4d02-af87-91b480a573d1' },
-        { name: ' a new name' },
-      );
-      const findAnItemAfterUpdate = await bookEventDraftRepository.findOneDraft({
-        ID: '3d5e8f7c-6a9b-4d02-af87-91b480a573d1',
-      });
+      const updateResult = await bookEventDraftRepository.updateDraft({ ID: draftIdToUpdate }, newDraftData);
+      const updatedDraft = await bookEventDraftRepository.findOneDraft({ ID: draftIdToUpdate });
 
       // Assert
-      expect(updatedItem).toBe(true);
-      expect(findAnItem).not.toMatchObject(findAnItemAfterUpdate!);
+      expect(updateResult).toBe(true); // Ensure the update operation was successful
+      expect(updatedDraft).toBeDefined(); // Ensure the updated draft exists
+      expect(updatedDraft).toMatchObject(newDraftData); // Check if the updated properties are correct
+      expect(originalDraft).not.toMatchObject(updatedDraft!); // Ensure the original draft and updated draft are not the same
     });
   });
 });
