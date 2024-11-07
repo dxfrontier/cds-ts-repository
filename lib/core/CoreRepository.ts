@@ -14,8 +14,9 @@ import type {
   ShowOnlyColumns,
   Entity,
   ExternalServiceProps,
-  CreateReturnType,
+  // CreateReturnType,
   ExtractSingular,
+  InsertResult,
 } from '../types/types';
 import type { Filter } from '..';
 
@@ -38,19 +39,21 @@ class CoreRepository<T> {
   }
 
   // Public routines
-  public async create(entry: Entry<T>): Promise<boolean> {
+  public async create(entry: Entry<T>): Promise<InsertResult<T>> {
     const query = INSERT.into(this.resolvedEntity).entries(entry);
 
     if (this.externalService) {
       const executedQuery: T = await this.externalService.run(query);
-      return Object.keys(executedQuery as any).length !== 0;
+
+      return {
+        query: { INSERT: { entries: [executedQuery] } },
+      };
     }
 
-    const executedQuery: CreateReturnType = await query;
-    return executedQuery.results.length > 0 && executedQuery.results[0].changes > 0;
+    return await query;
   }
 
-  public async createMany(...entries: Entries<T>[]): Promise<boolean> {
+  public async createMany(...entries: Entries<T>[]): Promise<InsertResult<T>> {
     if (this.externalService) {
       const inserted: T[] = [];
 
@@ -61,12 +64,17 @@ class CoreRepository<T> {
         inserted.push(result);
       }
 
-      return inserted.length > 0;
+      return {
+        query: {
+          INSERT: {
+            entries: inserted,
+          },
+        },
+      };
     }
 
-    const query: CreateReturnType = await INSERT.into(this.resolvedEntity).entries(...entries);
-    const inserted = query.results.length > 0 && query.results[0].changes > 0;
-    return inserted;
+    const query: InsertResult<T> = await INSERT.into(this.resolvedEntity).entries(...entries);
+    return query;
   }
 
   public async getAll(): Promise<T[] | undefined> {

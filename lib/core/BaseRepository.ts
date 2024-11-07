@@ -10,6 +10,7 @@ import type {
   Entity,
   ExtractSingular,
   BaseRepositoryConstructor,
+  InsertResult,
 } from '../types/types';
 import type { Filter } from '../util/filter/Filter';
 import util from '../util/util';
@@ -45,7 +46,7 @@ abstract class BaseRepository<T> {
    * @example
    * const created = await this.create({name : 'John'})
    */
-  public async create(entry: Entry<ExtractSingular<T>>): Promise<boolean> {
+  public async create(entry: Entry<ExtractSingular<T>>): Promise<InsertResult<T>> {
     return await this.coreRepository.create(entry);
   }
 
@@ -59,7 +60,7 @@ abstract class BaseRepository<T> {
    *  { name: 'Customer 2', description: 'Customer 2 description' },
    * ]);
    */
-  public async createMany(...entries: Entries<ExtractSingular<T>>[]): Promise<boolean> {
+  public async createMany(...entries: Entries<ExtractSingular<T>>[]): Promise<InsertResult<T>> {
     return await this.coreRepository.createMany(...entries);
   }
 

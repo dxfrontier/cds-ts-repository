@@ -9,96 +9,96 @@ export type Timezone = __.Association.to<_sap_common.Timezone>;
 export type User = string;
 // enum
 export const Roles = {
-  USER: 'USER',
-  ADMIN: 'ADMIN',
+  USER: "USER",
+  ADMIN: "ADMIN",
 } as const;
-export type Roles = 'USER' | 'ADMIN';
+export type Roles = "USER" | "ADMIN"
 
 // enum
 export const BookTypes = {
-  BOOK_SIGNING: 'BOOK_SIGNING',
-  AUTHOR_TALK: 'AUTHOR_TALK',
-  BOOK_LUNCH: 'BOOK_LUNCH',
+  BOOK_SIGNING: "BOOK_SIGNING",
+  AUTHOR_TALK: "AUTHOR_TALK",
+  BOOK_LUNCH: "BOOK_LUNCH",
 } as const;
-export type BookTypes = 'BOOK_SIGNING' | 'AUTHOR_TALK' | 'BOOK_LUNCH';
+export type BookTypes = "BOOK_SIGNING" | "AUTHOR_TALK" | "BOOK_LUNCH"
 
 // the following represents the CDS aspect 'cuid'
 export function _cuidAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
   return class cuid extends Base {
-    declare ID?: __.Key<string>;
-    static readonly kind: 'entity' | 'type' | 'aspect' = 'aspect';
+    declare ID?: __.Key<string>
+    static readonly kind: "entity" | "type" | "aspect" = 'aspect';
     declare static readonly keys: __.KeysOf<cuid>;
     declare static readonly elements: __.ElementsOf<cuid>;
     static readonly actions: Record<never, never>;
   };
 }
 /**
- * Aspect for entities with canonical universal IDs
- *
- * See https://cap.cloud.sap/docs/cds/common#aspect-cuid
- */
+* Aspect for entities with canonical universal IDs
+* 
+* See https://cap.cloud.sap/docs/cds/common#aspect-cuid
+*/
 export class cuid extends _cuidAspect(__.Entity) {}
 // the following represents the CDS aspect 'managed'
 export function _managedAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
   return class managed extends Base {
-    declare createdAt?: __.CdsTimestamp | null;
+    declare createdAt?: __.CdsTimestamp | null
     /** Canonical user ID */
-    declare createdBy?: User | null;
-    declare modifiedAt?: __.CdsTimestamp | null;
+    declare createdBy?: User | null
+    declare modifiedAt?: __.CdsTimestamp | null
     /** Canonical user ID */
-    declare modifiedBy?: User | null;
-    static readonly kind: 'entity' | 'type' | 'aspect' = 'aspect';
+    declare modifiedBy?: User | null
+    static readonly kind: "entity" | "type" | "aspect" = 'aspect';
     declare static readonly keys: __.KeysOf<managed>;
     declare static readonly elements: __.ElementsOf<managed>;
     static readonly actions: Record<never, never>;
   };
 }
 /**
- * Aspect to capture changes by user and name
- *
- * See https://cap.cloud.sap/docs/cds/common#aspect-managed
- */
+* Aspect to capture changes by user and name
+* 
+* See https://cap.cloud.sap/docs/cds/common#aspect-managed
+*/
 export class managed extends _managedAspect(__.Entity) {}
 // the following represents the CDS aspect 'temporal'
 export function _temporalAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
   return class temporal extends Base {
-    declare validFrom?: __.CdsTimestamp | null;
-    declare validTo?: __.CdsTimestamp | null;
-    static readonly kind: 'entity' | 'type' | 'aspect' = 'aspect';
+    declare validFrom?: __.CdsTimestamp | null
+    declare validTo?: __.CdsTimestamp | null
+    static readonly kind: "entity" | "type" | "aspect" = 'aspect';
     declare static readonly keys: __.KeysOf<temporal>;
     declare static readonly elements: __.ElementsOf<temporal>;
     static readonly actions: Record<never, never>;
   };
 }
 /**
- * Aspect for entities with temporal data
- *
- * See https://cap.cloud.sap/docs/cds/common#aspect-temporal
- */
+* Aspect for entities with temporal data
+* 
+* See https://cap.cloud.sap/docs/cds/common#aspect-temporal
+*/
 export class temporal extends _temporalAspect(__.Entity) {}
 export function _HelloRequestAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
   return class HelloRequest extends Base {
-    greeterName?: string | null;
-    toName?: string | null;
-    static readonly kind: 'entity' | 'type' | 'aspect' = 'type';
+    greeterName?: string | null
+    toName?: string | null
+    static readonly kind: "entity" | "type" | "aspect" = 'type';
     declare static readonly keys: __.KeysOf<HelloRequest>;
     declare static readonly elements: __.ElementsOf<HelloRequest>;
     static readonly actions: Record<never, never>;
   };
 }
 export class HelloRequest extends _HelloRequestAspect(__.Entity) {}
-Object.defineProperty(HelloRequest, 'name', { value: 'HelloRequest' });
-Object.defineProperty(HelloRequest, 'is_singular', { value: true });
+Object.defineProperty(HelloRequest, 'name', { value: 'HelloRequest' })
+Object.defineProperty(HelloRequest, 'is_singular', { value: true })
 
 export function _HelloResponseAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
   return class HelloResponse extends Base {
-    greetingMessage?: string | null;
-    static readonly kind: 'entity' | 'type' | 'aspect' = 'type';
+    greetingMessage?: string | null
+    static readonly kind: "entity" | "type" | "aspect" = 'type';
     declare static readonly keys: __.KeysOf<HelloResponse>;
     declare static readonly elements: __.ElementsOf<HelloResponse>;
     static readonly actions: Record<never, never>;
   };
 }
 export class HelloResponse extends _HelloResponseAspect(__.Entity) {}
-Object.defineProperty(HelloResponse, 'name', { value: 'HelloResponse' });
-Object.defineProperty(HelloResponse, 'is_singular', { value: true });
+Object.defineProperty(HelloResponse, 'name', { value: 'HelloResponse' })
+Object.defineProperty(HelloResponse, 'is_singular', { value: true })

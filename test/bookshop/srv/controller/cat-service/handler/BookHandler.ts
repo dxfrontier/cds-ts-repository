@@ -25,7 +25,7 @@ class BookHandler {
       BusinessPartner: '1404100',
       BusinessPartnerFullName: 'ABS Gmbh Software',
     });
-    res.setHeader('create', String(created));
+    res.setHeader('create', String(created.query.INSERT.entries.length > 0));
 
     // ################################################################################################################################################
 
@@ -39,7 +39,7 @@ class BookHandler {
         BusinessPartnerFullName: 'Apple',
       },
     );
-    res.setHeader('createdMany', String(createdMany));
+    res.setHeader('createdMany', String(createdMany.query.INSERT.entries.length > 0));
 
     // ################################################################################################################################################
 
