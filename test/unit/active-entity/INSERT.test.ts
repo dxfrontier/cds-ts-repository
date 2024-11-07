@@ -11,9 +11,9 @@ describe('INSERT', () => {
 
   describe('.create()', () => {
     it('should successfully create a new record in the database', async () => {
-      const getAll = await bookRepository.getAll();
-      const create = await bookRepository.create({
-        ID: 432,
+      const initialRecords = await bookRepository.getAll();
+
+      const insertResult = await bookRepository.create({
         title: 'Wonderful Neighborhood',
         descr: 'A notorious but beautiful neighborhood!',
         stock: 123,
@@ -23,10 +23,19 @@ describe('INSERT', () => {
         genre_ID: 11,
       });
 
-      const getAllAfter = await bookRepository.getAll();
+      const updatedRecords = await bookRepository.getAll();
 
-      expect(getAllAfter!.length).toBeGreaterThan(getAll!.length);
-      expect(create).not.toBeUndefined();
+      expect(updatedRecords!.length).toBeGreaterThan(initialRecords!.length);
+      expect(insertResult.query.INSERT.entries).toHaveLength(1);
+      expect(insertResult.query.INSERT.entries[0]).toMatchObject({
+        title: 'Wonderful Neighborhood',
+        descr: 'A notorious but beautiful neighborhood!',
+        stock: 123,
+        author_ID: 101,
+        price: 23,
+        currency_code: 'USD',
+        genre_ID: 11,
+      });
     });
   });
 
@@ -72,9 +81,10 @@ describe('INSERT', () => {
       expect(updateOrCreateMany).toBe(true);
     });
 
-    it('should successfully create multiple records in the database - .createMany([{}, {}]', async () => {
-      const getAll = await bookRepository.getAll();
-      const createMany = await bookRepository.createMany([
+    it('should successfully create multiple records in the database - .createMany([{}, {}])', async () => {
+      const initialRecords = await bookRepository.getAll();
+
+      const createManyResult = await bookRepository.createMany([
         {
           ID: 542,
           title: 'Thieves Boulevard',
@@ -97,10 +107,34 @@ describe('INSERT', () => {
         },
       ]);
 
-      const getAllAfter = await bookRepository.getAll();
+      const updatedRecords = await bookRepository.getAll();
 
-      expect(getAllAfter!.length).toBeGreaterThan(getAll!.length);
-      expect(createMany).not.toBe(false);
+      // Verify the count of records increased by the number of inserted entries
+      expect(updatedRecords!.length).toBe(initialRecords!.length + 2);
+
+      // Ensure `createMany` returned an InsertResult with the created entries
+      expect(createManyResult.query.INSERT.entries).toHaveLength(2);
+
+      // Verify that each entry in the result matches the provided input data
+      expect(createManyResult.query.INSERT.entries[0]).toMatchObject({
+        title: 'Thieves Boulevard',
+        descr: 'The neighborhood where everything gets stolen!',
+        stock: 23,
+        author_ID: 101,
+        price: 53,
+        currency_code: 'GBP',
+        genre_ID: 11,
+      });
+
+      expect(createManyResult.query.INSERT.entries[1]).toMatchObject({
+        title: 'Thieves Boulevard Part II',
+        descr: 'The neighborhood where everything gets stolen, PART 2!',
+        stock: 53,
+        author_ID: 101,
+        price: 32,
+        currency_code: 'GBP',
+        genre_ID: 11,
+      });
     });
 
     it('should successfully create multiple records in the database - .createMany({}, {})', async () => {
