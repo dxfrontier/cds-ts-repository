@@ -45,14 +45,6 @@ type DraftAdministrativeFields = {
 
 type AssociationFunction = (...args: unknown[]) => unknown;
 
-type CreateChangesType = {
-  changes: number;
-};
-
-type CreateReturnType = {
-  results: CreateChangesType[];
-};
-
 type InsertResult<T> = {
   query: {
     INSERT: {
@@ -271,7 +263,6 @@ type ValueExpand = {
 
 export type {
   // Common
-  CreateReturnType,
   ExternalServiceProps,
   BaseRepositoryConstructor,
   ExtractSingular,
