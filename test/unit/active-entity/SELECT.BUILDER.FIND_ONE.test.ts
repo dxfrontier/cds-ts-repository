@@ -14,7 +14,38 @@ describe('SELECT', () => {
   });
 
   describe('.builder().findOne()', () => {
-    describe('======> .findOne() - OVERLOAD - filter / filters ', () => {
+    describe('======> .findOne(filter) - with filter / filters - [OVERLOAD 1]', () => {
+      describe('======> Filter - Multidimensional filter [[filter1, "AND", filter2]]', () => {
+        it('should return 1 record with genre_ID EQUALS to 13 and price EQUALS to 150', async () => {
+          // Arrange
+          const initialResult = await bookRepository.getAll();
+          const nestedFilter = new Filter<Book>([
+            new Filter<Book>({
+              field: 'genre_ID',
+              operator: 'EQUALS',
+              value: 13,
+            }),
+            'AND',
+            new Filter<Book>({
+              field: 'price',
+              operator: 'EQUALS',
+              value: 150,
+            }),
+          ]);
+
+          // Act
+          const one = await bookRepository.builder().findOne(nestedFilter).execute();
+
+          // Assert
+          expect(initialResult).toContainEqual(one);
+          expect(one).toBeDefined();
+          expect(one).toMatchObject({
+            genre_ID: 13,
+            price: 150,
+          });
+        });
+      });
+
       describe('======> Filter - NOT EQUAL', () => {
         it('should return 1 record and with ID NOT EQUAL to 251 ', async () => {
           // Arrange
@@ -32,6 +63,7 @@ describe('SELECT', () => {
           expect(initialResult).toContainEqual(one);
         });
       });
+
       describe('======> Filter - EQUALS', () => {
         it('should return 1 record with the ID 251', async () => {
           // Arrange
@@ -284,7 +316,7 @@ describe('SELECT', () => {
       });
     });
 
-    describe('======> .findOne() - OVERLOAD - object ', () => {
+    describe('======> .findOne({ ... }) - with object - [OVERLOAD 2]', () => {
       describe('======> .getExpand() - OVERLOAD - AUTO EXPAND - { levels : number }', () => {
         it('should return the original object + expanded "genre", "author" and "reviews" properties', async () => {
           // Arrange
