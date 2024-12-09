@@ -1,15 +1,15 @@
-import type { FilterOperator, FilterOptions, FilterValue, LogicalOperator } from '../../types/types';
+import type { CompoundFilter, FilterOperator, FilterOptions, FilterValue, LogicalOperator } from '../../types/types';
 
 /**
  * Represents a filter to be applied on entities.
  * @template T The type of the entity.
  */
 class Filter<T> {
-  public readonly operator: FilterOperator;
+  public readonly operator?: FilterOperator;
 
   public readonly field?: keyof T;
   public readonly logicalOperator?: LogicalOperator;
-  public readonly filters?: Filter<T>[];
+  public readonly filters?: Filter<T>[] | CompoundFilter<T>;
 
   // Like, In, Not in fields
   public readonly value?: FilterValue | string[] | number[];
@@ -23,10 +23,10 @@ class Filter<T> {
    *
    * @param options - An object representing the filter options.
    * @param options.field - The field of the entity to filter on.
-   * @param options.operator - The operator to apply on the field (e.g., 'LIKE', 'BETWEEN').
+   * @param options.operator - The operator to apply on the field (e.g., `'LIKE'`, `'BETWEEN'`).
    * @param options.value - The filter value.
-   * @param options.value1 - The first value for 'BETWEEN' and 'NOT BETWEEN' operators.
-   * @param options.value2 - The second value for 'BETWEEN' and 'NOT BETWEEN' operators.
+   * @param options.value1 - The first value for `'BETWEEN'` and `'NOT BETWEEN'` operators.
+   * @param options.value2 - The second value for `'BETWEEN'` and `'NOT BETWEEN'` operators.
    *
    * @example
    * const filter = new Filter<Book>({
@@ -34,6 +34,8 @@ class Filter<T> {
    *  operator: 'LIKE',
    *  value: 'Customer',
    * });
+   *
+   * this.find(filter)
    */
   constructor(options: FilterOptions<T>);
 
@@ -58,12 +60,44 @@ class Filter<T> {
    * });
    *
    * const combinedFilters = new Filter<Book>('AND', filter1, filter2);
+   *
+   * this.find(combinedFilters)
    */
   constructor(operator: LogicalOperator, ...filters: Filter<T>[]);
 
-  constructor(filter: FilterOptions<T> | LogicalOperator, ...filters: Filter<T>[]) {
+  /**
+   * Creates a new multidimensional `Filter` instance.
+   *
+   * @param filter - A multidimensional array of `CompoundFilter` instances combined with logical operators (`'AND'`, `'OR'`).
+   *
+   * @example
+   * const filter1 = new Filter<Book>({
+   *    field: 'customer_name',
+   *    operator: 'LIKE',
+   *    value: 'ABS',
+   * });
+   *
+   * const filter2 = new Filter<Book>({
+   *    field: 'ID',
+   *    operator: 'NOT EQUAL',
+   *    value: null,
+   * });
+   *
+   * const filter3 = new Filter<Book>({
+   *    field: 'descr',
+   *    operator: 'ENDS_WITH',
+   *    value: '1850',
+   * });
+   *
+   * const filters = new Filter<Book>([filter1, 'AND', filter2, 'OR', filter3]);
+   *
+   * this.find(filters)
+   */
+  constructor(filter: CompoundFilter<T>);
+
+  constructor(filter: FilterOptions<T> | LogicalOperator | CompoundFilter<T>, ...filters: Filter<T>[]) {
     // Overload 1 => constructor(options: FilterOptions<T>);
-    if (typeof filter === 'object') {
+    if (typeof filter === 'object' && !Array.isArray(filter)) {
       this.field = filter.field;
       this.operator = filter.operator;
 
@@ -116,6 +150,11 @@ class Filter<T> {
     if (typeof filter === 'string' && Array.isArray(filters)) {
       this.logicalOperator = filter;
       this.filters = filters;
+    }
+
+    // Overload 3 => constructor(filter: CompoundFilter<T>);
+    if (Array.isArray(filter) && filters.length === 0) {
+      this.filters = filter;
     }
   }
 }

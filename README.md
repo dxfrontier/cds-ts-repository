@@ -1845,10 +1845,13 @@ Use `Filter` to create complex `WHERE QUERY` filters.
 
 `Overloads`
 
-| Method                                                          | Parameters                                                                                                           | Description                                                                                                                                                                                                                                                                                                                                       |
-| :-------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `new Filter<T>(options: FilterOptions<T>)`                      | `options ({field : keyof T (string), operator : FilterOperator, value : string | number | boolean | null | string[] | number[] })` | Creates a new filter. `T` should be generated using [CDS-Typer](#generate-cds-typed-entities) <br /><br /> `FilterOperator` values : `'EQUALS'`, `'NOT EQUAL'`, `'LIKE'`, `'STARTS_WITH'`, `'ENDS_WITH'`, `'LESS THAN'`, `'LESS THAN OR EQUALS'`, `'GREATER THAN'`, `'GREATER THAN OR EQUALS'`, `'BETWEEN'`, `'NOT BETWEEN'` , `'IN'`, `'NOT IN'` |
-| `new Filter(operator: LogicalOperator, ...filters : Filter<T>)` | `operator (string)`, `filters Array<Filter>`                                                                         | Creates a new Filter instance which combines 2 ... n **filters** with a Logical operator `'AND'`, `'OR'`                                                                                                                                                                                                                                          |
+# Overloads
+
+| #  | Method                                                          | Parameters                                                                                                           | Description                                                                                                                                                                                                                                                                                                                                       |
+|----|-----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
+| 1  | `new Filter<T>(options: FilterOptions<T>)`                      | `options ({field : keyof T (string), operator : FilterOperator, value : string \| number \| boolean \| null \| string[] \| number[] })` | Creates a new filter. `T` should be generated using [CDS-Typer](#generate-cds-typed-entities). <br /><br /> `FilterOperator` values: `'EQUALS'`, `'NOT EQUAL'`, `'LIKE'`, `'STARTS_WITH'`, `'ENDS_WITH'`, `'LESS THAN'`, `'LESS THAN OR EQUALS'`, `'GREATER THAN'`, `'GREATER THAN OR EQUALS'`, `'BETWEEN'`, `'NOT BETWEEN'`, `'IN'`, `'NOT IN'`. |
+| 2  | `new Filter(operator: LogicalOperator, ...filters: Filter<T>)`  | `operator (string)`, `filters Array<Filter>`                                                                         | Creates a new Filter instance that combines 2 ... n **filters** with a Logical operator `'AND'`, `'OR'`.                                                                                                                                                                                                                                          |
+| 3  | `new Filter<T>(filters: (Filter<T> \| LogicalOperator \| Filter<T>)[])` | `filters (Array)`                                                                                     | Creates a multidimensional filter combining nested filters, logical operators `'AND'`, `'OR'`, and arrays of other filters.                                                                                                                                                                                                                      |
 
 `Example 1` : Single filter
 
@@ -1877,9 +1880,6 @@ class MyRepository extends BaseRepository<MyEntity> {
 }
 ```
 
-> [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
-
 `Example 2` : Combination of 2...n filters
 
 ```ts
@@ -1907,9 +1907,6 @@ class MyRepository extends BaseRepository<MyEntity> {
       value2: 333,
     });
 
-    // create filter n ...
-    // ...
-
     // combinedFilters translates to => customer_name like 'abs' or stock between 11 and 333
     const combinedFilters = new Filter('OR', filterLike, filterBetween);
 
@@ -1924,6 +1921,71 @@ class MyRepository extends BaseRepository<MyEntity> {
     const filters = new Filter('AND', combinedFilters, filterIn);
 
     // execute filter using .find
+    const results = await this.builder().find(filters).execute();
+    // OR
+    const results2 = await this.find(filters);
+  }
+}
+```
+
+`Example 3` : Multidimensional filters
+
+```ts
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+import { Filter, BaseRepository } from '@dxfrontier/cds-ts-repository';
+
+class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const nestedFilter = new Filter<MyEntity>([
+      new Filter<MyEntity>({
+        field: 'genre_ID',
+        operator: 'EQUALS',
+        value: 13,
+      }),
+      'AND',
+      new Filter<MyEntity>({
+        field: 'price',
+        operator: 'EQUALS',
+        value: 150,
+      }),
+    ]);
+
+    // Create additional filters
+    const filter2 = new Filter<MyEntity>({
+      field: 'stock',
+      operator: 'NOT EQUAL',
+      value: 100,
+    });
+
+    const filter3 = new Filter<MyEntity>({
+      field: 'descr',
+      operator: 'STARTS_WITH',
+      value: 'Catweazle',
+    });
+
+    const filter4 = new Filter<MyEntity>({
+      field: 'currency_code',
+      operator: 'EQUALS',
+      value: 'JPY',
+    });
+
+    // Combine all filters into a multidimensional structure
+    // This translates to: ((genre_ID = 13 AND price = 150) AND stock != 100 AND descr STARTS_WITH 'Catweazle') OR currency_code = 'JPY'
+    const combinedFilter = new Filter<MyEntity>([
+      nestedFilter,
+      'AND',
+      filter2,
+      'AND',
+      filter3,
+      'OR',
+      filter4,
+    ]);
+
+    // execute combinedFilter using .find
     const results = await this.builder().find(filters).execute();
     // OR
     const results2 = await this.find(filters);

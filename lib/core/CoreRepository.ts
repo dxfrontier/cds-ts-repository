@@ -131,7 +131,7 @@ class CoreRepository<T> {
     return await query;
   }
 
-  public async find(keys?: Entry<T> | Filter<T> | string): Promise<T[] | undefined> {
+  public async find(keys?: Entry<T> | Filter<T>): Promise<T[] | undefined> {
     const filterKeys = util.buildQueryKeys(keys);
     const query = SELECT.from(this.resolvedEntity);
 
@@ -158,12 +158,12 @@ class CoreRepository<T> {
 
   public builder(): FindReturn<T> {
     return {
-      find: (keys?: Entry<T> | Filter<T> | string): FindBuilder<T, any> => {
+      find: (keys?: Entry<T> | Filter<T>): FindBuilder<T, any> => {
         const filterKeys = util.buildQueryKeys(keys);
 
         return new FindBuilder<T, unknown>(this.entity, filterKeys, this.externalService);
       },
-      findOne: (keys?: Entry<T> | Filter<T> | string): FindOneBuilder<T, any> => {
+      findOne: (keys?: Entry<T> | Filter<T>): FindOneBuilder<T, any> => {
         const filterKeys = util.buildQueryKeys(keys);
 
         return new FindOneBuilder<T, unknown>(this.entity, filterKeys, this.externalService);

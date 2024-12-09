@@ -162,6 +162,8 @@ type FilterOptions<T> = {
   field: keyof T;
 } & (FilterSingleValue | FilterBetween | FilterInAndNotIn);
 
+type CompoundFilter<T> = (Filter<T> | LogicalOperator | CompoundFilter<T>)[];
+
 // End Filter types
 
 // Start .columnsFormatter types
@@ -290,6 +292,7 @@ export type {
   Expand,
   ValueExpand,
   ExpandStructure,
+  CompoundFilter,
 
   // ColumnsFormatter types
   ColumnFormatter,
