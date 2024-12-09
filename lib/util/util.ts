@@ -5,8 +5,10 @@ import type {
   AutoExpandLevels,
   ExpandStructure,
   ExternalServiceProps,
+  CompoundFilter,
+  LogicalOperator,
 } from '../types/types';
-import type { Filter } from './filter/Filter';
+import { Filter } from './filter/Filter';
 import { constants } from '../constants/constants';
 
 import type { Association, column_expr, struct, type } from '@sap/cds';
@@ -103,7 +105,7 @@ export const util = {
    * @param keys - The keys object.
    * @returns Returns true if keys represent a single filter, false otherwise.
    */
-  isSingleFilter<T>(keys?: Entry<T> | Filter<T> | string): keys is Filter<T> {
+  isSingleFilter<T>(keys?: Entry<T> | Filter<T> | CompoundFilter<T>): keys is Filter<T> {
     return typeof keys === 'object' && 'field' in keys && keys.field !== undefined;
   },
 
@@ -112,8 +114,22 @@ export const util = {
    * @param keys - The keys object.
    * @returns Returns true if keys represent multiple filters, false otherwise.
    */
-  isMultipleFilters<T>(keys?: Entry<T> | Filter<T> | string): keys is Filter<T> {
-    return typeof keys === 'object' && 'filters' in keys && Array.isArray(keys.filters);
+  isMultipleFilters<T>(keys?: Entry<T> | Filter<T> | CompoundFilter<T>): keys is Filter<T> {
+    return typeof keys === 'object' && 'filters' in keys && 'logicalOperator' in keys && Array.isArray(keys.filters);
+  },
+
+  /**
+   * Checks if the keys parameter represents multidimensional filters.
+   * @param keys - The keys object.
+   * @returns Returns true if keys represent multidimensional filter, false otherwise.
+   */
+  isMultidimensionalFilter<T>(keys?: Entry<T> | Filter<T> | CompoundFilter<T>): keys is Filter<T> {
+    return (
+      typeof keys === 'object' &&
+      'filters' in keys &&
+      Array.isArray(keys.filters) &&
+      (keys.filters as any).some((item: Filter<T> | LogicalOperator) => item === 'OR' || item === 'AND')
+    );
   },
 
   /**
@@ -142,32 +158,60 @@ export const util = {
   },
 
   /**
+   * Recursively builds a SQL query string based on the provided multidimensional filters object.
+   * @param filter - The filter object which is an multidimensional Array (E.g. `[[Filter1, 'AND' Filter2], 'OR' Filter3]`)
+   * @returns The SQL query string.
+   */
+  buildMultidimensionalFilters<T>(filters: Filter<T>['filters']): string {
+    const padWithSpace = ' ';
+
+    const constructedQuery = filters!.reduce((accumulator, filter) => {
+      if (filter instanceof Filter && filter.filters && filter.filters.length > 0) {
+        return util.buildMultidimensionalFilters(filter.filters);
+      }
+
+      if (filter instanceof Filter && filter.filters === undefined) {
+        return accumulator + `${this.buildMultipleFilters(filter)}${padWithSpace}`;
+      }
+
+      if (filter === 'AND' || filter === 'OR') {
+        return accumulator + (filter === 'AND' ? `AND${padWithSpace}` : `OR${padWithSpace}`);
+      }
+
+      return accumulator;
+    }, '');
+
+    return constructedQuery;
+  },
+
+  /**
    * Recursively builds a SQL query string based on the provided filter object.
    * @param filter - The filter object.
    * @returns The SQL query string.
    */
-  buildSQLQuery<T>(filter: Filter<T>): string {
-    const isValueFound: boolean = 'value' in filter || 'value1' in filter;
+  buildMultipleFilters<T>(filter: Filter<T>): string {
+    // Handle single filter case
+    const propertyValueFound: boolean = 'value' in filter || 'value1' in filter;
+    const filterOptionsFound = propertyValueFound && filter.logicalOperator === undefined;
 
-    if (isValueFound && filter.logicalOperator === undefined) {
+    if (filterOptionsFound) {
       if (util.isSingleFilter(filter)) {
         return this.buildSingleFilter(filter);
       }
     }
 
-    const subQueries = filter.filters?.map((subFilter) => this.buildSQLQuery(subFilter));
-    let query = '';
+    // ##################################
 
-    // Compute the filters in a logical OR or AND
-    if (filter.logicalOperator === 'AND') {
-      query = `(${subQueries?.join(` ${filter.logicalOperator} `)})`;
+    // Handle combined filters case
+    const subQueries = (filter.filters as Filter<T>[] | undefined)?.map((subFilter) =>
+      this.buildMultipleFilters(subFilter),
+    );
+
+    if (filter.logicalOperator === 'AND' || filter.logicalOperator === 'OR') {
+      return `(${subQueries?.join(` ${filter.logicalOperator} `)})`;
     }
 
-    if (filter.logicalOperator === 'OR') {
-      query = `(${subQueries?.join(` ${filter.logicalOperator} `)})`;
-    }
-
-    return query;
+    return '';
   },
 
   /**
@@ -175,15 +219,20 @@ export const util = {
    * @param keys - The keys object (can be a single filter, multiple filters, or a string).
    * @returns The query keys string, entry object, or undefined if keys are not modified.
    */
-  buildQueryKeys<T>(keys?: Entry<T> | Filter<T> | string): string | Entry<T> | undefined {
+  buildQueryKeys<T>(keys?: Entry<T> | Filter<T>): Entry<T> | string | undefined {
     // Single filter object
     if (util.isSingleFilter(keys)) {
       return util.buildSingleFilter(keys);
     }
 
-    // Multiple filters objects
+    // Multiple filters object
     if (util.isMultipleFilters(keys)) {
-      return util.buildSQLQuery(keys);
+      return util.buildMultipleFilters(keys);
+    }
+
+    // Multidimensional filters object
+    if (util.isMultidimensionalFilter(keys)) {
+      return util.buildMultidimensionalFilters(keys.filters);
     }
 
     // Return non-modified keys
