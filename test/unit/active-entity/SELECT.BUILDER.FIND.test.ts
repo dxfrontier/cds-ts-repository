@@ -14,7 +14,12 @@ describe('SELECT', () => {
   });
 
   describe('.builder().find()', () => {
-    describe('======> .find() - OVERLOAD - no arguments (get all items)', () => {
+    /**
+     * ################################################################################################################################
+     * OVERLOAD 1
+     * ################################################################################################################################
+     */
+    describe('======> .find() - no arguments (get all items) - [OVERLOAD 1]', () => {
       it('should return 6 record', async () => {
         // Act
         const results = await bookRepository.builder().find().execute();
@@ -43,342 +48,12 @@ describe('SELECT', () => {
       });
     });
 
-    describe('======> .find() - OVERLOAD - filter / filters ', () => {
-      describe('======> Filter - NOT EQUAL', () => {
-        it('should return 5 record and ID 251 not in the items', async () => {
-          const initialResult = await bookRepository.getAll();
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'ID',
-            operator: 'NOT EQUAL',
-            value: 251,
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(initialResult?.length).toBeGreaterThan(results!.length);
-        });
-      });
-
-      describe('======> Filter - NOT EQUALS (null)', () => {
-        it('should return 6 records', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'ID',
-            operator: 'NOT EQUAL',
-            value: null,
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(6);
-        });
-      });
-
-      describe('======> Filter - EQUALS', () => {
-        it('should return 1 record with the ID 251', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'ID',
-            operator: 'EQUALS',
-            value: 251,
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(1);
-
-          results?.forEach((item) => {
-            expect(item.ID).toBe(filter.value as number);
-          });
-        });
-      });
-
-      describe('======> Filter - ENDS_WITH', () => {
-        it('should return 2 records containing in the "descr" field the string "1850." ', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'descr',
-            operator: 'ENDS_WITH',
-            value: '1850.',
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(2);
-
-          results?.forEach((item) => expect(item.descr).toContain((filter.value as string).replace(/%/g, '')));
-        });
-      });
-
-      describe('======> Filter - STARTS_WITH', () => {
-        it('should return 2 records containing in the "descr" field the string "Wuthering" ', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'descr',
-            operator: 'STARTS_WITH',
-            value: 'Wuthering',
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(2);
-
-          results?.forEach((item) => expect(item.descr).toContain((filter.value as string).replace(/%/g, '')));
-        });
-      });
-
-      describe('======> Filter - LIKE', () => {
-        it('should return 2 records containing in the "descr" field the string "Wuthering" ', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'descr',
-            operator: 'LIKE',
-            value: 'Wuthering',
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(2);
-
-          results?.forEach((item) => expect(item.descr).toContain((filter.value as string).replace(/%/g, '')));
-        });
-      });
-
-      describe('======> Filter - BETWEEN', () => {
-        it('should return 5 records between stock 11 and 333', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'stock',
-            operator: 'BETWEEN',
-            value1: 11,
-            value2: 333,
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(5);
-
-          results?.forEach((item) => {
-            expect(item.stock).toBeGreaterThanOrEqual(filter.value1 as number);
-            expect(item.stock).toBeLessThanOrEqual(filter.value2 as number);
-          });
-        });
-      });
-
-      describe('======> Filter - NOT BETWEEN', () => {
-        it('should return 1 record not between 11 and 333', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'stock',
-            operator: 'NOT BETWEEN',
-            value1: 11,
-            value2: 333,
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(1);
-
-          results?.forEach((item) => {
-            expect(item.stock).toBeGreaterThan(filter.value1 as number);
-            expect(item.stock).toBeGreaterThan(filter.value2 as number);
-          });
-        });
-      });
-
-      describe('======> Filter - IN', () => {
-        it('should return 5 records containing currency code USD and GBP', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'currency_code',
-            operator: 'IN',
-            value: ['USD', 'GBP'],
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(5);
-
-          results?.forEach((item) => {
-            expect(item.currency_code).not.toBe('JPY');
-          });
-        });
-      });
-
-      describe('======> Filter - NOT IN', () => {
-        it('should return only 1 records containing "JPY"', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'currency_code',
-            operator: 'NOT IN',
-            value: ['USD', 'GBP'],
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(1);
-
-          results?.forEach((item) => {
-            expect(item.currency_code).toBe('JPY');
-          });
-        });
-      });
-
-      describe('======> Filter - GREATER THAN', () => {
-        it('should return only 3 records that have stock greater than 12', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'stock',
-            operator: 'GREATER THAN',
-            value: 12,
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(3);
-
-          results?.forEach((item) => {
-            expect(item.stock).toBeGreaterThan(filter.value as number);
-          });
-        });
-      });
-
-      describe('======> Filter - GREATER THAN OR EQUALS', () => {
-        it('should return only 5 records that have stock greater or equals to 12', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'stock',
-            operator: 'GREATER THAN OR EQUALS',
-            value: 12,
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(5);
-
-          results?.forEach((item) => {
-            expect(item.stock).toBeGreaterThanOrEqual(filter.value as number);
-          });
-        });
-      });
-
-      describe('======> Filter - LESS THAN', () => {
-        it('should return only 4 records that have stock less than 12', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'stock',
-            operator: 'LESS THAN',
-            value: 333,
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(4);
-
-          results?.forEach((item) => {
-            expect(item.stock).toBeLessThan(filter.value as number);
-          });
-        });
-      });
-
-      describe('======> Filter - LESS THAN OR EQUALS', () => {
-        it('should return only 4 records that have stock less than 12', async () => {
-          // Arrange
-          const filter = new Filter<Book>({
-            field: 'stock',
-            operator: 'LESS THAN OR EQUALS',
-            value: 333,
-          });
-
-          // Act
-          const results = await bookRepository.builder().find(filter).execute();
-
-          // Assert
-          expect(results).toHaveLength(5);
-
-          results?.forEach((item) => {
-            expect(item.stock).toBeLessThanOrEqual(filter.value as number);
-          });
-        });
-      });
-
-      describe('======> Filter - LIKE - BETWEEN - IN - multiple filters', () => {
-        it('should return all records containing (currency_code = "GBP" OR stock BETWEEN 11 and 333) AND ID IN ("203", "201", "207")', async () => {
-          // Arrange
-          const filterLike = new Filter<Book>({
-            field: 'currency_code',
-            operator: 'LIKE',
-            value: 'GBP',
-          });
-
-          const filterBetween = new Filter<Book>({
-            field: 'stock',
-            operator: 'BETWEEN',
-            value1: 11,
-            value2: 333,
-          });
-
-          const filterIn = new Filter<Book>({
-            field: 'ID',
-            operator: 'IN',
-            value: [201, 203, 207],
-          });
-
-          // descr like 'Wuthering' or stock between 11 and 333
-          const combinedFiltersWithOR = new Filter('OR', filterLike, filterBetween);
-
-          // (descr LIKE 'Wuthering' OR stock BETWEEN 11 and 333) AND ID IN ('203', '201', '207')
-          const filters = new Filter('AND', combinedFiltersWithOR, filterIn);
-
-          // Act
-          const results = await bookRepository.builder().find(filters).execute();
-
-          // Assert
-          expect(results).toHaveLength(3);
-
-          results?.forEach((item) => {
-            expect(item.currency_code).not.toBe('JPY');
-            expect(item.currency_code).not.toBe('USD');
-            expect(item.stock).toBeGreaterThanOrEqual(filterBetween.value1 as number);
-            expect(item.stock).toBeLessThanOrEqual(filterBetween.value2 as number);
-
-            (filterIn.value as number[]).forEach((id) => {
-              expect(id).toBeGreaterThanOrEqual(201);
-              expect(id).toBeLessThanOrEqual(207);
-            });
-          });
-        });
-      });
-    });
-
-    describe('======> .find() - OVERLOAD - object ', () => {
+    /**
+     * ################################################################################################################################
+     * OVERLOAD 2
+     * ################################################################################################################################
+     */
+    describe('======> .find({ ... }) - with object ({ ... }) - [OVERLOAD 2]', () => {
       describe('======> .getExpand() - OVERLOAD - AUTO EXPAND - { levels : number }', () => {
         it('should return the original object + expanded "genre", "author" and "reviews" properties', async () => {
           // Arrange
@@ -1033,6 +708,428 @@ describe('SELECT', () => {
 
           // Assert
           expect(all).toBeDefined();
+        });
+      });
+    });
+
+    /**
+     * ################################################################################################################################
+     * OVERLOAD 3
+     * ################################################################################################################################
+     */
+    describe('======> .find(filter) - with filter / or filters - [OVERLOAD 3]', () => {
+      it('should return only matching items based on nested AND/OR filters', async () => {
+        // Arrange
+        const initialResult = await bookRepository.getAll();
+
+        const nestedFilter = new Filter<Book>([
+          new Filter<Book>({
+            field: 'genre_ID',
+            operator: 'EQUALS',
+            value: 13,
+          }),
+          'AND',
+          new Filter<Book>({
+            field: 'price',
+            operator: 'EQUALS',
+            value: 150,
+          }),
+        ]);
+
+        const filter2 = new Filter<Book>({
+          field: 'stock',
+          operator: 'NOT EQUAL',
+          value: 100,
+        });
+
+        const filter3 = new Filter<Book>({
+          field: 'descr',
+          operator: 'STARTS_WITH',
+          value: 'Catweazle',
+        });
+
+        const filter4 = new Filter<Book>({
+          field: 'currency_code',
+          operator: 'EQUALS',
+          value: 'JPY',
+        });
+
+        const combinedFilter = new Filter<Book>([nestedFilter, 'AND', filter2, 'AND', filter3, 'OR', filter4]);
+
+        // Act
+        const results = await bookRepository.builder().find(combinedFilter).execute();
+
+        // Assert
+        const matchedItem = results![0];
+
+        expect(results!.length).toBe(1);
+        expect(initialResult?.length).toBeGreaterThan(results!.length);
+        expect(matchedItem.genre_ID).toBe(13);
+        expect(matchedItem.price).toBe(150);
+        expect(matchedItem.stock).not.toBe(100);
+        expect(matchedItem.descr!.startsWith('Catweazle') || matchedItem.currency_code === 'JPY').toBe(true);
+      });
+
+      it('should return books with genre_ID 13 and price 150', async () => {
+        // Arrange
+        const initialResult = await bookRepository.getAll();
+
+        const simpleFilter = new Filter<Book>([
+          new Filter<Book>({
+            field: 'genre_ID',
+            operator: 'EQUALS',
+            value: 13,
+          }),
+          'AND',
+          new Filter<Book>({
+            field: 'price',
+            operator: 'EQUALS',
+            value: 150,
+          }),
+        ]);
+
+        // Act
+        const results = await bookRepository.builder().find(simpleFilter).execute();
+
+        // Assert
+        const matchedItem = results![0];
+
+        expect(results!.length).toBe(1);
+        expect(matchedItem.genre_ID).toBe(13);
+        expect(matchedItem.price).toBe(150);
+        expect(initialResult?.length).toBeGreaterThan(results!.length);
+      });
+
+      describe('======> Filter - NOT EQUAL', () => {
+        it('should return 5 record and ID 251 not in the items', async () => {
+          const initialResult = await bookRepository.getAll();
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'ID',
+            operator: 'NOT EQUAL',
+            value: 251,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(initialResult?.length).toBeGreaterThan(results!.length);
+        });
+      });
+
+      describe('======> Filter - NOT EQUALS (null)', () => {
+        it('should return 6 records', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'ID',
+            operator: 'NOT EQUAL',
+            value: null,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(6);
+        });
+      });
+
+      describe('======> Filter - EQUALS', () => {
+        it('should return 1 record with the ID 251', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'ID',
+            operator: 'EQUALS',
+            value: 251,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(1);
+
+          results?.forEach((item) => {
+            expect(item.ID).toBe(filter.value as number);
+          });
+        });
+      });
+
+      describe('======> Filter - ENDS_WITH', () => {
+        it('should return 2 records containing in the "descr" field the string "1850." ', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'descr',
+            operator: 'ENDS_WITH',
+            value: '1850.',
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(2);
+
+          results?.forEach((item) => expect(item.descr).toContain((filter.value as string).replace(/%/g, '')));
+        });
+      });
+
+      describe('======> Filter - STARTS_WITH', () => {
+        it('should return 2 records containing in the "descr" field the string "Wuthering" ', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'descr',
+            operator: 'STARTS_WITH',
+            value: 'Wuthering',
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(2);
+
+          results?.forEach((item) => expect(item.descr).toContain((filter.value as string).replace(/%/g, '')));
+        });
+      });
+
+      describe('======> Filter - LIKE', () => {
+        it('should return 2 records containing in the "descr" field the string "Wuthering" ', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'descr',
+            operator: 'LIKE',
+            value: 'Wuthering',
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(2);
+
+          results?.forEach((item) => expect(item.descr).toContain((filter.value as string).replace(/%/g, '')));
+        });
+      });
+
+      describe('======> Filter - BETWEEN', () => {
+        it('should return 5 records between stock 11 and 333', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'stock',
+            operator: 'BETWEEN',
+            value1: 11,
+            value2: 333,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(5);
+
+          results?.forEach((item) => {
+            expect(item.stock).toBeGreaterThanOrEqual(filter.value1 as number);
+            expect(item.stock).toBeLessThanOrEqual(filter.value2 as number);
+          });
+        });
+      });
+
+      describe('======> Filter - NOT BETWEEN', () => {
+        it('should return 1 record not between 11 and 333', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'stock',
+            operator: 'NOT BETWEEN',
+            value1: 11,
+            value2: 333,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(1);
+
+          results?.forEach((item) => {
+            expect(item.stock).toBeGreaterThan(filter.value1 as number);
+            expect(item.stock).toBeGreaterThan(filter.value2 as number);
+          });
+        });
+      });
+
+      describe('======> Filter - IN', () => {
+        it('should return 5 records containing currency code USD and GBP', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'currency_code',
+            operator: 'IN',
+            value: ['USD', 'GBP'],
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(5);
+
+          results?.forEach((item) => {
+            expect(item.currency_code).not.toBe('JPY');
+          });
+        });
+      });
+
+      describe('======> Filter - NOT IN', () => {
+        it('should return only 1 records containing "JPY"', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'currency_code',
+            operator: 'NOT IN',
+            value: ['USD', 'GBP'],
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(1);
+
+          results?.forEach((item) => {
+            expect(item.currency_code).toBe('JPY');
+          });
+        });
+      });
+
+      describe('======> Filter - GREATER THAN', () => {
+        it('should return only 3 records that have stock greater than 12', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'stock',
+            operator: 'GREATER THAN',
+            value: 12,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(3);
+
+          results?.forEach((item) => {
+            expect(item.stock).toBeGreaterThan(filter.value as number);
+          });
+        });
+      });
+
+      describe('======> Filter - GREATER THAN OR EQUALS', () => {
+        it('should return only 5 records that have stock greater or equals to 12', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'stock',
+            operator: 'GREATER THAN OR EQUALS',
+            value: 12,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(5);
+
+          results?.forEach((item) => {
+            expect(item.stock).toBeGreaterThanOrEqual(filter.value as number);
+          });
+        });
+      });
+
+      describe('======> Filter - LESS THAN', () => {
+        it('should return only 4 records that have stock less than 12', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'stock',
+            operator: 'LESS THAN',
+            value: 333,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(4);
+
+          results?.forEach((item) => {
+            expect(item.stock).toBeLessThan(filter.value as number);
+          });
+        });
+      });
+
+      describe('======> Filter - LESS THAN OR EQUALS', () => {
+        it('should return only 4 records that have stock less than 12', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'stock',
+            operator: 'LESS THAN OR EQUALS',
+            value: 333,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toHaveLength(5);
+
+          results?.forEach((item) => {
+            expect(item.stock).toBeLessThanOrEqual(filter.value as number);
+          });
+        });
+      });
+
+      describe('======> Filter - LIKE - BETWEEN - IN - multiple filters', () => {
+        it('should return all records containing (currency_code = "GBP" OR stock BETWEEN 11 and 333) AND ID IN ("203", "201", "207")', async () => {
+          // Arrange
+          const filterLike = new Filter<Book>({
+            field: 'currency_code',
+            operator: 'LIKE',
+            value: 'GBP',
+          });
+
+          const filterBetween = new Filter<Book>({
+            field: 'stock',
+            operator: 'BETWEEN',
+            value1: 11,
+            value2: 333,
+          });
+
+          const filterIn = new Filter<Book>({
+            field: 'ID',
+            operator: 'IN',
+            value: [201, 203, 207],
+          });
+
+          // descr like 'Wuthering' or stock between 11 and 333
+          const combinedFiltersWithOR = new Filter('OR', filterLike, filterBetween);
+
+          // (descr LIKE 'Wuthering' OR stock BETWEEN 11 and 333) AND ID IN ('203', '201', '207')
+          const filters = new Filter('AND', combinedFiltersWithOR, filterIn);
+
+          // Act
+          const results = await bookRepository.builder().find(filters).execute();
+
+          // Assert
+          expect(results).toHaveLength(3);
+
+          results?.forEach((item) => {
+            expect(item.currency_code).not.toBe('JPY');
+            expect(item.currency_code).not.toBe('USD');
+            expect(item.stock).toBeGreaterThanOrEqual(filterBetween.value1 as number);
+            expect(item.stock).toBeLessThanOrEqual(filterBetween.value2 as number);
+
+            (filterIn.value as number[]).forEach((id) => {
+              expect(id).toBeGreaterThanOrEqual(201);
+              expect(id).toBeLessThanOrEqual(207);
+            });
+          });
         });
       });
     });
