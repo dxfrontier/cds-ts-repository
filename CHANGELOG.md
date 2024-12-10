@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.0.0] - 2024-12-10
+
+### 🚀 Features
+
+- *(Filter)* `Filter` accepts a new overload to supply multiple filders to `.find()` and `findOne`
+
+### 🚜 Refactor
+
+- *(core)* Removed string from `find` and `findOne` as it was not needed
+- *(workflows)* Refactored workflows to be in guideline with cds-ts-dispatcher
+
+### ⚙️ Miscellaneous Tasks
+
+- *(readme)* Updated readme with `Filter` overload for multidimension
+- *(test)* Updated tests for `Filter` multidimension
+
 ## [4.0.0] - 2024-11-07
 
 ### 🐛 Bug Fixes
