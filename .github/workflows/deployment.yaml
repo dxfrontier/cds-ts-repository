@@ -3,7 +3,7 @@ name: Deployment
 on:
   pull_request:
     branches:
-      - dev
+      - main
     types:
       - closed
 
@@ -12,24 +12,13 @@ permissions:
   pull-requests: write
 
 jobs:
-  # This job will check if the Pull request was merged into dev branch
-  check_valid_merge:
-    name: Merge 'Pull request' to 'dev' branch
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo The PR was merged.
-
   # This will validate to see if the labels contains 'none' which means that if 'none' was found the release will not happen
   check_valid_deploy:
     name: Validate deploy conditions
-    needs: check_valid_merge
     if: ${{ contains(github.event.pull_request.labels.*.name, 'deploy') }}
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo The PR can continue to deploy the version.
+      - run: echo "Proceed valid"
 
     # This will start build of the project
   check_valid_build:
@@ -60,24 +49,3 @@ jobs:
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-
-  publish-npm-github:
-    name: Publish to github npm - internal
-    needs: check_valid_build
-    env:
-      NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-      - run: npm ci
-      - run: npm run build
-      - run: |
-          echo @dxfrontier:registry=https://npm.pkg.github.com/ > ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
-      - run: npm publish
