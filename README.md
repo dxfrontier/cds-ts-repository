@@ -1892,15 +1892,14 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    // create filter 1
-    const filterLike = new Filter<MyEntity>({
+
+    const filter1 = new Filter<MyEntity>({
       field: 'customer_name',
       operator: 'LIKE',
       value: 'abs',
     });
 
-    // create filter 2
-    const filterBetween = new Filter<MyEntity>({
+    const filter2 = new Filter<MyEntity>({
       field: 'stock',
       operator: 'BETWEEN',
       value1: 11,
@@ -1908,17 +1907,16 @@ class MyRepository extends BaseRepository<MyEntity> {
     });
 
     // combinedFilters translates to => customer_name like 'abs' or stock between 11 and 333
-    const combinedFilters = new Filter('OR', filterLike, filterBetween);
+    const combinedFilters = new Filter('OR', filter1, filter2);
 
-    // create filter 3 
-    const filterIn = new Filter<MyEntity>({
+    const filter3 = new Filter<MyEntity>({
       field: 'ID',
       operator: 'IN',
       value: [201, 203, 207],
     });
 
     // filters translates to (customer_name LIKE 'abs' OR stock BETWEEN 11 and 333) AND ID IN (201, 203, 207)
-    const filters = new Filter('AND', combinedFilters, filterIn);
+    const filters = new Filter('AND', combinedFilters, filter3);
 
     // execute filter using .find
     const results = await this.builder().find(filters).execute();
@@ -1940,7 +1938,7 @@ class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const nestedFilter = new Filter<MyEntity>([
+    const filter1 = new Filter<MyEntity>([
       new Filter<MyEntity>({
         field: 'genre_ID',
         operator: 'EQUALS',
@@ -1954,7 +1952,6 @@ class MyRepository extends BaseRepository<MyEntity> {
       }),
     ]);
 
-    // Create additional filters
     const filter2 = new Filter<MyEntity>({
       field: 'stock',
       operator: 'NOT EQUAL',
@@ -1975,8 +1972,8 @@ class MyRepository extends BaseRepository<MyEntity> {
 
     // Combine all filters into a multidimensional structure
     // This translates to: ((genre_ID = 13 AND price = 150) AND stock != 100 AND descr STARTS_WITH 'Catweazle') OR currency_code = 'JPY'
-    const combinedFilter = new Filter<MyEntity>([
-      nestedFilter,
+    const filters = new Filter<MyEntity>([
+      filter1,
       'AND',
       filter2,
       'AND',
@@ -1985,7 +1982,7 @@ class MyRepository extends BaseRepository<MyEntity> {
       filter4,
     ]);
 
-    // execute combinedFilter using .find
+    // execute filters using .find
     const results = await this.builder().find(filters).execute();
     // OR
     const results2 = await this.find(filters);
