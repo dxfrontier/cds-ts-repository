@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.1.0] - 2025-01-09
+
+### 🚀 Features
+
+- *(is-null)* Added as operator `IS NULL` and `IS NOT NULL` to Filter to check for null
+
+### 📚 Documentation
+
+- *(readme)* Added is-null and is-not-null documentation
+
+### 🧪 Testing
+
+- *(unit)* Updates tests for `is null` and `is not null`
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Updated CHANGELOG.md and bump version increased
+- *(gitignore)* Added some config files to gitignore
+- *(config)* Added generated @dispatcher to eslint ignore
+
 ## [5.0.1] - 2024-12-18
 
 ### ⚙️ Miscellaneous Tasks
