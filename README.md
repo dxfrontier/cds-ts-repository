@@ -76,6 +76,8 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [count](#count)
   - [`Helpers`](#helpers)
     - [Filter](#filter)
+      - [Overloads](#overloads)
+      - [Discriminated union](#discriminated-union)
   - [`Decorators`](#decorators)
     - [@ExternalService](#externalservice)
 - [`Samples`](#samples)
@@ -310,7 +312,7 @@ class MyEntityHandler {
 
 ### `Drafts` : `BaseRepositoryDraft`
 
-The `BaseRepositoryDraft` class extends `BaseRepository` by providing support for draft-enabled entities. 
+The `BaseRepositoryDraft` class extends `BaseRepository` by providing support for draft-enabled entities.
 
 The `BaseRepositoryDraft` repository provides a clear separation of methods for **working with active entities** and **draft instances.**
 
@@ -350,7 +352,7 @@ export class MyRepository extends Mixin(BaseRepository<MyEntity>, BaseRepository
 
 > [!NOTE]
 > MyRepository class will inherit all methods for active entities and drafts.
-> 
+>
 > Active entity methods: .create, createMany, update, exists, delete, deleteMany ...
 >
 > Draft entity methods: .updateDraft, existsDraft, deleteDraft, deleteManyDrafts ...
@@ -1618,7 +1620,7 @@ The `updateLocaleTexts` method allows you to update entries in the table that ma
 
 `Parameters`
 
-- `localeCodeKeys (object)`: An object containing language codes `'en', 'de', 'fr', 'ro', ... ` and entity keys to filter entries.
+- `localeCodeKeys (object)`: An object containing language codes `'en', 'de', 'fr', 'ro', ...` and entity keys to filter entries.
 - `fieldsToUpdate (object)`: An object representing the keys and values to update. Each key corresponds to a property in the entity.
 
 `Return`
@@ -1843,22 +1845,34 @@ class MyRepository extends BaseRepository<MyEntity> {
 
 Use `Filter` to create complex `WHERE QUERY` filters.
 
-`Overloads`
+##### Overloads
 
-# Overloads
-
-| #  | Method                                                          | Parameters                                                                                                           | Description                                                                                                                                                                                                                                                                                                                                      |
-|----|-----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
-| 1  | `new Filter<T>(options: FilterOptions<T>)`                      | `options`:<br />- `field`: `keyof T` (string)<br />- `operator`: `FilterOperator`<br />- `value`: `string`, `number`, `boolean`, `null`, `string[]`, `number[]` | Creates a new filter based on a field, operator, and value. <br /><br /> `FilterOperator` values: `'EQUALS'`, `'NOT EQUAL'`, `'LIKE'`, `'STARTS_WITH'`, `'ENDS_WITH'`, `'LESS THAN'`, `'LESS THAN OR EQUALS'`, `'GREATER THAN'`, `'GREATER THAN OR EQUALS'`, `'IN'`, `'NOT IN'`. |
-| 2  | `new Filter<T>(options: FilterOptions<T>)`                      | `options`:<br />- `field`: `keyof T` (string)<br />- `operator`: `FilterOperator`<br />- `value1`: `string`, `number`, `string[]`, `number[]`<br />- `value2`: `string`, `number`, `string[]`, `number[]` | Creates a new filter for range operations. <br /><br /> `FilterOperator` values: `'BETWEEN'`, `'NOT BETWEEN'`. |
-| 3  | `new Filter<T>(options: FilterOptions<T>)`                      | `options`:<br />- `field`: `keyof T` (string)<br />- `operator`: `FilterOperator` | Creates a new filter for null checks. <br /><br /> `FilterOperator` values: `'IS NULL'`, `'IS NOT NULL'`. |
-| 4  | `new Filter(operator: LogicalOperator, ...filters: Filter<T>)`  | `operator`: `LogicalOperator` (`'AND'`, `'OR'`)<br />`filters`: `Array<Filter<T>>`                                                                         | Combines two or more filters with a logical operator.                                                                                                                                                                                                                                                     |
-| 5  | `new Filter<T>(filters: (Filter<T> | LogicalOperator | Filter<T>)[])` | `filters`: `Array<Filter<T> | LogicalOperator>`                                                                                     | Creates a multidimensional filter combining nested filters and logical operators (`'AND'`, `'OR'`) with arrays of other filters.                                                                                                                                                                          |
+| #  | Method                                                          | Parameters                                                                                                           | Description                                                                                                                                                                                                                     |
+|----|-----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1  | `new Filter(operator: LogicalOperator, ...filters: Filter<T>)`  | `operator`: `LogicalOperator` (`'AND'`, `'OR'`)<br />`filters`: `Array<Filter<T>>`                                                                         | Combines two or more filters with a logical operator.                                                                                                                                  |
+| 2  | `new Filter<T>(filters: (Filter<T> | LogicalOperator | Filter<T>)[])` | `filters`: `Array<Filter<T> | LogicalOperator>`                                                                                     | Creates a multidimensional filter combining nested filters and logical operators (`'AND'`, `'OR'`) with arrays of other filters.                                                       |
 
 > [!NOTE]
+>
 > - `T` should be a type generated using [CDS-Typer](#generate-cds-typed-entities).
-> - `FilterOperator` values are predefined operators for filtering. 
 > - `LogicalOperator` values are `'AND'` and `'OR'`, used to combine multiple filters.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+##### Discriminated union
+
+| #  | Method                                     | Parameters                                                                                                           | Description                                                                                                                                                                                                                                                                                                                                      |
+|----|--------------------------------------------|---------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1  | `new Filter<T>(options: FilterOptions<T>)` | `options`:<br />- `field`: `keyof T` (string)<br />- `operator`: `FilterOperator`<br />- `value`: `string`, `number`, `boolean`, `null`, `string[]`, `number[]` | Creates a new filter based on a field, operator, and value. <br /><br /> `FilterOperator` values: `'EQUALS'`, `'NOT EQUAL'`, `'LIKE'`, `'STARTS_WITH'`, `'ENDS_WITH'`, `'LESS THAN'`, `'LESS THAN OR EQUALS'`, `'GREATER THAN'`, `'GREATER THAN OR EQUALS'`, `'IN'`, `'NOT IN'`. |
+| 2  | `new Filter<T>(options: FilterOptions<T>)` | `options`:<br />- `field`: `keyof T` (string)<br />- `operator`: `FilterOperator`<br />- `value1`: `string`, `number`, `string[]`, `number[]`<br />- `value2`: `string`, `number`, `string[]`, `number[]` | Creates a new filter for range operations. <br /><br /> `FilterOperator` values: `'BETWEEN'`, `'NOT BETWEEN'`. |
+| 3  | `new Filter<T>(options: FilterOptions<T>)` | `options`:<br />- `field`: `keyof T` (string)<br />- `operator`: `FilterOperator` | Creates a new filter for null checks. <br /><br /> `FilterOperator` values: `'IS NULL'`, `'IS NOT NULL'`. |
+
+> [!NOTE]
+>
+> - `FilterOperator` values are predefined operators for filtering.
+> - `T` should be a type generated using [CDS-Typer](#generate-cds-typed-entities).
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 `Example 1` : Single filter
 
@@ -2049,7 +2063,6 @@ export default BusinessPartnerRepository;
 
 > [!NOTE]
 > API_BUSINESS_PARTNER is just for showing, it can differ from use case to use case.
-
 
 ## `Samples`
 
