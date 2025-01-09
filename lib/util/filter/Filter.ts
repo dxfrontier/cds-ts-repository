@@ -144,6 +144,10 @@ class Filter<T> {
 
         return;
       }
+
+      if (filter.operator === 'IS NULL' || filter.operator === 'IS NOT NULL') {
+        this.value = null;
+      }
     }
 
     // Overload 2 => constructor(operator: LogicalOperator, ...filters: Filter<T>[]);

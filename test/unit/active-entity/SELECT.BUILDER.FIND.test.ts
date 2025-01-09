@@ -869,7 +869,7 @@ describe('SELECT', () => {
           const results = await bookRepository.builder().find(filter).execute();
 
           // Assert
-          expect(results).toHaveLength(2);
+          expect(results).toHaveLength(1);
 
           results?.forEach((item) => expect(item.descr).toContain((filter.value as string).replace(/%/g, '')));
         });
@@ -888,7 +888,7 @@ describe('SELECT', () => {
           const results = await bookRepository.builder().find(filter).execute();
 
           // Assert
-          expect(results).toHaveLength(2);
+          expect(results).toHaveLength(1);
 
           results?.forEach((item) => expect(item.descr).toContain((filter.value as string).replace(/%/g, '')));
         });
@@ -907,7 +907,7 @@ describe('SELECT', () => {
           const results = await bookRepository.builder().find(filter).execute();
 
           // Assert
-          expect(results).toHaveLength(2);
+          expect(results).toHaveLength(1);
 
           results?.forEach((item) => expect(item.descr).toContain((filter.value as string).replace(/%/g, '')));
         });
@@ -1082,6 +1082,41 @@ describe('SELECT', () => {
           results?.forEach((item) => {
             expect(item.stock).toBeLessThanOrEqual(filter.value as number);
           });
+        });
+      });
+
+      describe('======> Filter - IS NULL / IS NOT NULL', () => {
+        it('should return books with descr field NULL and only one result', async () => {
+          // Arrange
+          const initialResult = await bookRepository.getAll();
+
+          const simpleFilter = new Filter<Book>({ field: 'descr', operator: 'IS NULL' });
+
+          // Act
+          const results = await bookRepository.builder().find(simpleFilter).execute();
+
+          // Assert
+          const matchedItem = results![0];
+
+          expect(results!.length).toBe(1);
+          expect(matchedItem.price).toBe(11.11);
+          expect(initialResult?.length).toBeGreaterThan(results!.length);
+        });
+
+        it('should return books with descr field NOT NULL and get 6 results', async () => {
+          // Arrange
+          const initialResult = await bookRepository.getAll();
+
+          const simpleFilter = new Filter<Book>({ field: 'descr', operator: 'IS NOT NULL' });
+
+          // Act
+          const results = await bookRepository.builder().find(simpleFilter).execute();
+
+          // Assert
+          const matchedItem = results![0];
+
+          expect(results!.length).toBe(5);
+          expect(initialResult?.length).toBeGreaterThan(results!.length);
         });
       });
 

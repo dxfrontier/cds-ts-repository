@@ -65,6 +65,16 @@ export const util = {
   },
 
   /**
+   * Checks if the filter operator is either 'IS NULL' or 'IS NOT NULL'.
+   * @param keys - The filter
+   * @returns Returns true if the operator is 'IS NULL' or 'IS NOT NULL', false otherwise.
+   */
+  isNullOrNotNull<T>(keys: Filter<T>): boolean {
+    const operator = keys.operator;
+    return operator === 'IS NULL' || operator === 'IS NOT NULL';
+  },
+
+  /**
    * Maps the filter operator to its corresponding SQL operator.
    * @param keys - The filter object.
    * @returns The SQL operator mapped from the filter operator.
@@ -94,6 +104,12 @@ export const util = {
       case 'ENDS_WITH':
       case 'STARTS_WITH':
         return 'LIKE';
+
+      case 'IS NULL':
+        return 'IS NULL';
+
+      case 'IS NOT NULL':
+        return 'IS NOT NULL';
 
       default:
         throw Error('No operator found');
@@ -151,6 +167,10 @@ export const util = {
 
         return `${key} ${filterOperator} (${remodeledString.toString()})`;
       }
+    }
+
+    if (util.isNullOrNotNull(keys)) {
+      return `${key} ${util.mapOperator(keys)}`;
     }
 
     // All others operators
