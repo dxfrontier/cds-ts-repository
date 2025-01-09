@@ -125,6 +125,8 @@ type FindReturn<T> = {
 
 type LogicalOperator = 'AND' | 'OR';
 
+type FilterOperatorWhenNoValue = 'IS NULL' | 'IS NOT NULL';
+
 type FilterOperatorWhenSingleValue =
   | 'EQUALS'
   | 'NOT EQUAL'
@@ -138,7 +140,11 @@ type FilterOperatorWhenSingleValue =
 type FilterOperatorWhenTwoValues = 'BETWEEN' | 'NOT BETWEEN';
 type FilterOperatorWhenArrayValues = 'IN' | 'NOT IN';
 
-type FilterOperator = FilterOperatorWhenSingleValue | FilterOperatorWhenTwoValues | FilterOperatorWhenArrayValues;
+type FilterOperator =
+  | FilterOperatorWhenSingleValue
+  | FilterOperatorWhenTwoValues
+  | FilterOperatorWhenArrayValues
+  | FilterOperatorWhenNoValue;
 
 type FilterValue = string | number | null | boolean;
 
@@ -158,9 +164,13 @@ type FilterInAndNotIn = {
   value: string[] | number[];
 };
 
+type FilterNoValue = {
+  operator: FilterOperatorWhenNoValue;
+};
+
 type FilterOptions<T> = {
   field: keyof T;
-} & (FilterSingleValue | FilterBetween | FilterInAndNotIn);
+} & (FilterSingleValue | FilterBetween | FilterInAndNotIn | FilterNoValue);
 
 type CompoundFilter<T> = (Filter<T> | LogicalOperator | CompoundFilter<T>)[];
 
