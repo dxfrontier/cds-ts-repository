@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.1.5] - 2025-02-06
+
+### 🐛 Bug Fixes
+
+- *(typed_request)* Fix TypedRequest was replaced by Request
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Updated CHANGELOG.md and bump version increased
+- *(readme)* Updated readme
+
 ## [5.1.4] - 2025-02-06
 
 ### ⚙️ Miscellaneous Tasks
