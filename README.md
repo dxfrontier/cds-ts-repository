@@ -2033,13 +2033,10 @@ This decorator connects the class to the specified external service via SAP Clou
 `Example`
 
 ```ts
-import { Repository } from '@dxfrontier/cds-ts-dispatcher';
-import { BaseRepository } from '@dxfrontier/cds-ts-repository';
-import { ExternalService } from '@dxfrontier/cds-ts-repository';
+import { BaseRepository, ExternalService } from '@dxfrontier/cds-ts-repository';
 
 import { A_BusinessPartner } from '../../@cds-models/API_BUSINESS_PARTNER'; // <= This can be different, depending on your location of the @cds-models
 
-@Repository()
 @ExternalService('API_BUSINESS_PARTNER')
 class BusinessPartnerRepository extends BaseRepository<A_BusinessPartner> {
   constructor() {
