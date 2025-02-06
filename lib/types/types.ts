@@ -1,4 +1,4 @@
-import type { QueryAPI, TypedRequest } from '@sap/cds';
+import type { QueryAPI, Request } from '@sap/cds';
 
 import type { LanguageCode } from 'iso-639-1';
 
@@ -284,7 +284,7 @@ export type {
   Locale,
   InsertResult,
   DraftAdministrativeFields,
-  TypedRequest,
+  Request,
   Columns,
   ShowOnlyColumns,
   Entries,
