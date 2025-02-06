@@ -143,7 +143,7 @@ Start by creating `MyRepository` class, which will extend the `BaseRepository<T>
 `Example`
 
 ```ts
-import { BaseRepository, TypedRequest } from '@dxfrontier/cds-ts-repository'
+import { BaseRepository, Request } from '@dxfrontier/cds-ts-repository'
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE'
 
 // Imported to have visibility over INSERT, SELECT, UPDATE, DELETE ...
@@ -155,7 +155,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
     super(MyEntity)
   }
 
-  public aMethod(req: TypedRequest<MyEntity>) {
+  public aMethod(req: Request<MyEntity>) {
     const result1 = await this.create(...)
     const result2 = await this.createMany(...)
     const result5 = await this.getAll()
@@ -169,7 +169,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
     const result13 = await this.count()
   }
 
-  public anotherMethod(results: MyEntity[], req: TypedRequest<MyEntity>) {
+  public anotherMethod(results: MyEntity[], req: Request<MyEntity>) {
     // ...
   }
 
