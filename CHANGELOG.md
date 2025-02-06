@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.1.4] - 2025-02-06
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Updated CHANGELOG.md and bump version increased
+- *(readme)* Updated
+
 ## [5.1.3] - 2025-01-09
 
 ### ⚙️ Miscellaneous Tasks
