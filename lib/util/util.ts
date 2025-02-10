@@ -182,12 +182,12 @@ export const util = {
    * @param filter - The filter object which is an multidimensional Array (E.g. `[[Filter1, 'AND' Filter2], 'OR' Filter3]`)
    * @returns The SQL query string.
    */
-  buildMultidimensionalFilters<T>(filters: Filter<T>['filters']): string {
+  buildMultidimensionalFilters<T>(filters: Filter<T>['filters'], options?: { isInnerCalled: boolean }): string {
     const padWithSpace = ' ';
 
     const constructedQuery = filters!.reduce((accumulator, filter) => {
       if (filter instanceof Filter && filter.filters && filter.filters.length > 0) {
-        return util.buildMultidimensionalFilters(filter.filters);
+        return util.buildMultidimensionalFilters(filter.filters, { isInnerCalled: true });
       }
 
       if (filter instanceof Filter && filter.filters === undefined) {
@@ -201,7 +201,13 @@ export const util = {
       return accumulator;
     }, '');
 
-    return constructedQuery;
+    const trimmedQuery = constructedQuery.trimEnd();
+
+    if (options?.isInnerCalled) {
+      return `(${trimmedQuery})${padWithSpace}`;
+    }
+
+    return trimmedQuery;
   },
 
   /**
