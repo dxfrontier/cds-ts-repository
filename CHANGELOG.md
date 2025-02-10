@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.1.6] - 2025-02-10
+
+### 🐛 Bug Fixes
+
+- *(filter)* Fix multidimensional `Filter` when Filter contained 2 filters and logical OR / AND
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Updated CHANGELOG.md and bump version increased
+- *(readme)* Updated
+
 ## [5.1.5] - 2025-02-06
 
 ### 🐛 Bug Fixes
