@@ -1992,7 +1992,7 @@ class MyRepository extends BaseRepository<MyEntity> {
     });
 
     // Combine all filters into a multidimensional structure
-    // This translates to: ((genre_ID = 13 AND price = 150) AND stock != 100 AND descr STARTS_WITH 'Catweazle') OR currency_code = 'JPY'
+    // This translates to: ((genre_ID = 13 AND price = 150) AND stock != 100 AND descr STARTS_WITH 'Catweazle' OR currency_code = 'JPY')
     const filters = new Filter<MyEntity>([
       filter1,
       'AND',
