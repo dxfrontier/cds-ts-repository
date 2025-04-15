@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.2.0] - 2025-04-15
+
+### 🚜 Refactor
+
+- *(getExpand)* Refactored the `builder getExpand` for better performance
+
+### 🧪 Testing
+
+- *(unit)* Updated
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Updated CHANGELOG.md and bump version increased
+- *(readme)* Updated with documentation for `hints`
+
 ## [5.1.6] - 2025-02-10
 
 ### 🐛 Bug Fixes
