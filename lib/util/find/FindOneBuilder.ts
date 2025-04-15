@@ -1,7 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Service, type } from '@sap/cds';
 
-import util from '../util';
 import BaseFind from './BaseFind';
 
 import type {
@@ -12,6 +11,7 @@ import type {
   Entity,
   ExternalServiceProps,
 } from '../../types/types';
+import { findUtils } from './findUtils';
 
 /**
  * Builder class for constructing a query to find a single entity.
@@ -70,7 +70,7 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
   public columnsFormatter<const ColumnKeys extends ColumnFormatter<T, 'FIND_ONE'>>(
     ...columns: ColumnKeys
   ): FindOneBuilder<AppendColumns<T, ColumnKeys>, string | Keys> {
-    const aggregateColumns = util.buildAggregateColumns<T, ColumnKeys>(...columns);
+    const aggregateColumns = findUtils.columnUtils.buildAggregateColumns<T, ColumnKeys>(...columns);
 
     void this.select.columns(...aggregateColumns);
 
@@ -101,7 +101,7 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
 
     if (this.expandCalled) {
       // As the .columns() was called after .getExpand(), the '*' will be removed from the .columns array to have correct typing based only on the columns
-      util.removeExpandOperator(this.select.SELECT.columns);
+      findUtils.columnUtils.removeExpandOperator(this.select.SELECT.columns);
     }
 
     this.columnsCalled = true;

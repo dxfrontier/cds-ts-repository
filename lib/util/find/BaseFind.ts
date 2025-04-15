@@ -1,7 +1,8 @@
 import { constants } from '../../constants/constants';
 import util from '../util';
 
-import type { Expand, Columns, AssociationFunction, ValueExpand, Entity, ExpandStructure } from '../../types/types';
+import type { Expand, Columns, Entity } from '../../types/types';
+import { findUtils } from './findUtils';
 
 /**
  * Common Select builder class, this class contains constructor initialization and common methods used in FindBuilder.ts and FindOneBuilder.ts.
@@ -25,7 +26,7 @@ class BaseFind<T, Keys> {
     protected readonly entity: Entity,
     protected readonly keys: Keys | string | undefined,
   ) {
-    this.resolvedEntity = util.resolveEntityName(entity);
+    this.resolvedEntity = findUtils.resolveEntityName(entity);
 
     this.initializeSelect();
   }
@@ -39,6 +40,24 @@ class BaseFind<T, Keys> {
 
     this.select = query;
   }
+
+  /**
+   * Passes hints to the database query optimizer that can influence the execution plan. The hints can be passed as individual arguments or as an array.
+   *
+   * The SQL Optimizer usually determines the access path (for example, index search versus table scan) on the basis of the costs (Cost-Based Optimizer). You can override the SQL Optimizer choice by explicitly specifying hints in the query that enforces a certain access path.
+   *
+   * @param ...hints - Query optimizer hings
+   *
+   * `Note`: This works only for `HANA DB`.
+   *
+   * @link [SAP Hana Hints details](https://help.sap.com/docs/HANA_SERVICE_CF/7c78579ce9b14a669c1f3295b0d8ca16/4ba9edce1f2347a0b9fcda99879c17a1.html)
+   */
+  hints(...hints: (string | string[])[]): this {
+    const flattenedHints = hints.flat(); // Flatten in case an array of strings is passed
+    this.select.hints(flattenedHints as string[]);
+    return this;
+  }
+
   /**
    * Provides the Metadata of the fields.
    * `Note`: currently SAP does not offer typing on EntityElements.
@@ -144,111 +163,7 @@ class BaseFind<T, Keys> {
   public getExpand(...args: any[]): this {
     this.expandCalled = true;
 
-    const associations = Array.isArray(args[0]) ? args[0] : args;
-
-    // const private routines for this func
-    const _processExpandAll = (association: any): void => {
-      association((linkedEntity: AssociationFunction) => {
-        linkedEntity(constants.COMMON.ALL_FIELDS);
-      });
-    };
-
-    const _processOnlySelect = (association: any, value: ValueExpand): void => {
-      association((linkedEntity: AssociationFunction) => {
-        _exposeFieldsOnly(value.select, linkedEntity);
-      });
-    };
-
-    const _processSelectAndExpand = (association: any, value: ValueExpand): void => {
-      association((linkedEntity: AssociationFunction) => {
-        _exposeFieldsOnly(value.select, linkedEntity);
-        _buildDeepExpand(value.expand, linkedEntity);
-      });
-    };
-
-    const _processOnlyExpand = (association: any, value: ValueExpand): void => {
-      association((linkedEntity: AssociationFunction) => {
-        _expandFirstLevel(linkedEntity);
-        _buildDeepExpand(value.expand, linkedEntity);
-      });
-    };
-
-    const _exposeFieldsOnly = (fields: unknown[], linkedEntity: AssociationFunction): void => {
-      fields.forEach((item: unknown) => {
-        linkedEntity(item);
-      });
-    };
-
-    const _expandFirstLevel = (columnProjection: any): void => {
-      columnProjection(constants.COMMON.ALL_FIELDS);
-    };
-
-    const _buildDeepExpand = (expandStructure: ExpandStructure, columnProjection: any): void => {
-      for (const key in expandStructure) {
-        const value = expandStructure[key];
-        const association = columnProjection[key];
-
-        // Empty object, expand all
-        if (util.isExpandAll(value)) {
-          _processExpandAll(association);
-        }
-        // Both select and expand
-        else if (util.isSelectAndExpand(value)) {
-          _processSelectAndExpand(association, value);
-        }
-        // Only select
-        else if (util.isSelectOnly(value)) {
-          _processOnlySelect(association, value);
-        }
-        // Only expand
-        else if (util.isExpandOnly(value)) {
-          _processOnlyExpand(association, value);
-        } else {
-          throw new Error(constants.MESSAGES.DEEP_EXPAND_NOT_EXIST);
-        }
-      }
-    };
-
-    const _buildSingleExpand = (columnProjection: any): void => {
-      associations.forEach((association) => {
-        columnProjection[association]((linkedEntity: AssociationFunction) => {
-          linkedEntity(constants.COMMON.ALL_FIELDS);
-        });
-      });
-    };
-
-    const _buildAutoExpandStructure = (elements: any | undefined, depth = 1): ExpandStructure => {
-      const value = associations[0];
-
-      if (util.isPropertyLevelsFound(value) && value.levels !== undefined) {
-        if (depth > value.levels) {
-          return {}; // STOP when reached depth
-        }
-      }
-
-      // private routine for this func
-      const _buildStructure = (): ExpandStructure => {
-        const expandStructure: ExpandStructure = {};
-
-        for (const key in elements) {
-          const element = elements[key];
-
-          if (util.isElementExpandable(element)) {
-            /*
-             * SAP does not provides us typing on _target as probably is a private property
-             * That's the reason why casting to 'any'
-             */
-            expandStructure[key] = {
-              expand: _buildAutoExpandStructure(element._target.elements, depth + 1),
-            };
-          }
-        }
-
-        return expandStructure;
-      };
-
-      return _buildStructure();
-    };
+    const associations: any[] = Array.isArray(args[0]) ? args[0] : args;
 
     /**
      * Extremely difficult to work with typing on the projection
@@ -266,23 +181,26 @@ class BaseFind<T, Keys> {
       }
 
       if (columnsNotCalled) {
-        _expandFirstLevel(columnProjection);
+        findUtils.expandUtils.expandFirstLevel(columnProjection);
       }
 
       // Overload 1 : object overload ({ levels : number}) ( auto expand )
-      if (util.isPropertyLevelsFound(value)) {
-        _buildDeepExpand(_buildAutoExpandStructure(this.entity.elements), columnProjection);
+      if (findUtils.expandUtils.isPropertyLevelsFound(value)) {
+        findUtils.expandUtils.buildDeepExpand(
+          findUtils.expandUtils.buildAutoExpandStructure(this.entity.elements, associations),
+          columnProjection,
+        );
         return;
       }
 
-      // Overload 2 : array overload ( single expand )
-      if (util.isSingleExpand(value)) {
-        _buildSingleExpand(columnProjection);
+      // Overload 2 : array overload ( root only expand )
+      if (findUtils.expandUtils.isSingleExpand(value)) {
+        findUtils.expandUtils.buildSingleExpand(columnProjection, associations);
         return;
       }
 
       // Overload 3 : object overload ( deep expand )
-      _buildDeepExpand(value, columnProjection);
+      findUtils.expandUtils.buildDeepExpand(value, columnProjection);
     });
 
     return this;
