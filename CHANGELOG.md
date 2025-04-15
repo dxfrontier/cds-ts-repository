@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.2.1] - 2025-04-15
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Updated CHANGELOG.md and bump version increased
+- *(package)* Fixed desincronization of package-lock with package.json
+
 ## [5.2.0] - 2025-04-15
 
 ### 🚜 Refactor
