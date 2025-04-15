@@ -11,6 +11,7 @@
 ![NPM Downloads](https://img.shields.io/npm/dm/%40dxfrontier%2Fcds-ts-repository?logo=npm)
 ![NPM Version](https://img.shields.io/npm/v/%40dxfrontier%2Fcds-ts-repository?logo=npm)
 
+![Tests](https://img.shields.io/github/actions/workflow/status/dxfrontier/cds-ts-repository/tests.yml?logo=git&label=test)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/dxfrontier/cds-ts-repository/release.yml?logo=git)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/dxfrontier/cds-ts-repository/main?logo=git)
 ![GitHub issues](https://img.shields.io/github/issues/dxfrontier/cds-ts-repository?logo=git)
@@ -57,6 +58,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
         - [getExpand](#getexpand)
         - [forUpdate](#forupdate)
         - [forShareLock](#forsharelock)
+        - [hints](#hints)
         - [execute](#execute)
       - [.findOne](#findone-1)
         - [elements](#elements-1)
@@ -65,6 +67,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
         - [getExpand](#getexpand-1)
         - [forUpdate](#forupdate-1)
         - [forShareLock](#forsharelock-1)
+        - [hints](#hints-1)
         - [execute](#execute-1)
     - [update](#update)
     - [updateOrCreate](#updateorcreate)
@@ -392,7 +395,7 @@ The `create` method allows you to create a new entry in the table.
 
 - `Promise<boolean>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
 
-`Example`
+`Example 1`
 
 ```ts
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
@@ -407,6 +410,32 @@ class MyRepository extends BaseRepository<MyEntity> {
     const createdInstance = await this.create({
       name: 'Customer 1',
       description: 'Customer 1 description',
+    });
+    // Further logic with createdInstance
+  }
+}
+```
+`Example 2` 
+
+The method is also able to create deep entities like
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const createdInstance = > await this.create({
+      name: 'Customer 1',
+      description: 'Customer 1 description',
+      to_children: [{
+        name: 'child 1'
+        // ...
+      }]
     });
     // Further logic with createdInstance
   }
@@ -1133,7 +1162,7 @@ const results = await this.builder()
 > [!NOTE]
 > If `columns` is used with `getExpand` the `columns` method will have impact on the final typing.
 
-`Example 4` : Simple expand
+`Example 4` : Simple expand (root only)
 
 ```ts
 // expand only 'orders' and 'reviews' associations
@@ -1196,6 +1225,35 @@ const results = await this.builder()
 
 > [!TIP]
 > More info can be found on the official SAP CAP [forShareLock](https://cap.cloud.sap/docs/node.js/cds-ql#forsharelock) documentation. documentation.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### hints
+
+Passes hints to the database query optimizer that can influence the execution plan. The hints can be passed as individual arguments or as an array.
+
+The SQL Optimizer usually determines the access path (for example, index search versus table scan) on the basis of the costs (Cost-Based Optimizer). You can override the SQL Optimizer choice by explicitly specifying hints in the query that enforces a certain access path.
+
+`Parameters`
+
+- `...hints` `(string[])`: Query optimizer hings
+
+`Example`
+
+```ts
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
+  .hints('IGNORE_PLAN_CACHE', 'MAX_CONCURRENCY(1)')
+  .execute();
+```
+
+> [!IMPORTANT]
+> This works only for `HANA DB`.
+
+> [!TIP]
+> More info can be found on the official SAP CAP [hints](https://cap.cloud.sap/docs/node.js/cds-ql#hints) documentation. documentation.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1491,6 +1549,35 @@ const oneResult = await this.builder()
 
 > [!TIP]
 > More info can be found on the official SAP CAP [forShareLock](https://cap.cloud.sap/docs/node.js/cds-ql#forsharelock) documentation. documentation.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+
+###### hints
+
+Passes hints to the database query optimizer that can influence the execution plan. The hints can be passed as individual arguments or as an array.
+
+The SQL Optimizer usually determines the access path (for example, index search versus table scan) on the basis of the costs (Cost-Based Optimizer). You can override the SQL Optimizer choice by explicitly specifying hints in the query that enforces a certain access path.
+
+`Parameters`
+
+- `...hints` `(string[])`: Query optimizer hings
+
+`Example`
+
+```ts
+const results = await this.builder()
+  .find({
+    name: 'A company name',
+  })
+  .hints('IGNORE_PLAN_CACHE', 'MAX_CONCURRENCY(1)')
+  .execute();
+```
+> [!IMPORTANT]
+> This works only for `HANA DB`
+
+> [!TIP]
+> More info can be found on the official SAP CAP [hints](https://cap.cloud.sap/docs/node.js/cds-ql#hints) documentation. documentation.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 

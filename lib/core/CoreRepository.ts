@@ -3,7 +3,7 @@ import type { Service } from '@sap/cds';
 
 import FindBuilder from '../util/find/FindBuilder';
 import FindOneBuilder from '../util/find/FindOneBuilder';
-import util from '../util/util';
+import coreRepositoryUtils from '../util/coreRepository/coreRepositoryUtils';
 
 import type {
   Entry,
@@ -19,6 +19,7 @@ import type {
   InsertResult,
 } from '../types/types';
 import type { Filter } from '..';
+import { findUtils } from '../util/find/findUtils';
 
 /**
  * Core repository class providing CRUD operations for entities.
@@ -35,7 +36,7 @@ class CoreRepository<T> {
     protected readonly entity: Entity,
     protected readonly externalService?: ExternalServiceProps,
   ) {
-    this.resolvedEntity = util.resolveEntityName(entity);
+    this.resolvedEntity = findUtils.resolveEntityName(entity);
   }
 
   // Public routines
@@ -132,7 +133,7 @@ class CoreRepository<T> {
   }
 
   public async find(keys?: Entry<T> | Filter<T>): Promise<T[] | undefined> {
-    const filterKeys = util.buildQueryKeys(keys);
+    const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
     const query = SELECT.from(this.resolvedEntity);
 
     if (filterKeys) {
@@ -159,12 +160,12 @@ class CoreRepository<T> {
   public builder(): FindReturn<T> {
     return {
       find: (keys?: Entry<T> | Filter<T>): FindBuilder<T, any> => {
-        const filterKeys = util.buildQueryKeys(keys);
+        const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
 
         return new FindBuilder<T, unknown>(this.entity, filterKeys, this.externalService);
       },
       findOne: (keys?: Entry<T> | Filter<T>): FindOneBuilder<T, any> => {
-        const filterKeys = util.buildQueryKeys(keys);
+        const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
 
         return new FindOneBuilder<T, unknown>(this.entity, filterKeys, this.externalService);
       },
@@ -224,11 +225,11 @@ class CoreRepository<T> {
 
     if (this.externalService) {
       const deletedItems: string[] = await this.externalService.run(queries);
-      return util.isAllSuccess(deletedItems);
+      return coreRepositoryUtils.isAllSuccess(deletedItems);
     }
 
     const deletedItems: number[] = await Promise.all(queries);
-    return util.isAllSuccess(deletedItems);
+    return coreRepositoryUtils.isAllSuccess(deletedItems);
   }
 
   public async deleteAll(): Promise<boolean> {
