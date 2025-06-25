@@ -412,10 +412,9 @@ describe('SELECT', () => {
             )
             .execute();
 
-          // columnFormatter[0].
           // Assert
           expect(columnFormatter).toHaveLength(1);
-          expect(columnFormatter![0]).not.toContain(originalItem![0]);
+          expect(columnFormatter![0]).not.toEqual(originalItem![0]);
           expect(columnFormatter![0]).toHaveProperty('theAvg');
           expect(columnFormatter![0]).toHaveProperty('stockRenamed');
         });
