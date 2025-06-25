@@ -17,7 +17,7 @@
     "format:message": "echo 'Prettier started ...'",
     "format:fix": "prettier . --write",
     "lint:format:fix": "run-s lint:message lint:fix format:message format:fix",
-    "test": "jest --watchAll",
+    "test": "jest",
     "prepare": "husky",
     "commit": "commit",
     "test:newman:e2e:tests": "newman run ./test/e2e/collection.json --environment ./test/e2e/environments.json --bail",
