@@ -96,6 +96,11 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
 npm install @dxfrontier/cds-ts-repository
 ```
 
+> [!IMPORTANT]
+> CDS-TS-Repository uses `@sap/cds`, `@sap/cds-dk` [version 9](https://cap.cloud.sap/docs/releases/may25)
+> 
+> If you're using `@sap/cds`, `@sap/cds-dk` `version 8` then install `npm install @dxfrontier/cds-ts-repository@5`.
+
 ### `Generate CDS Typed entities`
 
 Execute the following commands :
