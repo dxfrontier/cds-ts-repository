@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.0] - 2025-07-02
+
+### 🚀 Features
+
+- *(cds)* Migration to cds v9
+
+### 🧪 Testing
+
+- *(schema)* Updated association
+- *(tsconfig.json)* Updates tsconfig to stick to cds guidelines
+- *(sqlite)* Removed sqilite as it is already installed on root
+- *(find)* Refactored test due to jest major version
+- *(bookshop)* Updated devDependency to have dispatcher
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Updated CHANGELOG.md and bump version increased
+- *(package)* Removed --watchAll from jest
+- *(readme)* Made clear that repository uses v9
+
 ## [5.2.1] - 2025-04-15
 
 ### ⚙️ Miscellaneous Tasks
