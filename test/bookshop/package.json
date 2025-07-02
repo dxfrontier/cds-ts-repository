@@ -6,7 +6,7 @@
     "start:business:partner:mocked": "cds-ts mock API_BUSINESS_PARTNER"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^1.5.0"
+    "@dxfrontier/cds-ts-dispatcher": ">=4.0.0"
   },
   "cds": {
     "requires": {

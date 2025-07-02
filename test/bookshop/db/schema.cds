@@ -115,7 +115,7 @@ entity Promotions {
       endDate     : Date        @mandatory;
       discount    : Decimal     @mandatory;
       // Associations
-      books       : Association to many Books;
+      books       : Association to Books;
 
 }
 
