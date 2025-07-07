@@ -1,6 +1,6 @@
 {
   "name": "@dxfrontier/cds-ts-repository",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "The goal of SAP CAP CDS-QL BaseRepository is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the database like .create(), .createMany(), .getAll(), .update(), .find(), .exists() ...",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -52,7 +52,6 @@
     "@sap-cloud-sdk/connectivity": "^4.0.2",
     "@sap-cloud-sdk/http-client": "^4.0.2",
     "@sap-cloud-sdk/resilience": "^4.0.2",
-
     "@swc/core": "^1.12.7",
     "@types/jest": "^30.0.0",
     "axios": "^1.10.0",
