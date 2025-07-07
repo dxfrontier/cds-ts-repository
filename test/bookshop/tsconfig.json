@@ -15,5 +15,8 @@
     "strict": true,
     "rootDir": "./",
     "baseUrl": "."
-  }
+  },
+  "include": [
+    "./@dispatcher"
+  ]
 }
