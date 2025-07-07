@@ -118,10 +118,11 @@ npm install
 
 #### `Important`
 
-> [!CAUTION]
-> Import always the `generated entities` from the `service` folders and not from the `index.ts`
 
 ![alt text](https://github.com/dxfrontier/markdown-resources/blob/main/common/cds_typer_entities_@cds-models.png?raw=true)
+
+> [!CAUTION]
+> Import always the `generated entities` from the `service` folders and not from the `index.ts`
 
 > [!TIP]
 > By default cds-typer will create in your `package.json` a quick path alias like :
@@ -406,7 +407,7 @@ The `create` method allows you to create a new entry in the table.
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -428,7 +429,7 @@ The method is also able to create deep entities like
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -472,7 +473,7 @@ The `createMany` method allows you to add multiple entries in the table.
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -526,7 +527,7 @@ The `getAll` method retrieves all table entries.
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -574,7 +575,7 @@ The `getDistinctColumns` method retrieves distinct values for the specified colu
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -622,7 +623,7 @@ The `getLocaleTexts` method is designed to retrieve a list of items with localiz
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -672,7 +673,7 @@ The `paginate` method allows you to find and retrieve a list of items with optio
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -699,7 +700,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -748,7 +749,7 @@ The `find` method allows you to find and retrieve entries from the table that ma
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -778,7 +779,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 import { BaseRepository, Filter } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -823,7 +824,7 @@ The `findOne` method allows you to find and retrieve a single entry from the tab
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -1636,7 +1637,7 @@ The `update` method allows you to update entries in the table that match the spe
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -1676,7 +1677,7 @@ The `updateOrCreate` method is a database operation that will update an existing
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -1725,7 +1726,7 @@ The `updateLocaleTexts` method allows you to update entries in the table that ma
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -1762,7 +1763,7 @@ The `delete` method allows you to delete entries from the table that match the s
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -1800,7 +1801,7 @@ The `deleteMany` method allows you to delete multiple entries from the table tha
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -1844,7 +1845,7 @@ The `deleteAll` method allows you to delete all entries from the table but prese
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -1881,7 +1882,7 @@ The `exists` method allows you to check whether entries exist in the table that 
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -1914,7 +1915,7 @@ The `count` method allows you to count all items from the table.
 import { BaseRepository } from '@dxfrontier/cds-ts-repository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -1972,7 +1973,7 @@ Use `Filter` to create complex `WHERE QUERY` filters.
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 import { Filter, BaseRepository } from '@dxfrontier/cds-ts-repository';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -1999,7 +2000,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 import { Filter, BaseRepository } from '@dxfrontier/cds-ts-repository';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -2045,7 +2046,7 @@ class MyRepository extends BaseRepository<MyEntity> {
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 import { Filter, BaseRepository } from '@dxfrontier/cds-ts-repository';
 
-class MyRepository extends BaseRepository<MyEntity> {
+export class MyRepository extends BaseRepository<MyEntity> {
   constructor() {
     super(MyEntity); // a CDS Typer entity type
   }
@@ -2130,15 +2131,12 @@ import { BaseRepository, ExternalService } from '@dxfrontier/cds-ts-repository';
 import { A_BusinessPartner } from '../../@cds-models/API_BUSINESS_PARTNER'; // <= This can be different, depending on your location of the @cds-models
 
 @ExternalService('API_BUSINESS_PARTNER')
-class BusinessPartnerRepository extends BaseRepository<A_BusinessPartner> {
+export class BusinessPartnerRepository extends BaseRepository<A_BusinessPartner> {
   constructor() {
     super(A_BusinessPartner);
   }
   // ... define custom CDS-QL actions if BaseRepository ones are not satisfying your needs !
 }
-
-export default BusinessPartnerRepository;
-
 ```
 
 > [!TIP]
