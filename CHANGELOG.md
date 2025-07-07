@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.1] - 2025-07-07
+
+### 📚 Documentation
+
+- *(readme)* Adde export to all MyRepository classes
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Updated CHANGELOG.md and bump version increased
+
 ## [6.0.0] - 2025-07-02
 
 ### 🚀 Features
