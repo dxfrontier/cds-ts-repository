@@ -147,6 +147,32 @@ class CoreRepository<T> {
     return await query;
   }
 
+  public async findOneAndUpdate(keys: Entry<T>, fieldsToUpdate: Entry<T>): Promise<boolean> {
+    const findOneQuery = SELECT.one.from(this.resolvedEntity).where(keys);
+
+    // Case 1: External Service
+    if (this.externalService) {
+      const foundEntity: T | undefined = await this.externalService.run(findOneQuery);
+
+      if (!foundEntity) {
+        return false;
+      }
+
+      const updateQuery = UPDATE.entity(this.resolvedEntity).where(keys).set(fieldsToUpdate);
+      const updated = await this.externalService.run(updateQuery);
+      return updated === 1;
+    }
+
+    // Case 2: Regular Database
+    const foundOne: T | undefined = await findOneQuery;
+
+    if (!foundOne) {
+      return false;
+    }
+
+    return this.update(keys, fieldsToUpdate);
+  }
+
   public async findOne(keys: Entry<T>): Promise<T | undefined> {
     const query = SELECT.one.from(this.resolvedEntity).where(keys);
 

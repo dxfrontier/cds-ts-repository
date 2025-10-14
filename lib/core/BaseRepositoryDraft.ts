@@ -103,6 +103,26 @@ abstract class BaseRepositoryDraft<T> {
   }
 
   /**
+   * Finds a single draft entity by the specified keys and updates it with the provided fields.
+   *
+   * @param keys - The keys to identify the draft entity to find and update.
+   * @param fieldsToUpdate - The fields and their new values to update on the found draft entity.
+   * @returns Promise that resolves to true if the update was successful, false otherwise.
+   *
+   * @example
+   * ```typescript
+   * // Update a draft with administrative fields
+   * const wasUpdated = await this.findOneDraftAndUpdate(
+   *   { ID: '123', IsActiveEntity: false },
+   *   { name: 'New Name', status: 'active' }
+   * );
+   * ```
+   */
+  public async findOneDraftAndUpdate(keys: Draft<T>, fieldsToUpdate: Draft<T>): Promise<boolean> {
+    return await this.coreRepository.findOneAndUpdate(keys, fieldsToUpdate);
+  }
+
+  /**
    * Finds a single draft entry based on the provided keys.
    * @param keys An object representing the keys to filter the record.
    * @returns A promise that resolves to a single matching record.
