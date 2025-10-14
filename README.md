@@ -45,6 +45,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [paginate](#paginate)
     - [find](#find)
     - [findOne](#findone)
+    - [findOneAndUpdate](#findoneandupdate)
     - [builder](#builder)
       - [.find](#find-1)
         - [elements](#elements)
@@ -843,6 +844,56 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### findOneAndUpdate
+
+`findOneAndUpdate(keys: Entry<T>, fieldsToUpdate: Entry<T>): Promise<boolean>`
+
+The `findOneAndUpdate` method performs an atomic find-and-update operation. It first checks if an entity matching the specified keys exists, and if found, updates it with the provided fields.
+
+`Parameters`
+
+- `keys (object)`: An object representing the keys to identify the entity to find. Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria.
+- `fieldsToUpdate (object)`: An object representing the fields and their new values to update on the found entity.
+
+`Return`
+
+- `Promise<boolean>`: This method returns a Promise that resolves to:
+  - `true` if the entity was found and successfully updated
+  - `false` if the entity was not found or the update failed
+
+`Example 1`: Basic usage
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const wasUpdated = await this.findOneAndUpdate(
+      { ID: '123' },
+      { name: 'Updated Name', status: 'active' }
+    );
+
+    if (wasUpdated) {
+      console.log('Entity updated successfully');
+    } else {
+      console.log('Entity not found or update failed');
+    }
+  }
+}
+```
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
+
+> [!TIP]
+> The method first verifies entity existence before attempting the update, ensuring safe update operations.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
