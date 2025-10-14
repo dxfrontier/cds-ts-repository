@@ -161,6 +161,34 @@ abstract class BaseRepository<T> {
   }
 
   /**
+   * Finds a single entity by keys and updates it with the provided fields.
+   *
+   * @param keys - The keys to find the entity.
+   * @param fieldsToUpdate - The fields to update on the found entity.
+   * @returns Promise that resolves to true if the update was successful, false otherwise.
+   *
+   * @example
+   * ```typescript
+   * const wasUpdated = await this.findOneAndUpdate(
+   *   { id: '123' },
+   *   { name: 'New Name', status: 'active' }
+   * );
+   *
+   * if (wasUpdated) {
+   *   console.log('Update operation successful');
+   * } else {
+   *   console.log('Update operation failed');
+   * }
+   * ```
+   */
+  public async findOneAndUpdate(
+    keys: Entry<ExtractSingular<T>>,
+    fieldsToUpdate: Entry<ExtractSingular<T>>,
+  ): Promise<boolean> {
+    return await this.coreRepository.findOneAndUpdate(keys, fieldsToUpdate);
+  }
+
+  /**
    * Builds a query using the repository's builder.
    * @returns An instance of FindReturn for building queries.
    */
