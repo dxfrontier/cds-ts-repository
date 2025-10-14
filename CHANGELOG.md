@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.1.0] - 2025-10-14
+
+### 🚀 Features
+
+- *(findOneAndUpdate)* New method for finding one instance and update it with according fields
+
+### 🧪 Testing
+
+- *(unit)* Updated test for newly added method
+- *(catalog-service)* Fixed by exporting default instead of old common js style
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, CHANGELOG.md generated
+- *(readme)* Updated documentation for newly added method
+
 ## [6.0.2] - 2025-08-22
 
 ### ⚙️ Miscellaneous Tasks
