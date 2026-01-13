@@ -1,3 +1,6 @@
+import { Book } from '#cds-models/CatalogService';
+
+import { Filter } from '../../../lib/util/filter/Filter';
 import { getBookRepository } from '../../util/BookRepository';
 import { startTestServer } from '../../util/util';
 
@@ -38,6 +41,51 @@ describe('DELETE', () => {
 
       expect(deleteAllOperation).toBe(true);
       expect(getAll!.length).toBeGreaterThan(getAllAfter!.length);
+    });
+  });
+
+  describe('.deleteWhere()', () => {
+    it('should successfully delete items matching the provided keys', async () => {
+      // Arrange
+      const beforeCount = await bookRepository.count();
+      const matchingBooks = await bookRepository.find({ currency_code: 'GBP' });
+      const matchingCount = matchingBooks!.length;
+
+      // Act
+      const deletedCount = await bookRepository.deleteWhere({ currency_code: 'GBP' });
+
+      // Assert
+      const afterCount = await bookRepository.count();
+      expect(deletedCount).toBe(matchingCount);
+      expect(afterCount).toBe(beforeCount - matchingCount);
+    });
+
+    it('should successfully delete items matching a filter', async () => {
+      // Arrange
+      const filter = new Filter<Book>({
+        field: 'stock',
+        operator: 'LESS THAN',
+        value: 15,
+      });
+      const beforeCount = await bookRepository.count();
+      const matchingBooks = await bookRepository.find(filter);
+      const matchingCount = matchingBooks!.length;
+
+      // Act
+      const deletedCount = await bookRepository.deleteWhere(filter);
+
+      // Assert
+      const afterCount = await bookRepository.count();
+      expect(deletedCount).toBe(matchingCount);
+      expect(afterCount).toBe(beforeCount - matchingCount);
+    });
+
+    it('should return 0 when no items match the criteria', async () => {
+      // Act
+      const deletedCount = await bookRepository.deleteWhere({ ID: 99999 });
+
+      // Assert
+      expect(deletedCount).toBe(0);
     });
   });
 

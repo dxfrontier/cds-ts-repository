@@ -45,4 +45,37 @@ describe('UPDATE - drafts', () => {
       expect(originalDraft).not.toMatchObject(updatedDraft!); // Ensure the original draft and updated draft are not the same
     });
   });
+
+  describe('.updateManyDrafts()', () => {
+    it('should successfully update multiple draft items matching the keys', async () => {
+      // Arrange
+      const originalDrafts = await bookEventDraftRepository.findDrafts({ types: 'BOOK_LUNCH' });
+      const originalCount = originalDrafts!.length;
+
+      // Act
+      const updatedCount = await bookEventDraftRepository.updateManyDrafts(
+        { types: 'BOOK_LUNCH' },
+        { name: 'BULK UPDATED DRAFT' },
+      );
+
+      // Assert
+      expect(updatedCount).toBe(originalCount);
+
+      const updatedDrafts = await bookEventDraftRepository.findDrafts({ types: 'BOOK_LUNCH' });
+      updatedDrafts!.forEach((draft) => {
+        expect(draft.name).toBe('BULK UPDATED DRAFT');
+      });
+    });
+
+    it('should return 0 when no draft items match the criteria', async () => {
+      // Act
+      const updatedCount = await bookEventDraftRepository.updateManyDrafts(
+        { ID: '00000000-0000-0000-0000-000000000000' },
+        { name: 'NON EXISTENT' },
+      );
+
+      // Assert
+      expect(updatedCount).toBe(0);
+    });
+  });
 });

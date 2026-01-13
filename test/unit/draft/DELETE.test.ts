@@ -69,6 +69,33 @@ describe('DELETE - drafts', () => {
     });
   });
 
+  describe('.deleteDraftsWhere()', () => {
+    it('should successfully delete draft items matching the provided keys', async () => {
+      // Arrange
+      const beforeCount = await bookEventDraftRepository.countDrafts();
+      const matchingDrafts = await bookEventDraftRepository.findDrafts({ types: 'BOOK_LUNCH' });
+      const matchingCount = matchingDrafts!.length;
+
+      // Act
+      const deletedCount = await bookEventDraftRepository.deleteDraftsWhere({ types: 'BOOK_LUNCH' });
+
+      // Assert
+      const afterCount = await bookEventDraftRepository.countDrafts();
+      expect(deletedCount).toBe(matchingCount);
+      expect(afterCount).toBe(beforeCount - matchingCount);
+    });
+
+    it('should return 0 when no draft items match the criteria', async () => {
+      // Act
+      const deletedCount = await bookEventDraftRepository.deleteDraftsWhere({
+        ID: '00000000-0000-0000-0000-000000000000',
+      });
+
+      // Assert
+      expect(deletedCount).toBe(0);
+    });
+  });
+
   describe('.deleteAllDrafts()', () => {
     it('should successfully delete all items from the table', async () => {
       // Arrange

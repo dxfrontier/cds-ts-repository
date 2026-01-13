@@ -1,9 +1,7 @@
 // This is an automatically generated file. Please do not change its contents manually!
-import cds from '@sap/cds';
 import * as __ from './../_';
 
-export class API_BUSINESS_PARTNER extends cds.Service {}
-export default API_BUSINESS_PARTNER;
+export default class {}
 
 export function _A_AddressEmailAddressAspect<TBase extends new (...args: any[]) => object>(Base: TBase) {
   return class A_AddressEmailAddress extends Base {
@@ -17,7 +15,7 @@ export function _A_AddressEmailAddressAspect<TBase extends new (...args: any[]) 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_AddressEmailAddress>;
     declare static readonly elements: __.ElementsOf<A_AddressEmailAddress>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_AddressEmailAddress extends _A_AddressEmailAddressAspect(__.Entity) {}
@@ -42,7 +40,7 @@ export function _A_AddressFaxNumberAspect<TBase extends new (...args: any[]) => 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_AddressFaxNumber>;
     declare static readonly elements: __.ElementsOf<A_AddressFaxNumber>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_AddressFaxNumber extends _A_AddressFaxNumberAspect(__.Entity) {}
@@ -67,7 +65,7 @@ export function _A_AddressHomePageURLAspect<TBase extends new (...args: any[]) =
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_AddressHomePageURL>;
     declare static readonly elements: __.ElementsOf<A_AddressHomePageURL>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_AddressHomePageURL extends _A_AddressHomePageURLAspect(__.Entity) {}
@@ -93,7 +91,7 @@ export function _A_AddressPhoneNumberAspect<TBase extends new (...args: any[]) =
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_AddressPhoneNumber>;
     declare static readonly elements: __.ElementsOf<A_AddressPhoneNumber>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_AddressPhoneNumber extends _A_AddressPhoneNumberAspect(__.Entity) {}
@@ -114,7 +112,7 @@ export function _A_BPAddrDepdntIntlLocNumberAspect<TBase extends new (...args: a
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPAddrDepdntIntlLocNumber>;
     declare static readonly elements: __.ElementsOf<A_BPAddrDepdntIntlLocNumber>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPAddrDepdntIntlLocNumber extends _A_BPAddrDepdntIntlLocNumberAspect(__.Entity) {}
@@ -142,7 +140,7 @@ export function _A_BPAddressIndependentEmailAspect<TBase extends new (...args: a
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPAddressIndependentEmail>;
     declare static readonly elements: __.ElementsOf<A_BPAddressIndependentEmail>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPAddressIndependentEmail extends _A_BPAddressIndependentEmailAspect(__.Entity) {}
@@ -173,7 +171,7 @@ export function _A_BPAddressIndependentFaxAspect<TBase extends new (...args: any
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPAddressIndependentFax>;
     declare static readonly elements: __.ElementsOf<A_BPAddressIndependentFax>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPAddressIndependentFax extends _A_BPAddressIndependentFaxAspect(__.Entity) {}
@@ -201,7 +199,7 @@ export function _A_BPAddressIndependentMobileAspect<TBase extends new (...args: 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPAddressIndependentMobile>;
     declare static readonly elements: __.ElementsOf<A_BPAddressIndependentMobile>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPAddressIndependentMobile extends _A_BPAddressIndependentMobileAspect(__.Entity) {}
@@ -233,7 +231,7 @@ export function _A_BPAddressIndependentPhoneAspect<TBase extends new (...args: a
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPAddressIndependentPhone>;
     declare static readonly elements: __.ElementsOf<A_BPAddressIndependentPhone>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPAddressIndependentPhone extends _A_BPAddressIndependentPhoneAspect(__.Entity) {}
@@ -260,7 +258,7 @@ export function _A_BPAddressIndependentWebsiteAspect<TBase extends new (...args:
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPAddressIndependentWebsite>;
     declare static readonly elements: __.ElementsOf<A_BPAddressIndependentWebsite>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPAddressIndependentWebsite extends _A_BPAddressIndependentWebsiteAspect(__.Entity) {}
@@ -335,7 +333,7 @@ export function _A_BPContactToAddressAspect<TBase extends new (...args: any[]) =
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPContactToAddress>;
     declare static readonly elements: __.ElementsOf<A_BPContactToAddress>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPContactToAddress extends _A_BPContactToAddressAspect(__.Entity) {}
@@ -368,7 +366,7 @@ export function _A_BPContactToFuncAndDeptAspect<TBase extends new (...args: any[
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPContactToFuncAndDept>;
     declare static readonly elements: __.ElementsOf<A_BPContactToFuncAndDept>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPContactToFuncAndDept extends _A_BPContactToFuncAndDeptAspect(__.Entity) {}
@@ -400,7 +398,7 @@ export function _A_BPCreditWorthinessAspect<TBase extends new (...args: any[]) =
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPCreditWorthiness>;
     declare static readonly elements: __.ElementsOf<A_BPCreditWorthiness>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPCreditWorthiness extends _A_BPCreditWorthinessAspect(__.Entity) {}
@@ -424,7 +422,7 @@ export function _A_BPDataControllerAspect<TBase extends new (...args: any[]) => 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPDataController>;
     declare static readonly elements: __.ElementsOf<A_BPDataController>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPDataController extends _A_BPDataControllerAspect(__.Entity) {}
@@ -447,7 +445,7 @@ export function _A_BPEmploymentAspect<TBase extends new (...args: any[]) => obje
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPEmployment>;
     declare static readonly elements: __.ElementsOf<A_BPEmployment>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPEmployment extends _A_BPEmploymentAspect(__.Entity) {}
@@ -495,7 +493,7 @@ export function _A_BPFinancialServicesExtnAspect<TBase extends new (...args: any
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPFinancialServicesExtn>;
     declare static readonly elements: __.ElementsOf<A_BPFinancialServicesExtn>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPFinancialServicesExtn extends _A_BPFinancialServicesExtnAspect(__.Entity) {}
@@ -543,7 +541,7 @@ export function _A_BPFinancialServicesReportingAspect<TBase extends new (...args
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPFinancialServicesReporting>;
     declare static readonly elements: __.ElementsOf<A_BPFinancialServicesReporting>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPFinancialServicesReporting extends _A_BPFinancialServicesReportingAspect(__.Entity) {}
@@ -596,7 +594,7 @@ export function _A_BPFiscalYearInformationAspect<TBase extends new (...args: any
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPFiscalYearInformation>;
     declare static readonly elements: __.ElementsOf<A_BPFiscalYearInformation>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPFiscalYearInformation extends _A_BPFiscalYearInformationAspect(__.Entity) {}
@@ -661,7 +659,7 @@ export function _A_BPIntlAddressVersionAspect<TBase extends new (...args: any[])
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPIntlAddressVersion>;
     declare static readonly elements: __.ElementsOf<A_BPIntlAddressVersion>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPIntlAddressVersion extends _A_BPIntlAddressVersionAspect(__.Entity) {}
@@ -691,7 +689,7 @@ export function _A_BPRelationshipAspect<TBase extends new (...args: any[]) => ob
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BPRelationship>;
     declare static readonly elements: __.ElementsOf<A_BPRelationship>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BPRelationship extends _A_BPRelationshipAspect(__.Entity) {}
@@ -714,7 +712,7 @@ export function _A_BuPaAddressUsageAspect<TBase extends new (...args: any[]) => 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BuPaAddressUsage>;
     declare static readonly elements: __.ElementsOf<A_BuPaAddressUsage>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BuPaAddressUsage extends _A_BuPaAddressUsageAspect(__.Entity) {}
@@ -740,7 +738,7 @@ export function _A_BuPaIdentificationAspect<TBase extends new (...args: any[]) =
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BuPaIdentification>;
     declare static readonly elements: __.ElementsOf<A_BuPaIdentification>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BuPaIdentification extends _A_BuPaIdentificationAspect(__.Entity) {}
@@ -761,7 +759,7 @@ export function _A_BuPaIndustryAspect<TBase extends new (...args: any[]) => obje
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BuPaIndustry>;
     declare static readonly elements: __.ElementsOf<A_BuPaIndustry>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BuPaIndustry extends _A_BuPaIndustryAspect(__.Entity) {}
@@ -849,36 +847,36 @@ export function _A_BusinessPartnerAspect<TBase extends new (...args: any[]) => o
     declare to_AddressIndependentPhone?: __.Association.to.many<A_BPAddressIndependentPhone_>;
     declare to_AddressIndependentWebsite?: __.Association.to.many<A_BPAddressIndependentWebsite_>;
     declare to_BPCreditWorthiness?: __.Association.to<A_BPCreditWorthiness> | null;
-    declare to_BPCreditWorthiness_BusinessPartner?: __.Key<string> | null;
+    declare to_BPCreditWorthiness_BusinessPartner?: string | null;
     declare to_BPDataController?: __.Association.to.many<A_BPDataController_>;
     declare to_BPEmployment?: __.Association.to.many<A_BPEmployment_>;
     declare to_BPFinServicesReporting?: __.Association.to<A_BPFinancialServicesReporting> | null;
-    declare to_BPFinServicesReporting_BusinessPartner?: __.Key<string> | null;
+    declare to_BPFinServicesReporting_BusinessPartner?: string | null;
     declare to_BPFiscalYearInformation?: __.Association.to.many<A_BPFiscalYearInformation_>;
     declare to_BPRelationship?: __.Association.to.many<A_BPRelationship_>;
     declare to_BuPaIdentification?: __.Association.to.many<A_BuPaIdentification_>;
     declare to_BuPaIndustry?: __.Association.to.many<A_BuPaIndustry_>;
     declare to_BusinessPartner?: __.Association.to<A_BPFinancialServicesExtn> | null;
-    declare to_BusinessPartner_BusinessPartner?: __.Key<string> | null;
+    declare to_BusinessPartner_BusinessPartner?: string | null;
     declare to_BusinessPartnerAddress?: __.Association.to.many<A_BusinessPartnerAddress_>;
     declare to_BusinessPartnerAlias?: __.Association.to.many<A_BusinessPartnerAlias>;
     declare to_BusinessPartnerBank?: __.Association.to.many<A_BusinessPartnerBank_>;
     declare to_BusinessPartnerContact?: __.Association.to.many<A_BusinessPartnerContact_>;
     declare to_BusinessPartnerIsBank?: __.Association.to<A_BusinessPartnerIsBank> | null;
-    declare to_BusinessPartnerIsBank_BusinessPartner?: __.Key<string> | null;
+    declare to_BusinessPartnerIsBank_BusinessPartner?: string | null;
     declare to_BusinessPartnerRating?: __.Association.to.many<A_BusinessPartnerRating_>;
     declare to_BusinessPartnerRole?: __.Association.to.many<A_BusinessPartnerRole_>;
     declare to_BusinessPartnerTax?: __.Association.to.many<A_BusinessPartnerTaxNumber_>;
     declare to_BusPartAddrDepdntTaxNmbr?: __.Association.to.many<A_BusPartAddrDepdntTaxNmbr_>;
     declare to_Customer?: __.Association.to<A_Customer> | null;
-    declare to_Customer_Customer?: __.Key<string> | null;
+    declare to_Customer_Customer?: string | null;
     declare to_PaymentCard?: __.Association.to.many<A_BusinessPartnerPaymentCard_>;
     declare to_Supplier?: __.Association.to<A_Supplier> | null;
-    declare to_Supplier_Supplier?: __.Key<string> | null;
+    declare to_Supplier_Supplier?: string | null;
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BusinessPartner>;
     declare static readonly elements: __.ElementsOf<A_BusinessPartner>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BusinessPartner extends _A_BusinessPartnerAspect(__.Entity) {}
@@ -937,8 +935,8 @@ export function _A_BusinessPartnerAddressAspect<TBase extends new (...args: any[
     declare TownshipName?: string | null;
     declare to_AddressUsage?: __.Association.to.many<A_BuPaAddressUsage_>;
     declare to_BPAddrDepdntIntlLocNumber?: __.Association.to<A_BPAddrDepdntIntlLocNumber> | null;
-    declare to_BPAddrDepdntIntlLocNumber_BusinessPartner?: __.Key<string> | null;
-    declare to_BPAddrDepdntIntlLocNumber_AddressID?: __.Key<string> | null;
+    declare to_BPAddrDepdntIntlLocNumber_BusinessPartner?: string | null;
+    declare to_BPAddrDepdntIntlLocNumber_AddressID?: string | null;
     declare to_BPIntlAddressVersion?: __.Association.to.many<A_BPIntlAddressVersion_>;
     declare to_EmailAddress?: __.Association.to.many<A_AddressEmailAddress_>;
     declare to_FaxNumber?: __.Association.to.many<A_AddressFaxNumber_>;
@@ -948,7 +946,7 @@ export function _A_BusinessPartnerAddressAspect<TBase extends new (...args: any[
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BusinessPartnerAddress>;
     declare static readonly elements: __.ElementsOf<A_BusinessPartnerAddress>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BusinessPartnerAddress extends _A_BusinessPartnerAddressAspect(__.Entity) {}
@@ -967,7 +965,7 @@ export function _A_BusinessPartnerAliaAspect<TBase extends new (...args: any[]) 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BusinessPartnerAlia>;
     declare static readonly elements: __.ElementsOf<A_BusinessPartnerAlia>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BusinessPartnerAlia extends _A_BusinessPartnerAliaAspect(__.Entity) {}
@@ -1001,7 +999,7 @@ export function _A_BusinessPartnerBankAspect<TBase extends new (...args: any[]) 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BusinessPartnerBank>;
     declare static readonly elements: __.ElementsOf<A_BusinessPartnerBank>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BusinessPartnerBank extends _A_BusinessPartnerBankAspect(__.Entity) {}
@@ -1023,14 +1021,14 @@ export function _A_BusinessPartnerContactAspect<TBase extends new (...args: any[
     declare RelationshipCategory?: string | null;
     declare to_ContactAddress?: __.Association.to.many<A_BPContactToAddress_>;
     declare to_ContactRelationship?: __.Association.to<A_BPContactToFuncAndDept> | null;
-    declare to_ContactRelationship_RelationshipNumber?: __.Key<string> | null;
-    declare to_ContactRelationship_BusinessPartnerCompany?: __.Key<string> | null;
-    declare to_ContactRelationship_BusinessPartnerPerson?: __.Key<string> | null;
-    declare to_ContactRelationship_ValidityEndDate?: __.Key<__.CdsDate> | null;
+    declare to_ContactRelationship_RelationshipNumber?: string | null;
+    declare to_ContactRelationship_BusinessPartnerCompany?: string | null;
+    declare to_ContactRelationship_BusinessPartnerPerson?: string | null;
+    declare to_ContactRelationship_ValidityEndDate?: __.CdsDate | null;
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BusinessPartnerContact>;
     declare static readonly elements: __.ElementsOf<A_BusinessPartnerContact>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BusinessPartnerContact extends _A_BusinessPartnerContactAspect(__.Entity) {}
@@ -1050,7 +1048,7 @@ export function _A_BusinessPartnerIsBankAspect<TBase extends new (...args: any[]
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BusinessPartnerIsBank>;
     declare static readonly elements: __.ElementsOf<A_BusinessPartnerIsBank>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BusinessPartnerIsBank extends _A_BusinessPartnerIsBankAspect(__.Entity) {}
@@ -1079,7 +1077,7 @@ export function _A_BusinessPartnerPaymentCardAspect<TBase extends new (...args: 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BusinessPartnerPaymentCard>;
     declare static readonly elements: __.ElementsOf<A_BusinessPartnerPaymentCard>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BusinessPartnerPaymentCard extends _A_BusinessPartnerPaymentCardAspect(__.Entity) {}
@@ -1112,7 +1110,7 @@ export function _A_BusinessPartnerRatingAspect<TBase extends new (...args: any[]
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BusinessPartnerRating>;
     declare static readonly elements: __.ElementsOf<A_BusinessPartnerRating>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BusinessPartnerRating extends _A_BusinessPartnerRatingAspect(__.Entity) {}
@@ -1133,7 +1131,7 @@ export function _A_BusinessPartnerRoleAspect<TBase extends new (...args: any[]) 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BusinessPartnerRole>;
     declare static readonly elements: __.ElementsOf<A_BusinessPartnerRole>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BusinessPartnerRole extends _A_BusinessPartnerRoleAspect(__.Entity) {}
@@ -1154,7 +1152,7 @@ export function _A_BusinessPartnerTaxNumberAspect<TBase extends new (...args: an
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BusinessPartnerTaxNumber>;
     declare static readonly elements: __.ElementsOf<A_BusinessPartnerTaxNumber>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BusinessPartnerTaxNumber extends _A_BusinessPartnerTaxNumberAspect(__.Entity) {}
@@ -1178,7 +1176,7 @@ export function _A_BusPartAddrDepdntTaxNmbrAspect<TBase extends new (...args: an
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_BusPartAddrDepdntTaxNmbr>;
     declare static readonly elements: __.ElementsOf<A_BusPartAddrDepdntTaxNmbr>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_BusPartAddrDepdntTaxNmbr extends _A_BusPartAddrDepdntTaxNmbrAspect(__.Entity) {}
@@ -1199,7 +1197,7 @@ export function _A_CustAddrDepdntExtIdentifierAspect<TBase extends new (...args:
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustAddrDepdntExtIdentifier>;
     declare static readonly elements: __.ElementsOf<A_CustAddrDepdntExtIdentifier>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustAddrDepdntExtIdentifier extends _A_CustAddrDepdntExtIdentifierAspect(__.Entity) {}
@@ -1225,7 +1223,7 @@ export function _A_CustAddrDepdntInformationAspect<TBase extends new (...args: a
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustAddrDepdntInformation>;
     declare static readonly elements: __.ElementsOf<A_CustAddrDepdntInformation>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustAddrDepdntInformation extends _A_CustAddrDepdntInformationAspect(__.Entity) {}
@@ -1305,7 +1303,7 @@ export function _A_CustomerAspect<TBase extends new (...args: any[]) => object>(
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_Customer>;
     declare static readonly elements: __.ElementsOf<A_Customer>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_Customer extends _A_CustomerAspect(__.Entity) {}
@@ -1359,7 +1357,7 @@ export function _A_CustomerCompanyAspect<TBase extends new (...args: any[]) => o
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustomerCompany>;
     declare static readonly elements: __.ElementsOf<A_CustomerCompany>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustomerCompany extends _A_CustomerCompanyAspect(__.Entity) {}
@@ -1380,7 +1378,7 @@ export function _A_CustomerCompanyTextAspect<TBase extends new (...args: any[]) 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustomerCompanyText>;
     declare static readonly elements: __.ElementsOf<A_CustomerCompanyText>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustomerCompanyText extends _A_CustomerCompanyTextAspect(__.Entity) {}
@@ -1408,7 +1406,7 @@ export function _A_CustomerDunningAspect<TBase extends new (...args: any[]) => o
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustomerDunning>;
     declare static readonly elements: __.ElementsOf<A_CustomerDunning>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustomerDunning extends _A_CustomerDunningAspect(__.Entity) {}
@@ -1488,7 +1486,7 @@ export function _A_CustomerSalesAreaAspect<TBase extends new (...args: any[]) =>
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustomerSalesArea>;
     declare static readonly elements: __.ElementsOf<A_CustomerSalesArea>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustomerSalesArea extends _A_CustomerSalesAreaAspect(__.Entity) {}
@@ -1512,7 +1510,7 @@ export function _A_CustomerSalesAreaTaxAspect<TBase extends new (...args: any[])
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustomerSalesAreaTax>;
     declare static readonly elements: __.ElementsOf<A_CustomerSalesAreaTax>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustomerSalesAreaTax extends _A_CustomerSalesAreaTaxAspect(__.Entity) {}
@@ -1535,7 +1533,7 @@ export function _A_CustomerSalesAreaTextAspect<TBase extends new (...args: any[]
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustomerSalesAreaText>;
     declare static readonly elements: __.ElementsOf<A_CustomerSalesAreaText>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustomerSalesAreaText extends _A_CustomerSalesAreaTextAspect(__.Entity) {}
@@ -1559,7 +1557,7 @@ export function _A_CustomerTaxGroupingAspect<TBase extends new (...args: any[]) 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustomerTaxGrouping>;
     declare static readonly elements: __.ElementsOf<A_CustomerTaxGrouping>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustomerTaxGrouping extends _A_CustomerTaxGroupingAspect(__.Entity) {}
@@ -1579,7 +1577,7 @@ export function _A_CustomerTextAspect<TBase extends new (...args: any[]) => obje
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustomerText>;
     declare static readonly elements: __.ElementsOf<A_CustomerText>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustomerText extends _A_CustomerTextAspect(__.Entity) {}
@@ -1628,7 +1626,7 @@ export function _A_CustomerUnloadingPointAspect<TBase extends new (...args: any[
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustomerUnloadingPoint>;
     declare static readonly elements: __.ElementsOf<A_CustomerUnloadingPoint>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustomerUnloadingPoint extends _A_CustomerUnloadingPointAspect(__.Entity) {}
@@ -1658,7 +1656,7 @@ export function _A_CustomerWithHoldingTaxAspect<TBase extends new (...args: any[
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustomerWithHoldingTax>;
     declare static readonly elements: __.ElementsOf<A_CustomerWithHoldingTax>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustomerWithHoldingTax extends _A_CustomerWithHoldingTaxAspect(__.Entity) {}
@@ -1688,7 +1686,7 @@ export function _A_CustSalesPartnerFuncAspect<TBase extends new (...args: any[])
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustSalesPartnerFunc>;
     declare static readonly elements: __.ElementsOf<A_CustSalesPartnerFunc>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustSalesPartnerFunc extends _A_CustSalesPartnerFuncAspect(__.Entity) {}
@@ -1721,7 +1719,7 @@ export function _A_CustSlsAreaAddrDepdntInfoAspect<TBase extends new (...args: a
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustSlsAreaAddrDepdntInfo>;
     declare static readonly elements: __.ElementsOf<A_CustSlsAreaAddrDepdntInfo>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustSlsAreaAddrDepdntInfo extends _A_CustSlsAreaAddrDepdntInfoAspect(__.Entity) {}
@@ -1749,7 +1747,7 @@ export function _A_CustSlsAreaAddrDepdntTaxInfoAspect<TBase extends new (...args
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustSlsAreaAddrDepdntTaxInfo>;
     declare static readonly elements: __.ElementsOf<A_CustSlsAreaAddrDepdntTaxInfo>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustSlsAreaAddrDepdntTaxInfo extends _A_CustSlsAreaAddrDepdntTaxInfoAspect(__.Entity) {}
@@ -1803,7 +1801,7 @@ export function _A_CustUnldgPtAddrDepdntInfoAspect<TBase extends new (...args: a
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_CustUnldgPtAddrDepdntInfo>;
     declare static readonly elements: __.ElementsOf<A_CustUnldgPtAddrDepdntInfo>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_CustUnldgPtAddrDepdntInfo extends _A_CustUnldgPtAddrDepdntInfoAspect(__.Entity) {}
@@ -1865,7 +1863,7 @@ export function _A_SupplierAspect<TBase extends new (...args: any[]) => object>(
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_Supplier>;
     declare static readonly elements: __.ElementsOf<A_Supplier>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_Supplier extends _A_SupplierAspect(__.Entity) {}
@@ -1919,13 +1917,13 @@ export function _A_SupplierCompanyAspect<TBase extends new (...args: any[]) => o
     declare SupplierAccountGroup?: string | null;
     declare to_CompanyText?: __.Association.to.many<A_SupplierCompanyText_>;
     declare to_Supplier?: __.Association.to<A_Supplier> | null;
-    declare to_Supplier_Supplier?: __.Key<string> | null;
+    declare to_Supplier_Supplier?: string | null;
     declare to_SupplierDunning?: __.Association.to.many<A_SupplierDunning_>;
     declare to_SupplierWithHoldingTax?: __.Association.to.many<A_SupplierWithHoldingTax_>;
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_SupplierCompany>;
     declare static readonly elements: __.ElementsOf<A_SupplierCompany>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_SupplierCompany extends _A_SupplierCompanyAspect(__.Entity) {}
@@ -1946,7 +1944,7 @@ export function _A_SupplierCompanyTextAspect<TBase extends new (...args: any[]) 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_SupplierCompanyText>;
     declare static readonly elements: __.ElementsOf<A_SupplierCompanyText>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_SupplierCompanyText extends _A_SupplierCompanyTextAspect(__.Entity) {}
@@ -1974,7 +1972,7 @@ export function _A_SupplierDunningAspect<TBase extends new (...args: any[]) => o
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_SupplierDunning>;
     declare static readonly elements: __.ElementsOf<A_SupplierDunning>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_SupplierDunning extends _A_SupplierDunningAspect(__.Entity) {}
@@ -2001,7 +1999,7 @@ export function _A_SupplierPartnerFuncAspect<TBase extends new (...args: any[]) 
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_SupplierPartnerFunc>;
     declare static readonly elements: __.ElementsOf<A_SupplierPartnerFunc>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_SupplierPartnerFunc extends _A_SupplierPartnerFuncAspect(__.Entity) {}
@@ -2062,7 +2060,7 @@ export function _A_SupplierPurchasingOrgAspect<TBase extends new (...args: any[]
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_SupplierPurchasingOrg>;
     declare static readonly elements: __.ElementsOf<A_SupplierPurchasingOrg>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_SupplierPurchasingOrg extends _A_SupplierPurchasingOrgAspect(__.Entity) {}
@@ -2083,7 +2081,7 @@ export function _A_SupplierPurchasingOrgTextAspect<TBase extends new (...args: a
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_SupplierPurchasingOrgText>;
     declare static readonly elements: __.ElementsOf<A_SupplierPurchasingOrgText>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_SupplierPurchasingOrgText extends _A_SupplierPurchasingOrgTextAspect(__.Entity) {}
@@ -2107,7 +2105,7 @@ export function _A_SupplierTextAspect<TBase extends new (...args: any[]) => obje
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_SupplierText>;
     declare static readonly elements: __.ElementsOf<A_SupplierText>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_SupplierText extends _A_SupplierTextAspect(__.Entity) {}
@@ -2136,7 +2134,7 @@ export function _A_SupplierWithHoldingTaxAspect<TBase extends new (...args: any[
     static readonly kind: 'entity' | 'type' | 'aspect' = 'entity';
     declare static readonly keys: __.KeysOf<A_SupplierWithHoldingTax>;
     declare static readonly elements: __.ElementsOf<A_SupplierWithHoldingTax>;
-    declare static readonly actions: Record<never, never>;
+    declare static readonly actions: globalThis.Record<never, never>;
   };
 }
 export class A_SupplierWithHoldingTax extends _A_SupplierWithHoldingTaxAspect(__.Entity) {}

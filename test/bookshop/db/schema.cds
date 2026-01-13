@@ -14,22 +14,23 @@ namespace sap.capire.bookshop;
 // **************************************************************************************************
 
 entity Books : managed {
-  key ID       : Integer;
-      title    : localized String(111)  @mandatory;
-      descr    : localized String(1111);
-      stock    : Integer;
-      price    : Decimal;
-      currency : Currency;
-      image    : LargeBinary            @Core.MediaType: 'image/png';
+  key ID          : Integer;
+      title       : localized String(111)  @mandatory;
+      descr       : localized String(1111);
+      stock       : Integer;
+      price       : Decimal;
+      currency    : Currency;
+      image       : LargeBinary            @Core.MediaType: 'image/png';
+      isAvailable : Boolean default true;
       // Associations
-      author   : Association to Authors @mandatory;
-      genre    : Association to Genres;
+      author      : Association to Authors @mandatory;
+      genre       : Association to Genres;
 
-      reviews  : Association to many Reviews
-                   on reviews.book = $self;
+      reviews     : Association to many Reviews
+                      on reviews.book = $self;
 
-      stats    : Association to one BookStats
-                   on stats.book = $self;
+      stats       : Association to one BookStats
+                      on stats.book = $self;
 
 }
 

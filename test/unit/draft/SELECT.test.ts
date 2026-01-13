@@ -422,6 +422,67 @@ describe('SELECT - drafts', () => {
           expect(count).toBeGreaterThan(0); // Ensure the count is greater than 0
         });
       });
+
+      describe('.findFirstDraft()', () => {
+        it('should return the first draft item when ordered by name ascending', async () => {
+          // Act
+          const firstDraft = await bookEventDraftRepository.findFirstDraft('name');
+
+          // Assert
+          expect(firstDraft).toBeDefined();
+          expect(firstDraft).toHaveProperty('name');
+          expect(firstDraft).toHaveProperty('DraftAdministrativeData_DraftUUID');
+          expect(firstDraft!.DraftAdministrativeData_DraftUUID).toBeDefined();
+        });
+      });
+
+      describe('.findLastDraft()', () => {
+        it('should return the last draft item when ordered by name descending', async () => {
+          // Act
+          const lastDraft = await bookEventDraftRepository.findLastDraft('name');
+
+          // Assert
+          expect(lastDraft).toBeDefined();
+          expect(lastDraft).toHaveProperty('name');
+          expect(lastDraft).toHaveProperty('DraftAdministrativeData_DraftUUID');
+          expect(lastDraft!.DraftAdministrativeData_DraftUUID).toBeDefined();
+        });
+      });
+
+      describe('.findOrCreateDraft()', () => {
+        it('should return an existing draft entry with created=false', async () => {
+          // Act
+          const result = await bookEventDraftRepository.findOrCreateDraft(
+            { ID: '9b9c5591-52a3-41ea-ab85-40a5a7ae5360' },
+            { name: 'New Draft Name' },
+          );
+
+          // Assert
+          expect(result.created).toBe(false);
+          expect(result.entry).toBeDefined();
+          expect(result.entry.ID).toBe('9b9c5591-52a3-41ea-ab85-40a5a7ae5360');
+        });
+      });
+
+      describe('.countDraftsWhere()', () => {
+        it('should count draft entries matching the provided keys', async () => {
+          // Act
+          const count = await bookEventDraftRepository.countDraftsWhere({ types: 'BOOK_LUNCH' });
+
+          // Assert
+          expect(count).toBeGreaterThan(0);
+        });
+
+        it('should return 0 when no draft entries match', async () => {
+          // Act
+          const count = await bookEventDraftRepository.countDraftsWhere({
+            ID: '00000000-0000-0000-0000-000000000000',
+          });
+
+          // Assert
+          expect(count).toBe(0);
+        });
+      });
     });
   });
 });
