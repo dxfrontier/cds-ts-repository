@@ -1,25 +1,40 @@
 // This is an automatically generated file. Please do not change its contents manually!
-const cds = require('@sap/cds');
-const csn = cds.entities('CatalogService');
+const { createEntityProxy } = require('./../_');
 // service
 const CatalogService = { name: 'CatalogService' };
 module.exports = CatalogService;
 module.exports.CatalogService = CatalogService;
 // BookEvents
-module.exports.BookEvent = { is_singular: true, __proto__: csn.BookEvents };
-module.exports.BookEvents = csn.BookEvents;
+module.exports.BookEvent = createEntityProxy(['CatalogService', 'BookEvents'], {
+  target: { is_singular: true },
+  customProps: ['types'],
+});
+module.exports.BookEvents = createEntityProxy(['CatalogService', 'BookEvents'], { target: { is_singular: false } });
 // Authors
-module.exports.Author = { is_singular: true, __proto__: csn.Authors };
-module.exports.Authors = csn.Authors;
+module.exports.Author = createEntityProxy(['CatalogService', 'Authors'], { target: { is_singular: true } });
+module.exports.Authors = createEntityProxy(['CatalogService', 'Authors'], { target: { is_singular: false } });
 // Books
-module.exports.Book = { is_singular: true, __proto__: csn.Books };
-module.exports.Books = csn.Books;
+module.exports.Book = createEntityProxy(['CatalogService', 'Books'], { target: { is_singular: true } });
+module.exports.Books = createEntityProxy(['CatalogService', 'Books'], { target: { is_singular: false } });
 // Currencies
-module.exports.Currency = { is_singular: true, __proto__: csn.Currencies };
-module.exports.Currencies = csn.Currencies;
+module.exports.Currency = createEntityProxy(['CatalogService', 'Currencies'], { target: { is_singular: true } });
+module.exports.Currencies = createEntityProxy(['CatalogService', 'Currencies'], { target: { is_singular: false } });
 // Genres
-module.exports.Genre = { is_singular: true, __proto__: csn.Genres };
-module.exports.Genres = csn.Genres;
+module.exports.Genre = createEntityProxy(['CatalogService', 'Genres'], { target: { is_singular: true } });
+module.exports.Genres = createEntityProxy(['CatalogService', 'Genres'], { target: { is_singular: false } });
+// Books.texts
+module.exports.Books.text = createEntityProxy(['CatalogService', 'Books.texts'], { target: { is_singular: true } });
+module.exports.Books.texts = createEntityProxy(['CatalogService', 'Books.texts'], { target: { is_singular: false } });
+// Currencies.texts
+module.exports.Currencies.text = createEntityProxy(['CatalogService', 'Currencies.texts'], {
+  target: { is_singular: true },
+});
+module.exports.Currencies.texts = createEntityProxy(['CatalogService', 'Currencies.texts'], {
+  target: { is_singular: false },
+});
+// Genres.texts
+module.exports.Genres.text = createEntityProxy(['CatalogService', 'Genres.texts'], { target: { is_singular: true } });
+module.exports.Genres.texts = createEntityProxy(['CatalogService', 'Genres.texts'], { target: { is_singular: false } });
 // events
 // actions
 // enums

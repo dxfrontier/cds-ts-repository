@@ -10,6 +10,8 @@ import type {
   ExtractSingular,
   BaseRepositoryConstructor,
   InsertResult,
+  NumericKeys,
+  IncrementFields,
 } from '../types/types';
 import type { Filter } from '../util/filter/Filter';
 import util from '../util/util';
@@ -290,6 +292,237 @@ abstract class BaseRepository<T> {
    */
   public async count(): Promise<number> {
     return await this.coreRepository.count();
+  }
+
+  /**
+   * Finds the first entry in the table ordered by the specified column in ascending order.
+   * @param column The column to order by.
+   * @returns A promise that resolves to the first entry or undefined if not found.
+   * @example
+   * const firstBook = await this.findFirst('createdAt');
+   */
+  public async findFirst<ColumnKeys extends keyof ExtractSingular<T>>(
+    column: ColumnKeys,
+  ): Promise<ExtractSingular<T> | undefined> {
+    return await this.coreRepository.findFirst(column);
+  }
+
+  /**
+   * Finds the last entry in the table ordered by the specified column in descending order.
+   * @param column The column to order by.
+   * @returns A promise that resolves to the last entry or undefined if not found.
+   * @example
+   * const lastBook = await this.findLast('createdAt');
+   */
+  public async findLast<ColumnKeys extends keyof ExtractSingular<T>>(
+    column: ColumnKeys,
+  ): Promise<ExtractSingular<T> | undefined> {
+    return await this.coreRepository.findLast(column);
+  }
+
+  /**
+   * Finds an entry based on the provided keys, or creates a new entry if not found.
+   * @param keys An object representing the keys to find the entry.
+   * @param defaults An object representing the default values for the new entry if not found.
+   * @returns A promise that resolves to an object containing the entry and a boolean indicating if it was created.
+   * @example
+   * const { entry, created } = await this.findOrCreate(
+   *   { name: 'John' },
+   *   { description: 'A new customer' }
+   * );
+   */
+  public async findOrCreate(
+    keys: Entry<ExtractSingular<T>>,
+    defaults: Entry<ExtractSingular<T>>,
+  ): Promise<{ created: boolean; entry: ExtractSingular<T> }> {
+    return await this.coreRepository.findOrCreate(keys, defaults);
+  }
+
+  /**
+   * Counts entries based on the provided keys.
+   * @param keys An object representing the keys to filter the entries.
+   * @returns A promise that resolves to the count of matching entries.
+   * @example
+   * const count = await this.countWhere({ status: 'active' });
+   */
+  public async countWhere(keys: Entry<ExtractSingular<T>>): Promise<number>;
+
+  /**
+   * Counts entries based on the provided filter.
+   * @param filter A Filter instance.
+   * @returns A promise that resolves to the count of matching entries.
+   * @example
+   * const filter = new Filter<Book>({ field: 'stock', operator: 'GREATER THAN', value: 10 });
+   * const count = await this.countWhere(filter);
+   */
+  public async countWhere(filter: Filter<ExtractSingular<T>>): Promise<number>;
+
+  public async countWhere(keys?: Entry<ExtractSingular<T>> | Filter<ExtractSingular<T>>): Promise<number> {
+    return await this.coreRepository.countWhere(keys);
+  }
+
+  /**
+   * Updates multiple entries based on the provided keys.
+   * @param keys An object representing the keys to filter the entries.
+   * @param fieldsToUpdate An object representing the fields and their updated values.
+   * @returns A promise that resolves to the number of updated entries.
+   * @example
+   * const updatedCount = await this.updateMany({ status: 'pending' }, { status: 'active' });
+   */
+  public async updateMany(keys: Entry<ExtractSingular<T>>, fieldsToUpdate: Entry<ExtractSingular<T>>): Promise<number>;
+
+  /**
+   * Updates multiple entries based on the provided filter.
+   * @param filter A Filter instance.
+   * @param fieldsToUpdate An object representing the fields and their updated values.
+   * @returns A promise that resolves to the number of updated entries.
+   * @example
+   * const filter = new Filter<Book>({ field: 'stock', operator: 'LESS THAN', value: 5 });
+   * const updatedCount = await this.updateMany(filter, { status: 'low_stock' });
+   */
+  public async updateMany(
+    filter: Filter<ExtractSingular<T>>,
+    fieldsToUpdate: Entry<ExtractSingular<T>>,
+  ): Promise<number>;
+
+  public async updateMany(
+    keys: Entry<ExtractSingular<T>> | Filter<ExtractSingular<T>>,
+    fieldsToUpdate: Entry<ExtractSingular<T>>,
+  ): Promise<number> {
+    return await this.coreRepository.updateMany(keys, fieldsToUpdate);
+  }
+
+  /**
+   * Deletes entries based on the provided keys.
+   * @param keys An object representing the keys to filter the entries.
+   * @returns A promise that resolves to the number of deleted entries.
+   * @example
+   * const deletedCount = await this.deleteWhere({ status: 'inactive' });
+   */
+  public async deleteWhere(keys: Entry<ExtractSingular<T>>): Promise<number>;
+
+  /**
+   * Deletes entries based on the provided filter.
+   * @param filter A Filter instance.
+   * @returns A promise that resolves to the number of deleted entries.
+   * @example
+   * const filter = new Filter<Book>({ field: 'stock', operator: 'EQUALS', value: 0 });
+   * const deletedCount = await this.deleteWhere(filter);
+   */
+  public async deleteWhere(filter: Filter<ExtractSingular<T>>): Promise<number>;
+
+  public async deleteWhere(keys?: Entry<ExtractSingular<T>> | Filter<ExtractSingular<T>>): Promise<number> {
+    return await this.coreRepository.deleteWhere(keys);
+  }
+
+  // ********************************************************************************************
+  // INCREMENT / DECREMENT METHODS
+  // ********************************************************************************************
+
+  /**
+   * Increments a numeric field by the specified value.
+   * @param keys - The keys to identify the entity to update.
+   * @param column - The numeric column to increment.
+   * @param value - The value to increment by (default: 1).
+   * @returns A promise that resolves to `true` if the increment is successful, `false` otherwise.
+   * @example
+   * // Increment viewCount by 1
+   * const success = await this.increment({ ID: '123' }, 'viewCount', 1);
+   */
+  public async increment(
+    keys: Entry<ExtractSingular<T>>,
+    column: NumericKeys<ExtractSingular<T>>,
+    value = 1,
+  ): Promise<boolean> {
+    return await this.coreRepository.increment(keys, column, value);
+  }
+
+  /**
+   * Decrements a numeric field by the specified value.
+   * @param keys - The keys to identify the entity to update.
+   * @param column - The numeric column to decrement.
+   * @param value - The value to decrement by (default: 1).
+   * @returns A promise that resolves to `true` if the decrement is successful, `false` otherwise.
+   * @example
+   * // Decrement stock by 5
+   * const success = await this.decrement({ ID: '123' }, 'stock', 5);
+   */
+  public async decrement(
+    keys: Entry<ExtractSingular<T>>,
+    column: NumericKeys<ExtractSingular<T>>,
+    value = 1,
+  ): Promise<boolean> {
+    return await this.coreRepository.decrement(keys, column, value);
+  }
+
+  /**
+   * Increments multiple numeric fields by their specified values for all matching entries.
+   * @param keys - The keys or filter to identify the entities to update.
+   * @param fields - An object with numeric field names as keys and increment values as values.
+   * @returns A promise that resolves to the number of updated entries.
+   * @example
+   * // Increment viewCount by 1 and priority by 2 for all active items
+   * const updatedCount = await this.incrementMany({ status: 'active' }, { viewCount: 1, priority: 2 });
+   */
+  public async incrementMany(
+    keys: Entry<ExtractSingular<T>>,
+    fields: IncrementFields<ExtractSingular<T>>,
+  ): Promise<number>;
+
+  /**
+   * Increments multiple numeric fields by their specified values for all matching entries.
+   * @param filter - A Filter instance.
+   * @param fields - An object with numeric field names as keys and increment values as values.
+   * @returns A promise that resolves to the number of updated entries.
+   * @example
+   * const filter = new Filter<Book>({ field: 'stock', operator: 'GREATER_THAN', value: 0 });
+   * const updatedCount = await this.incrementMany(filter, { viewCount: 1 });
+   */
+  public async incrementMany(
+    filter: Filter<ExtractSingular<T>>,
+    fields: IncrementFields<ExtractSingular<T>>,
+  ): Promise<number>;
+
+  public async incrementMany(
+    keys: Entry<ExtractSingular<T>> | Filter<ExtractSingular<T>>,
+    fields: IncrementFields<ExtractSingular<T>>,
+  ): Promise<number> {
+    return await this.coreRepository.incrementMany(keys, fields);
+  }
+
+  /**
+   * Decrements multiple numeric fields by their specified values for all matching entries.
+   * @param keys - The keys or filter to identify the entities to update.
+   * @param fields - An object with numeric field names as keys and decrement values as values.
+   * @returns A promise that resolves to the number of updated entries.
+   * @example
+   * // Decrement stock by 1 for all items with status 'sold'
+   * const updatedCount = await this.decrementMany({ status: 'sold' }, { stock: 1 });
+   */
+  public async decrementMany(
+    keys: Entry<ExtractSingular<T>>,
+    fields: IncrementFields<ExtractSingular<T>>,
+  ): Promise<number>;
+
+  /**
+   * Decrements multiple numeric fields by their specified values for all matching entries.
+   * @param filter - A Filter instance.
+   * @param fields - An object with numeric field names as keys and decrement values as values.
+   * @returns A promise that resolves to the number of updated entries.
+   * @example
+   * const filter = new Filter<Book>({ field: 'status', operator: 'EQUALS', value: 'sold' });
+   * const updatedCount = await this.decrementMany(filter, { stock: 1 });
+   */
+  public async decrementMany(
+    filter: Filter<ExtractSingular<T>>,
+    fields: IncrementFields<ExtractSingular<T>>,
+  ): Promise<number>;
+
+  public async decrementMany(
+    keys: Entry<ExtractSingular<T>> | Filter<ExtractSingular<T>>,
+    fields: IncrementFields<ExtractSingular<T>>,
+  ): Promise<number> {
+    return await this.coreRepository.decrementMany(keys, fields);
   }
 }
 

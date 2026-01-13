@@ -16,7 +16,5 @@
     "rootDir": "./",
     "baseUrl": "."
   },
-  "include": [
-    "./@dispatcher"
-  ]
+  "include": ["./@dispatcher"]
 }

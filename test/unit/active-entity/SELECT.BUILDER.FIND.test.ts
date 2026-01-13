@@ -857,6 +857,50 @@ describe('SELECT', () => {
         });
       });
 
+      describe('======> Filter - EQUALS (boolean true)', () => {
+        it('should return records with isAvailable EQUALS true', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'isAvailable',
+            operator: 'EQUALS',
+            value: true,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toBeDefined();
+          expect(results!.length).toBeGreaterThan(0);
+
+          results?.forEach((item) => {
+            expect(item.isAvailable).toBe(true);
+          });
+        });
+      });
+
+      describe('======> Filter - EQUALS (boolean false)', () => {
+        it('should return records with isAvailable EQUALS false', async () => {
+          // Arrange
+          const filter = new Filter<Book>({
+            field: 'isAvailable',
+            operator: 'EQUALS',
+            value: false,
+          });
+
+          // Act
+          const results = await bookRepository.builder().find(filter).execute();
+
+          // Assert
+          expect(results).toBeDefined();
+          expect(results!.length).toBeGreaterThan(0);
+
+          results?.forEach((item) => {
+            expect(item.isAvailable).toBe(false);
+          });
+        });
+      });
+
       describe('======> Filter - ENDS_WITH', () => {
         it('should return 2 records containing in the "descr" field the string "1850." ', async () => {
           // Arrange

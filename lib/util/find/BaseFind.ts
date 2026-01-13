@@ -170,6 +170,14 @@ class BaseFind<T, Keys> {
      * That's why we use 'any' instead of SAP type
      */
 
+    // Get names of associations being expanded to remove duplicate simple refs
+    const associationNames = this.getAssociationNamesToExpand(associations);
+
+    // If .columns() was called before .getExpand(), remove simple refs that will be expanded
+    if (this.columnsCalled && associationNames.length > 0) {
+      findUtils.columnUtils.removeSimpleColumnRefs(this.select.SELECT.columns, associationNames);
+    }
+
     void this.select.columns((columnProjection: any) => {
       // If .columns() is not present, then add expand all ('*') otherwise don't add it as columns has impact on the typing.
       const columnsNotCalled = !this.columnsCalled;
@@ -204,6 +212,33 @@ class BaseFind<T, Keys> {
     });
 
     return this;
+  }
+
+  /**
+   * Extracts the association names that will be expanded from the getExpand arguments.
+   * @param associations - The associations array from getExpand arguments.
+   * @returns An array of association names.
+   */
+  private getAssociationNamesToExpand(associations: any[]): string[] {
+    const value = associations[0];
+
+    // Overload 1: { levels: number } - auto expand, names come from entity elements
+    if (findUtils.expandUtils.isPropertyLevelsFound(value)) {
+      // For auto expand, we'd need to traverse entity elements - skip for now as it's complex
+      return [];
+    }
+
+    // Overload 2: array of strings like ['reviews'] or spread 'reviews', 'author'
+    if (findUtils.expandUtils.isSingleExpand(value)) {
+      return associations.filter((a) => typeof a === 'string');
+    }
+
+    // Overload 3: object like { reviews: {}, author: {} }
+    if (typeof value === 'object' && value !== null) {
+      return Object.keys(value);
+    }
+
+    return [];
   }
 }
 

@@ -224,4 +224,110 @@ describe('SELECT', () => {
       expect(count).toBeGreaterThan(0);
     });
   });
+
+  describe('.findFirst()', () => {
+    it('should return the first item when ordered by ID ascending', async () => {
+      // Act
+      const firstBook = await bookRepository.findFirst('ID');
+
+      // Assert
+      expect(firstBook).toBeDefined();
+      expect(firstBook!.ID).toBe(201);
+    });
+
+    it('should return the first item when ordered by stock ascending', async () => {
+      // Act
+      const firstBook = await bookRepository.findFirst('stock');
+
+      // Assert
+      expect(firstBook).toBeDefined();
+      expect(firstBook!.stock).toBeDefined();
+    });
+  });
+
+  describe('.findLast()', () => {
+    it('should return the last item when ordered by ID descending', async () => {
+      // Arrange
+      const allBooks = await bookRepository.getAll();
+      const maxId = Math.max(...allBooks!.map((b) => b.ID!));
+
+      // Act
+      const lastBook = await bookRepository.findLast('ID');
+
+      // Assert
+      expect(lastBook).toBeDefined();
+      expect(lastBook!.ID).toBe(maxId);
+    });
+
+    it('should return the last item when ordered by stock descending', async () => {
+      // Act
+      const lastBook = await bookRepository.findLast('stock');
+
+      // Assert
+      expect(lastBook).toBeDefined();
+      expect(lastBook!.stock).toBeDefined();
+    });
+  });
+
+  describe('.findOrCreate()', () => {
+    it('should return an existing entry with created=false', async () => {
+      // Act
+      const result = await bookRepository.findOrCreate({ ID: 201 }, { title: 'New Title' });
+
+      // Assert
+      expect(result.created).toBe(false);
+      expect(result.entry).toBeDefined();
+      expect(result.entry.ID).toBe(201);
+    });
+
+    it('should create a new entry with created=true when not found', async () => {
+      // Arrange
+      const newId = 999;
+
+      // Act
+      const result = await bookRepository.findOrCreate({ ID: newId }, { title: 'Brand New Book', stock: 100 });
+
+      // Assert
+      expect(result.created).toBe(true);
+      expect(result.entry).toBeDefined();
+      expect(result.entry.ID).toBe(newId);
+      expect(result.entry.title).toBe('Brand New Book');
+
+      // Cleanup
+      await bookRepository.delete({ ID: newId });
+    });
+  });
+
+  describe('.countWhere()', () => {
+    it('should count entries matching the provided keys', async () => {
+      // Act
+      const count = await bookRepository.countWhere({ currency_code: 'GBP' });
+
+      // Assert
+      expect(count).toBeGreaterThan(0);
+    });
+
+    it('should count entries matching a filter', async () => {
+      // Arrange
+      const filter = new Filter<Book>({
+        field: 'stock',
+        operator: 'GREATER THAN',
+        value: 10,
+      });
+
+      // Act
+      const count = await bookRepository.countWhere(filter);
+
+      // Assert
+      expect(count).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should return 0 when no entries match', async () => {
+      // Act
+      const count = await bookRepository.countWhere({ ID: 99999 });
+
+      // Assert
+      expect(count).toBe(0);
+    });
+  });
 });

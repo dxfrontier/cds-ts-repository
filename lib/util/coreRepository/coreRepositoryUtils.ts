@@ -124,6 +124,10 @@ const coreRepositoryUtils = {
       return `${key} ${this.mapOperator(keys)}`;
     }
 
+    if (typeof keys.value === 'boolean') {
+      return `${key} ${this.mapOperator(keys)} ${keys.value}`;
+    }
+
     // All others operators
     return `${key} ${this.mapOperator(keys)} '${keys.value as string}'`;
   },
