@@ -78,6 +78,16 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [deleteAll](#deleteall)
     - [exists](#exists)
     - [count](#count)
+    - [findFirst](#findfirst)
+    - [findLast](#findlast)
+    - [findOrCreate](#findorcreate)
+    - [countWhere](#countwhere)
+    - [updateMany](#updatemany)
+    - [deleteWhere](#deletewhere)
+    - [increment](#increment)
+    - [decrement](#decrement)
+    - [incrementMany](#incrementmany)
+    - [decrementMany](#decrementmany)
   - [`Helpers`](#helpers)
     - [Filter](#filter)
       - [Overloads](#overloads)
@@ -1977,6 +1987,570 @@ export class MyRepository extends BaseRepository<MyEntity> {
   }
 }
 ```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### findFirst
+
+`findFirst<Column extends keyof T>(column: Column): Promise<T | undefined>`
+
+The `findFirst` method retrieves the first entry ordered by the specified column in ascending order.
+
+`Parameters`
+
+- `column (keyof T)`: The column name to order by when finding the first entry.
+
+`Return`
+
+- `Promise<T | undefined>`: A Promise resolving to a single entity of type `T` (e.g., `MyEntity`), or `undefined` if no entries exist.
+
+`Example`
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    // Get the first entry ordered by 'createdAt' ascending
+    const firstCreated = await this.findFirst('createdAt');
+
+    // Get the first entry ordered by 'name' ascending
+    const firstByName = await this.findFirst('name');
+
+    if (firstCreated) {
+      // do something with the first entry
+    }
+  }
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### findLast
+
+`findLast<Column extends keyof T>(column: Column): Promise<T | undefined>`
+
+The `findLast` method retrieves the last entry ordered by the specified column in descending order.
+
+`Parameters`
+
+- `column (keyof T)`: The column name to order by when finding the last entry.
+
+`Return`
+
+- `Promise<T | undefined>`: A Promise resolving to a single entity of type `T` (e.g., `MyEntity`), or `undefined` if no entries exist.
+
+`Example`
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    // Get the last entry ordered by 'createdAt' descending
+    const lastCreated = await this.findLast('createdAt');
+
+    // Get the last entry ordered by 'name' descending
+    const lastByName = await this.findLast('name');
+
+    if (lastCreated) {
+      // do something with the last entry
+    }
+  }
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### findOrCreate
+
+`findOrCreate(keys: Entry<T>, defaults: Entry<T>): Promise<{ created: boolean; entry: T }>`
+
+The `findOrCreate` method finds an entry matching the specified keys, or creates a new one if it doesn't exist. The entry is created by merging the keys and defaults.
+
+`Parameters`
+
+- `keys (object)`: An object representing the keys to find the entry. Each key should correspond to a property in `MyEntity`.
+- `defaults (object)`: An object representing additional fields to use when creating a new entry. These are merged with keys if the entry doesn't exist.
+
+`Return`
+
+- `Promise<{ created: boolean; entry: T }>`: A Promise resolving to an object containing:
+  - `created`: `true` if a new entry was created, `false` if an existing entry was found.
+  - `entry`: The found or newly created entity.
+
+`Example`
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const result = await this.findOrCreate(
+      { ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' },
+      { name: 'Default Name', description: 'Default Description' }
+    );
+
+    if (result.created) {
+      console.log('New entry was created:', result.entry);
+    } else {
+      console.log('Existing entry was found:', result.entry);
+    }
+  }
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### countWhere
+
+The `countWhere` method counts entries in the table that match the specified criteria.
+
+`Overloads`
+
+| Method                                                        | Parameters        | Description                                                                                     |
+| :------------------------------------------------------------ | :---------------- | ----------------------------------------------------------------------------------------------- |
+| `this.countWhere(keys: Entry<T>): Promise<number>`            | `keys (object)`   | An object representing the keys to filter entries. Each key should correspond to a property in `MyEntity`. |
+| `this.countWhere(filter:`**[Filter\<T\>](#filter)**`): Promise<number>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)** for complex filtering.                                |
+
+`Return`
+
+- `Promise<number>`: A Promise resolving to the count of matching entries.
+
+`Example 1` using object
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const activeCount = await this.countWhere({ status: 'active' });
+    console.log(`There are ${activeCount} active entries`);
+  }
+}
+```
+
+`Example 2` using [Filter](#filter)
+
+```ts
+import { BaseRepository, Filter } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const filter = new Filter<MyEntity>({
+      field: 'price',
+      operator: 'GREATER THAN',
+      value: 100,
+    });
+
+    const expensiveCount = await this.countWhere(filter);
+    console.log(`There are ${expensiveCount} entries with price > 100`);
+  }
+}
+```
+
+> [!TIP]
+> See [Filter](#filter) for more complex QUERY filters
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### updateMany
+
+The `updateMany` method updates multiple entries in the table that match the specified criteria.
+
+`Overloads`
+
+| Method                                                                                     | Parameters                                  | Description                                                                                     |
+| :----------------------------------------------------------------------------------------- | :------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `this.updateMany(keys: Entry<T>, fieldsToUpdate: Entry<T>): Promise<number>`               | `keys (object)`, `fieldsToUpdate (object)`  | An object representing the keys to filter entries, and an object with fields to update.        |
+| `this.updateMany(filter:`**[Filter\<T\>](#filter)**`, fieldsToUpdate: Entry<T>): Promise<number>` | `filter (Filter)`, `fieldsToUpdate (object)` | An instance of **[Filter\<T\>](#filter)** for complex filtering, and an object with fields to update. |
+
+`Return`
+
+- `Promise<number>`: A Promise resolving to the number of entries that were updated.
+
+`Example 1` using object
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const updatedCount = await this.updateMany(
+      { status: 'pending' },
+      { status: 'processed', processedAt: new Date() }
+    );
+    console.log(`Updated ${updatedCount} entries from pending to processed`);
+  }
+}
+```
+
+`Example 2` using [Filter](#filter)
+
+```ts
+import { BaseRepository, Filter } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const filter = new Filter<MyEntity>({
+      field: 'price',
+      operator: 'LESS THAN',
+      value: 10,
+    });
+
+    const updatedCount = await this.updateMany(filter, { discount: 0.1 });
+    console.log(`Applied 10% discount to ${updatedCount} low-priced items`);
+  }
+}
+```
+
+> [!TIP]
+> See [Filter](#filter) for more complex QUERY filters
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### deleteWhere
+
+The `deleteWhere` method deletes multiple entries from the table that match the specified criteria.
+
+`Overloads`
+
+| Method                                                           | Parameters        | Description                                                                                     |
+| :--------------------------------------------------------------- | :---------------- | ----------------------------------------------------------------------------------------------- |
+| `this.deleteWhere(keys: Entry<T>): Promise<number>`              | `keys (object)`   | An object representing the keys to filter entries to delete.                                    |
+| `this.deleteWhere(filter:`**[Filter\<T\>](#filter)**`): Promise<number>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)** for complex filtering.                                |
+
+`Return`
+
+- `Promise<number>`: A Promise resolving to the number of entries that were deleted.
+
+`Example 1` using object
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const deletedCount = await this.deleteWhere({ status: 'expired' });
+    console.log(`Deleted ${deletedCount} expired entries`);
+  }
+}
+```
+
+`Example 2` using [Filter](#filter)
+
+```ts
+import { BaseRepository, Filter } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const filter = new Filter<MyEntity>({
+      field: 'lastAccessed',
+      operator: 'LESS THAN',
+      value: '2024-01-01',
+    });
+
+    const deletedCount = await this.deleteWhere(filter);
+    console.log(`Deleted ${deletedCount} old entries`);
+  }
+}
+```
+
+> [!TIP]
+> See [Filter](#filter) for more complex QUERY filters
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### increment
+
+`(method) this.increment(keys: Entry<T>, column: NumericKeys<T>, value?: number): Promise<boolean>`
+
+The `increment` method atomically increments a numeric field by the specified value.
+
+`Parameters`
+
+- `keys (object)`: An object representing the keys to identify the entity to update.
+- `column (string)`: The name of the numeric column to increment.
+- `value (number)`: The value to increment by (default: 1).
+
+`Return`
+
+- `Promise<boolean>`: A Promise resolving to `true` if the increment was successful, `false` otherwise.
+
+`Example`
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    // Increment viewCount by 1
+    const success = await this.increment({ ID: '123' }, 'viewCount', 1);
+
+    // Increment stock by 10
+    const success2 = await this.increment({ ID: '456' }, 'stock', 10);
+
+    if (success) {
+      console.log('View count incremented successfully');
+    }
+  }
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### decrement
+
+`(method) this.decrement(keys: Entry<T>, column: NumericKeys<T>, value?: number): Promise<boolean>`
+
+The `decrement` method atomically decrements a numeric field by the specified value.
+
+`Parameters`
+
+- `keys (object)`: An object representing the keys to identify the entity to update.
+- `column (string)`: The name of the numeric column to decrement.
+- `value (number)`: The value to decrement by (default: 1).
+
+`Return`
+
+- `Promise<boolean>`: A Promise resolving to `true` if the decrement was successful, `false` otherwise.
+
+`Example`
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    // Decrement stock by 1
+    const success = await this.decrement({ ID: '123' }, 'stock', 1);
+
+    // Decrement quantity by 5
+    const success2 = await this.decrement({ ID: '456' }, 'quantity', 5);
+
+    if (success) {
+      console.log('Stock decremented successfully');
+    }
+  }
+}
+```
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### incrementMany
+
+The `incrementMany` method atomically increments multiple numeric fields for all entries matching the specified criteria.
+
+`Overloads`
+
+| Method                                                                                     | Parameters                                  | Description                                                                                     |
+| :----------------------------------------------------------------------------------------- | :------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `this.incrementMany(keys: Entry<T>, fields: IncrementFields<T>): Promise<number>`          | `keys (object)`, `fields (object)`          | An object representing the keys to filter entries, and an object with numeric fields to increment. |
+| `this.incrementMany(filter:`**[Filter\<T\>](#filter)**`, fields: IncrementFields<T>): Promise<number>` | `filter (Filter)`, `fields (object)` | An instance of **[Filter\<T\>](#filter)** for complex filtering, and an object with numeric fields to increment. |
+
+`Return`
+
+- `Promise<number>`: A Promise resolving to the number of entries that were updated.
+
+`Example 1` using object
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    // Increment viewCount by 1 and priority by 2 for all active items
+    const updatedCount = await this.incrementMany(
+      { status: 'active' },
+      { viewCount: 1, priority: 2 }
+    );
+    console.log(`Incremented fields for ${updatedCount} entries`);
+  }
+}
+```
+
+`Example 2` using [Filter](#filter)
+
+```ts
+import { BaseRepository, Filter } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const filter = new Filter<MyEntity>({
+      field: 'stock',
+      operator: 'GREATER THAN',
+      value: 0,
+    });
+
+    const updatedCount = await this.incrementMany(filter, { viewCount: 1 });
+    console.log(`Incremented viewCount for ${updatedCount} items in stock`);
+  }
+}
+```
+
+> [!TIP]
+> See [Filter](#filter) for more complex QUERY filters
+
+> [!NOTE]
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### decrementMany
+
+The `decrementMany` method atomically decrements multiple numeric fields for all entries matching the specified criteria.
+
+`Overloads`
+
+| Method                                                                                     | Parameters                                  | Description                                                                                     |
+| :----------------------------------------------------------------------------------------- | :------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `this.decrementMany(keys: Entry<T>, fields: IncrementFields<T>): Promise<number>`          | `keys (object)`, `fields (object)`          | An object representing the keys to filter entries, and an object with numeric fields to decrement. |
+| `this.decrementMany(filter:`**[Filter\<T\>](#filter)**`, fields: IncrementFields<T>): Promise<number>` | `filter (Filter)`, `fields (object)` | An instance of **[Filter\<T\>](#filter)** for complex filtering, and an object with numeric fields to decrement. |
+
+`Return`
+
+- `Promise<number>`: A Promise resolving to the number of entries that were updated.
+
+`Example 1` using object
+
+```ts
+import { BaseRepository } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    // Decrement stock by 1 for all sold items
+    const updatedCount = await this.decrementMany(
+      { status: 'sold' },
+      { stock: 1 }
+    );
+    console.log(`Decremented stock for ${updatedCount} sold items`);
+  }
+}
+```
+
+`Example 2` using [Filter](#filter)
+
+```ts
+import { BaseRepository, Filter } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const filter = new Filter<MyEntity>({
+      field: 'quantity',
+      operator: 'GREATER THAN',
+      value: 10,
+    });
+
+    const updatedCount = await this.decrementMany(filter, { quantity: 5 });
+    console.log(`Decremented quantity for ${updatedCount} items`);
+  }
+}
+```
+
+> [!TIP]
+> See [Filter](#filter) for more complex QUERY filters
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
