@@ -95,13 +95,18 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
   public columns<ColumnKeys extends Columns<T>>(
     ...columns: ColumnKeys[]
   ): FindOneBuilder<Pick<T, ShowOnlyColumns<T, ColumnKeys>>, string | Keys> {
-    const allColumns = Array.isArray(columns[0]) ? columns[0] : columns;
-
-    void this.select.columns(...(allColumns as unknown as string));
+    let allColumns = (Array.isArray(columns[0]) ? columns[0] : columns) as string[];
 
     if (this.expandCalled) {
-      // As the .columns() was called after .getExpand(), the '*' will be removed from the .columns array to have correct typing based only on the columns
+      // Filter out columns that are already expanded to avoid "Duplicate definition" error
+      allColumns = findUtils.columnUtils.filterExpandedColumns(allColumns, this.select.SELECT.columns);
+
+      // Remove the '*' operator as .columns() was called after .getExpand()
       findUtils.columnUtils.removeExpandOperator(this.select.SELECT.columns);
+    }
+
+    if (allColumns.length > 0) {
+      void this.select.columns(...(allColumns as unknown as string));
     }
 
     this.columnsCalled = true;

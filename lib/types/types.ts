@@ -273,6 +273,23 @@ type ValueExpand = {
 
 // End deep expand of getExpand method
 
+// Start increment/decrement types
+
+/**
+ * Extracts only the numeric keys from a type.
+ * Used for increment/decrement operations which only work on numeric fields.
+ */
+type NumericKeys<T> = {
+  [K in keyof T]: T[K] extends number | null | undefined ? K : never;
+}[keyof T];
+
+/**
+ * Creates a partial type with only numeric fields for increment/decrement operations.
+ */
+type IncrementFields<T> = Partial<Record<NumericKeys<T>, number>>;
+
+// End increment/decrement types
+
 export type {
   // Common
   ExternalServiceProps,
@@ -314,4 +331,8 @@ export type {
   DateAggregateFunctions,
   StringAggregateFunctions,
   StringAggregateTwoColumnsFunctions,
+
+  // Increment/Decrement types
+  NumericKeys,
+  IncrementFields,
 };

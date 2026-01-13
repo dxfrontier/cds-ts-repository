@@ -9,6 +9,8 @@ import type {
   ExtractSingular,
   BaseRepositoryConstructor,
   Draft,
+  NumericKeys,
+  IncrementFields,
 } from '../types/types';
 import type { Filter } from '../util/filter/Filter';
 import util from '../util/util';
@@ -209,6 +211,204 @@ abstract class BaseRepositoryDraft<T> {
    */
   public async countDrafts(): Promise<number> {
     return await this.coreRepository.count();
+  }
+
+  /**
+   * Finds the first draft entry in the table ordered by the specified column in ascending order.
+   * @param column The column to order by.
+   * @returns A promise that resolves to the first draft entry or undefined if not found.
+   * @example
+   * const firstDraft = await this.findFirstDraft('createdAt');
+   */
+  public async findFirstDraft<ColumnKeys extends keyof Draft<T>>(column: ColumnKeys): Promise<Draft<T> | undefined> {
+    return await this.coreRepository.findFirst(column);
+  }
+
+  /**
+   * Finds the last draft entry in the table ordered by the specified column in descending order.
+   * @param column The column to order by.
+   * @returns A promise that resolves to the last draft entry or undefined if not found.
+   * @example
+   * const lastDraft = await this.findLastDraft('createdAt');
+   */
+  public async findLastDraft<ColumnKeys extends keyof Draft<T>>(column: ColumnKeys): Promise<Draft<T> | undefined> {
+    return await this.coreRepository.findLast(column);
+  }
+
+  /**
+   * Finds a draft entry based on the provided keys, or creates a new draft entry if not found.
+   * @param keys An object representing the keys to find the draft entry.
+   * @param defaults An object representing the default values for the new draft entry if not found.
+   * @returns A promise that resolves to an object containing the draft entry and a boolean indicating if it was created.
+   * @example
+   * const { entry, created } = await this.findOrCreateDraft(
+   *   { name: 'John', IsActiveEntity: false },
+   *   { description: 'A new customer' }
+   * );
+   */
+  public async findOrCreateDraft(keys: Draft<T>, defaults: Draft<T>): Promise<{ created: boolean; entry: Draft<T> }> {
+    return await this.coreRepository.findOrCreate(keys, defaults);
+  }
+
+  /**
+   * Counts draft entries based on the provided keys.
+   * @param keys An object representing the keys to filter the draft entries.
+   * @returns A promise that resolves to the count of matching draft entries.
+   * @example
+   * const count = await this.countDraftsWhere({ IsActiveEntity: false });
+   */
+  public async countDraftsWhere(keys: Draft<T>): Promise<number>;
+
+  /**
+   * Counts draft entries based on the provided filter.
+   * @param filter A Filter instance.
+   * @returns A promise that resolves to the count of matching draft entries.
+   * @example
+   * const filter = new Filter<Book>({ field: 'stock', operator: 'GREATER THAN', value: 10 });
+   * const count = await this.countDraftsWhere(filter);
+   */
+  public async countDraftsWhere(filter: Filter<Draft<T>>): Promise<number>;
+
+  public async countDraftsWhere(keys?: Draft<T> | Filter<Draft<T>>): Promise<number> {
+    return await this.coreRepository.countWhere(keys);
+  }
+
+  /**
+   * Updates multiple draft entries based on the provided keys.
+   * @param keys An object representing the keys to filter the draft entries.
+   * @param fieldsToUpdate An object representing the fields and their updated values.
+   * @returns A promise that resolves to the number of updated draft entries.
+   * @example
+   * const updatedCount = await this.updateManyDrafts({ IsActiveEntity: false }, { status: 'active' });
+   */
+  public async updateManyDrafts(keys: Draft<T>, fieldsToUpdate: Draft<T>): Promise<number>;
+
+  /**
+   * Updates multiple draft entries based on the provided filter.
+   * @param filter A Filter instance.
+   * @param fieldsToUpdate An object representing the fields and their updated values.
+   * @returns A promise that resolves to the number of updated draft entries.
+   * @example
+   * const filter = new Filter<Book>({ field: 'stock', operator: 'LESS THAN', value: 5 });
+   * const updatedCount = await this.updateManyDrafts(filter, { status: 'low_stock' });
+   */
+  public async updateManyDrafts(filter: Filter<Draft<T>>, fieldsToUpdate: Draft<T>): Promise<number>;
+
+  public async updateManyDrafts(keys: Draft<T> | Filter<Draft<T>>, fieldsToUpdate: Draft<T>): Promise<number> {
+    return await this.coreRepository.updateMany(keys, fieldsToUpdate);
+  }
+
+  /**
+   * Deletes draft entries based on the provided keys.
+   * @param keys An object representing the keys to filter the draft entries.
+   * @returns A promise that resolves to the number of deleted draft entries.
+   * @example
+   * const deletedCount = await this.deleteDraftsWhere({ IsActiveEntity: false });
+   */
+  public async deleteDraftsWhere(keys: Draft<T>): Promise<number>;
+
+  /**
+   * Deletes draft entries based on the provided filter.
+   * @param filter A Filter instance.
+   * @returns A promise that resolves to the number of deleted draft entries.
+   * @example
+   * const filter = new Filter<Book>({ field: 'stock', operator: 'EQUALS', value: 0 });
+   * const deletedCount = await this.deleteDraftsWhere(filter);
+   */
+  public async deleteDraftsWhere(filter: Filter<Draft<T>>): Promise<number>;
+
+  public async deleteDraftsWhere(keys?: Draft<T> | Filter<Draft<T>>): Promise<number> {
+    return await this.coreRepository.deleteWhere(keys);
+  }
+
+  // ********************************************************************************************
+  // INCREMENT / DECREMENT METHODS
+  // ********************************************************************************************
+
+  /**
+   * Increments a numeric field by the specified value for a draft entity.
+   * @param keys - The keys to identify the draft entity to update.
+   * @param column - The numeric column to increment.
+   * @param value - The value to increment by (default: 1).
+   * @returns A promise that resolves to `true` if the increment is successful, `false` otherwise.
+   * @example
+   * // Increment viewCount by 1 for a draft
+   * const success = await this.incrementDraft({ ID: '123', IsActiveEntity: false }, 'viewCount', 1);
+   */
+  public async incrementDraft(keys: Draft<T>, column: NumericKeys<Draft<T>>, value = 1): Promise<boolean> {
+    return await this.coreRepository.increment(keys, column, value);
+  }
+
+  /**
+   * Decrements a numeric field by the specified value for a draft entity.
+   * @param keys - The keys to identify the draft entity to update.
+   * @param column - The numeric column to decrement.
+   * @param value - The value to decrement by (default: 1).
+   * @returns A promise that resolves to `true` if the decrement is successful, `false` otherwise.
+   * @example
+   * // Decrement stock by 5 for a draft
+   * const success = await this.decrementDraft({ ID: '123', IsActiveEntity: false }, 'stock', 5);
+   */
+  public async decrementDraft(keys: Draft<T>, column: NumericKeys<Draft<T>>, value = 1): Promise<boolean> {
+    return await this.coreRepository.decrement(keys, column, value);
+  }
+
+  /**
+   * Increments multiple numeric fields by their specified values for all matching draft entries.
+   * @param keys - The keys to identify the draft entities to update.
+   * @param fields - An object with numeric field names as keys and increment values as values.
+   * @returns A promise that resolves to the number of updated draft entries.
+   * @example
+   * // Increment viewCount by 1 and priority by 2 for all drafts with specific status
+   * const updatedCount = await this.incrementManyDrafts({ status: 'active', IsActiveEntity: false }, { viewCount: 1, priority: 2 });
+   */
+  public async incrementManyDrafts(keys: Draft<T>, fields: IncrementFields<Draft<T>>): Promise<number>;
+
+  /**
+   * Increments multiple numeric fields by their specified values for all matching draft entries.
+   * @param filter - A Filter instance.
+   * @param fields - An object with numeric field names as keys and increment values as values.
+   * @returns A promise that resolves to the number of updated draft entries.
+   * @example
+   * const filter = new Filter<Book>({ field: 'stock', operator: 'GREATER_THAN', value: 0 });
+   * const updatedCount = await this.incrementManyDrafts(filter, { viewCount: 1 });
+   */
+  public async incrementManyDrafts(filter: Filter<Draft<T>>, fields: IncrementFields<Draft<T>>): Promise<number>;
+
+  public async incrementManyDrafts(
+    keys: Draft<T> | Filter<Draft<T>>,
+    fields: IncrementFields<Draft<T>>,
+  ): Promise<number> {
+    return await this.coreRepository.incrementMany(keys, fields);
+  }
+
+  /**
+   * Decrements multiple numeric fields by their specified values for all matching draft entries.
+   * @param keys - The keys to identify the draft entities to update.
+   * @param fields - An object with numeric field names as keys and decrement values as values.
+   * @returns A promise that resolves to the number of updated draft entries.
+   * @example
+   * // Decrement stock by 1 for all draft items with status 'sold'
+   * const updatedCount = await this.decrementManyDrafts({ status: 'sold', IsActiveEntity: false }, { stock: 1 });
+   */
+  public async decrementManyDrafts(keys: Draft<T>, fields: IncrementFields<Draft<T>>): Promise<number>;
+
+  /**
+   * Decrements multiple numeric fields by their specified values for all matching draft entries.
+   * @param filter - A Filter instance.
+   * @param fields - An object with numeric field names as keys and decrement values as values.
+   * @returns A promise that resolves to the number of updated draft entries.
+   * @example
+   * const filter = new Filter<Book>({ field: 'status', operator: 'EQUALS', value: 'sold' });
+   * const updatedCount = await this.decrementManyDrafts(filter, { stock: 1 });
+   */
+  public async decrementManyDrafts(filter: Filter<Draft<T>>, fields: IncrementFields<Draft<T>>): Promise<number>;
+
+  public async decrementManyDrafts(
+    keys: Draft<T> | Filter<Draft<T>>,
+    fields: IncrementFields<Draft<T>>,
+  ): Promise<number> {
+    return await this.coreRepository.decrementMany(keys, fields);
   }
 }
 

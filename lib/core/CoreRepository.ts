@@ -17,6 +17,8 @@ import type {
   // CreateReturnType,
   ExtractSingular,
   InsertResult,
+  NumericKeys,
+  IncrementFields,
 } from '../types/types';
 import type { Filter } from '..';
 import { findUtils } from '../util/find/findUtils';
@@ -292,6 +294,196 @@ class CoreRepository<T> {
 
     const found: T[] = await query;
     return found.length;
+  }
+
+  public async findFirst<ColumnKeys extends keyof T>(column: ColumnKeys): Promise<T | undefined> {
+    const query = SELECT.one.from(this.resolvedEntity).orderBy(`${column as string} asc`);
+
+    if (this.externalService) {
+      return await this.externalService.run(query);
+    }
+
+    return await query;
+  }
+
+  public async findLast<ColumnKeys extends keyof T>(column: ColumnKeys): Promise<T | undefined> {
+    const query = SELECT.one.from(this.resolvedEntity).orderBy(`${column as string} desc`);
+
+    if (this.externalService) {
+      return await this.externalService.run(query);
+    }
+
+    return await query;
+  }
+
+  public async findOrCreate(keys: Entry<T>, defaults: Entry<T>): Promise<{ created: boolean; entry: T }> {
+    const found = await this.findOne(keys);
+
+    if (found) {
+      return { created: false, entry: found };
+    }
+
+    const entryToCreate = { ...keys, ...defaults } as Entry<T>;
+    await this.create(entryToCreate);
+
+    const created = await this.findOne(keys);
+
+    return { created: true, entry: created as T };
+  }
+
+  public async countWhere(keys?: Entry<T> | Filter<T>): Promise<number> {
+    const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
+    const query = SELECT.from(this.resolvedEntity);
+
+    if (filterKeys) {
+      query.where(filterKeys);
+    }
+
+    if (this.externalService) {
+      const found: T[] = await this.externalService.run(query);
+      return found.length;
+    }
+
+    const found: T[] = await query;
+    return found.length;
+  }
+
+  public async updateMany(keys: Entry<T> | Filter<T>, fieldsToUpdate: Entry<T>): Promise<number> {
+    const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
+    const query = UPDATE.entity(this.resolvedEntity).set(fieldsToUpdate);
+
+    if (filterKeys) {
+      query.where(filterKeys);
+    }
+
+    if (this.externalService) {
+      const updated: number = await this.externalService.run(query);
+      return updated;
+    }
+
+    const updated: number = await query;
+    return updated;
+  }
+
+  public async deleteWhere(keys?: Entry<T> | Filter<T>): Promise<number> {
+    const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
+    const query = DELETE.from(this.resolvedEntity);
+
+    if (filterKeys) {
+      query.where(filterKeys);
+    }
+
+    if (this.externalService) {
+      const deleted: number = await this.externalService.run(query);
+      return deleted;
+    }
+
+    const deleted: number = await query;
+    return deleted;
+  }
+
+  /**
+   * Increments a numeric field by the specified value.
+   * @param keys - The keys to identify the entity to update.
+   * @param column - The numeric column to increment.
+   * @param value - The value to increment by (default: 1).
+   * @returns A promise that resolves to `true` if the increment is successful, `false` otherwise.
+   */
+  public async increment(keys: Entry<T>, column: NumericKeys<T>, value = 1): Promise<boolean> {
+    const columnName = column as string;
+    const incrementExpression = { [columnName]: { '+=': value } };
+    const query = UPDATE.entity(this.resolvedEntity).where(keys).with(incrementExpression);
+
+    if (this.externalService) {
+      const updated = await this.externalService.run(query);
+      return updated === 1;
+    }
+
+    const updated: number = await query;
+    return updated === 1;
+  }
+
+  /**
+   * Decrements a numeric field by the specified value.
+   * @param keys - The keys to identify the entity to update.
+   * @param column - The numeric column to decrement.
+   * @param value - The value to decrement by (default: 1).
+   * @returns A promise that resolves to `true` if the decrement is successful, `false` otherwise.
+   */
+  public async decrement(keys: Entry<T>, column: NumericKeys<T>, value = 1): Promise<boolean> {
+    const columnName = column as string;
+    const decrementExpression = { [columnName]: { '-=': value } };
+    const query = UPDATE.entity(this.resolvedEntity).where(keys).with(decrementExpression);
+
+    if (this.externalService) {
+      const updated = await this.externalService.run(query);
+      return updated === 1;
+    }
+
+    const updated: number = await query;
+    return updated === 1;
+  }
+
+  /**
+   * Increments multiple numeric fields by their specified values for all matching entries.
+   * @param keys - The keys or filter to identify the entities to update.
+   * @param fields - An object with numeric field names as keys and increment values as values.
+   * @returns A promise that resolves to the number of updated entries.
+   */
+  public async incrementMany(keys: Entry<T> | Filter<T>, fields: IncrementFields<T>): Promise<number> {
+    const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
+    const incrementExpression: Record<string, object> = {};
+
+    for (const [fieldName, incrementValue] of Object.entries(fields)) {
+      if (incrementValue !== undefined) {
+        incrementExpression[fieldName] = { '+=': incrementValue };
+      }
+    }
+
+    const query = UPDATE.entity(this.resolvedEntity).with(incrementExpression);
+
+    if (filterKeys) {
+      query.where(filterKeys);
+    }
+
+    if (this.externalService) {
+      const updated: number = await this.externalService.run(query);
+      return updated;
+    }
+
+    const updated: number = await query;
+    return updated;
+  }
+
+  /**
+   * Decrements multiple numeric fields by their specified values for all matching entries.
+   * @param keys - The keys or filter to identify the entities to update.
+   * @param fields - An object with numeric field names as keys and decrement values as values.
+   * @returns A promise that resolves to the number of updated entries.
+   */
+  public async decrementMany(keys: Entry<T> | Filter<T>, fields: IncrementFields<T>): Promise<number> {
+    const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
+    const decrementExpression: Record<string, object> = {};
+
+    for (const [fieldName, decrementValue] of Object.entries(fields)) {
+      if (decrementValue !== undefined) {
+        decrementExpression[fieldName] = { '-=': decrementValue };
+      }
+    }
+
+    const query = UPDATE.entity(this.resolvedEntity).with(decrementExpression);
+
+    if (filterKeys) {
+      query.where(filterKeys);
+    }
+
+    if (this.externalService) {
+      const updated: number = await this.externalService.run(query);
+      return updated;
+    }
+
+    const updated: number = await query;
+    return updated;
   }
 }
 
