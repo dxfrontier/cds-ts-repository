@@ -194,6 +194,13 @@ type DateAggregateFunctions = 'DAY' | 'MONTH' | 'YEAR' | 'HOUR' | 'MINUTE' | 'SE
 type StringAggregateFunctions = 'LOWER' | 'UPPER' | 'LENGTH' | 'TRIM';
 type StringAggregateTwoColumnsFunctions = 'CONCAT';
 
+/**
+ * Temporal difference functions (introduced in recent `@sap/cds` releases) that compute the
+ * distance between two date/time columns. Native on `HANA` and emulated by other database
+ * services (for example `@cap-js/sqlite`). Each returns a numeric difference.
+ */
+type TemporalTwoColumnsFunctions = 'DAYS_BETWEEN' | 'MONTHS_BETWEEN' | 'YEARS_BETWEEN' | 'SECONDS_BETWEEN';
+
 type AggregateNumberUsingColumn = {
   aggregate?: NumericAggregateFunctions;
 };
@@ -208,6 +215,13 @@ type AggregateStringUsingColumn = {
 
 type AggregateStringTwoColumnsUsingColumn<T> = {
   aggregate?: StringAggregateTwoColumnsFunctions;
+  column1: keyof T;
+  column2: keyof T;
+  renameAs: string;
+};
+
+type AggregateTemporalTwoColumnsUsingColumn<T> = {
+  aggregate: TemporalTwoColumnsFunctions;
   column1: keyof T;
   column2: keyof T;
   renameAs: string;
@@ -229,12 +243,13 @@ type AggregateFields<T, K = BuilderTypes> =
       (K extends 'FIND_ONE'
         ? AggregateStringUsingColumn | AggregateDateUsingColumn
         : AggregateStringUsingColumn | AggregateNumberUsingColumn | AggregateDateUsingColumn))
-  | AggregateStringTwoColumnsUsingColumn<T>;
+  | AggregateStringTwoColumnsUsingColumn<T>
+  | AggregateTemporalTwoColumnsUsingColumn<T>;
 
 type DynamicColumnTypes<T extends AggregateFields<K>[], K> = {
   [K in T[number]['renameAs']]: K extends Extract<
     T[number],
-    { aggregate: NumericAggregateFunctions | DateAggregateFunctions }
+    { aggregate: NumericAggregateFunctions | DateAggregateFunctions | TemporalTwoColumnsFunctions }
   >['renameAs']
     ? number
     : K extends Extract<T[number], { aggregate: StringAggregateFunctions }>['renameAs']
@@ -331,6 +346,7 @@ export type {
   DateAggregateFunctions,
   StringAggregateFunctions,
   StringAggregateTwoColumnsFunctions,
+  TemporalTwoColumnsFunctions,
 
   // Increment/Decrement types
   NumericKeys,

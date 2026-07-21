@@ -207,7 +207,7 @@ class CoreRepository<T> {
       return updated === 1;
     }
 
-    const updated: number = await query;
+    const updated = coreRepositoryUtils.resolveAffected(await query);
     return updated === 1;
   }
 
@@ -218,8 +218,8 @@ class CoreRepository<T> {
       throw new Error('Currently not supported on External services, please use update instead !');
     }
 
-    const updatedOrCreated: number = await query;
-    return updatedOrCreated > 1;
+    const updatedOrCreated = coreRepositoryUtils.resolveAffected(await query);
+    return updatedOrCreated > 0;
   }
 
   public async updateLocaleTexts(localeCodeKeys: Entry<T> & Locale, fieldsToUpdate: Entry<T>): Promise<boolean> {
@@ -230,7 +230,7 @@ class CoreRepository<T> {
       return updated === 1;
     }
 
-    const updated: number = await query;
+    const updated = coreRepositoryUtils.resolveAffected(await query);
     return updated === 1;
   }
 
@@ -243,7 +243,7 @@ class CoreRepository<T> {
       return deleted === '';
     }
 
-    const deleted: number = await query;
+    const deleted = coreRepositoryUtils.resolveAffected(await query);
     return deleted === 1;
   }
 
@@ -256,7 +256,7 @@ class CoreRepository<T> {
       return coreRepositoryUtils.isAllSuccess(deletedItems);
     }
 
-    const deletedItems: number[] = await Promise.all(queries);
+    const deletedItems = (await Promise.all(queries)).map((result) => coreRepositoryUtils.resolveAffected(result));
     return coreRepositoryUtils.isAllSuccess(deletedItems);
   }
 
@@ -268,32 +268,36 @@ class CoreRepository<T> {
       return deleted > 0;
     }
 
-    const deleted: number = await query;
+    const deleted = coreRepositoryUtils.resolveAffected(await query);
     return deleted > 0;
   }
 
   public async exists(keys: Entry<T>): Promise<boolean> {
-    const query = SELECT.from(this.resolvedEntity).where(keys);
-
     if (this.externalService) {
+      const query = SELECT.from(this.resolvedEntity).where(keys);
       const found: T[] = await this.externalService.run(query);
       return found.length > 0;
     }
 
-    const found: T[] = await query;
-    return found.length > 0;
+    // Regular DB : resolve existence with a single `count(*)` aggregate row instead of
+    // materializing every matching row and then reading `.length`.
+    const query = SELECT.one.from(this.resolvedEntity).columns('count(*) as total').where(keys);
+    const result = (await query) as { total?: number } | undefined;
+    return coreRepositoryUtils.resolveCount(result) > 0;
   }
 
   public async count(): Promise<number> {
-    const query = SELECT.from(this.resolvedEntity);
-
     if (this.externalService) {
+      const query = SELECT.from(this.resolvedEntity);
       const found: T[] = await this.externalService.run(query);
       return found.length;
     }
 
-    const found: T[] = await query;
-    return found.length;
+    // Regular DB : let the database compute the count via `count(*)` rather than
+    // fetching all rows into memory.
+    const query = SELECT.one.from(this.resolvedEntity).columns('count(*) as total');
+    const result = (await query) as { total?: number } | undefined;
+    return coreRepositoryUtils.resolveCount(result);
   }
 
   public async findFirst<ColumnKeys extends keyof T>(column: ColumnKeys): Promise<T | undefined> {
@@ -333,19 +337,27 @@ class CoreRepository<T> {
 
   public async countWhere(keys?: Entry<T> | Filter<T>): Promise<number> {
     const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
-    const query = SELECT.from(this.resolvedEntity);
+
+    if (this.externalService) {
+      const query = SELECT.from(this.resolvedEntity);
+
+      if (filterKeys) {
+        query.where(filterKeys);
+      }
+
+      const found: T[] = await this.externalService.run(query);
+      return found.length;
+    }
+
+    // Regular DB : compute the matching count with a single `count(*)` aggregate row.
+    const query = SELECT.one.from(this.resolvedEntity).columns('count(*) as total');
 
     if (filterKeys) {
       query.where(filterKeys);
     }
 
-    if (this.externalService) {
-      const found: T[] = await this.externalService.run(query);
-      return found.length;
-    }
-
-    const found: T[] = await query;
-    return found.length;
+    const result = (await query) as { total?: number } | undefined;
+    return coreRepositoryUtils.resolveCount(result);
   }
 
   public async updateMany(keys: Entry<T> | Filter<T>, fieldsToUpdate: Entry<T>): Promise<number> {
@@ -361,7 +373,7 @@ class CoreRepository<T> {
       return updated;
     }
 
-    const updated: number = await query;
+    const updated = coreRepositoryUtils.resolveAffected(await query);
     return updated;
   }
 
@@ -378,7 +390,7 @@ class CoreRepository<T> {
       return deleted;
     }
 
-    const deleted: number = await query;
+    const deleted = coreRepositoryUtils.resolveAffected(await query);
     return deleted;
   }
 
@@ -399,7 +411,7 @@ class CoreRepository<T> {
       return updated === 1;
     }
 
-    const updated: number = await query;
+    const updated = coreRepositoryUtils.resolveAffected(await query);
     return updated === 1;
   }
 
@@ -420,7 +432,7 @@ class CoreRepository<T> {
       return updated === 1;
     }
 
-    const updated: number = await query;
+    const updated = coreRepositoryUtils.resolveAffected(await query);
     return updated === 1;
   }
 
@@ -451,7 +463,7 @@ class CoreRepository<T> {
       return updated;
     }
 
-    const updated: number = await query;
+    const updated = coreRepositoryUtils.resolveAffected(await query);
     return updated;
   }
 
@@ -482,7 +494,7 @@ class CoreRepository<T> {
       return updated;
     }
 
-    const updated: number = await query;
+    const updated = coreRepositoryUtils.resolveAffected(await query);
     return updated;
   }
 }
