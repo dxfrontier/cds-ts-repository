@@ -1098,12 +1098,13 @@ The `columnsFormatter` can be used :
 - `columns (object-1, object-n, ...)`
 
   - `column` `(string)`: The name of the column to be processed.
-  - `column1` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
-  - `column2` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
+  - `column1` `(string)` : The name of the column to be processed. (Applied only for `CONCAT` and temporal functions)
+  - `column2` `(string)` : The name of the column to be processed. (Applied only for `CONCAT` and temporal functions)
   - `aggregate?` `[optional] (string)`: This property, if applied, will `call aggregate function` for the specified `column` name, below you can find the available aggregate functions :
     - String : `'LOWER' | 'UPPER' | 'LENGTH' | 'CONCAT' | 'TRIM'`
     - Number : `'AVG' | 'MIN' | 'MAX' | 'SUM' | 'ABS' | 'CEILING' | 'TOTAL' | 'COUNT' | 'ROUND' | 'FLOOR'`
     - Date : `'DAY' | 'MONTH' | 'YEAR' | 'HOUR' | 'MINUTE' | 'SECOND'`
+    - Temporal (two columns) : `'DAYS_BETWEEN' | 'MONTHS_BETWEEN' | 'YEARS_BETWEEN' | 'SECONDS_BETWEEN'` (uses `column1` / `column2`, returns a `number`)
   - `renameAs` `(string)`: This property creates a new column with the given name
 
 `Example 1`
@@ -1130,6 +1131,24 @@ const results = this.builder()
 
 // above typing will have the following properties
 // 'reviews', 'bookName', 'authorName', 'bookAndAuthorName'
+```
+
+`Example 3` : Temporal difference between two `Date` columns
+
+```ts
+const results = await this.builder()
+  .find()
+  .columns('name', 'dateOfBirth', 'dateOfDeath')
+  .columnsFormatter({
+    column1: 'dateOfBirth',
+    column2: 'dateOfDeath',
+    aggregate: 'DAYS_BETWEEN',
+    renameAs: 'daysLived',
+  })
+  .execute();
+
+// above typing will have the following properties
+// 'name', 'dateOfBirth', 'dateOfDeath', 'daysLived' (number)
 ```
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
@@ -1434,12 +1453,13 @@ The `columnsFormatter` can be used :
 - `columns (object-1, object-n, ...)`
 
   - `column` `(string)`: The name of the column to be processed.
-  - `column1` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
-  - `column2` `(string)` : The name of the column to be processed. (Applied only for `CONCAT`)
+  - `column1` `(string)` : The name of the column to be processed. (Applied only for `CONCAT` and temporal functions)
+  - `column2` `(string)` : The name of the column to be processed. (Applied only for `CONCAT` and temporal functions)
   - `aggregate?` `[optional] (string)`: This property, if applied, will `call aggregate function` for the specified `column` name, below you can find the available aggregate functions :
     - String : `'LOWER' | 'UPPER' | 'LENGTH' | 'CONCAT' | 'TRIM'`
     - ~~Number : `'AVG' | 'MIN' | 'MAX' | 'SUM' | 'ABS' | 'CEILING' | 'TOTAL' | 'COUNT' | 'ROUND' | 'FLOOR'.`~~ **Applicable only for** [this.builder().find](#find)
     - Date : `'DAY' | 'MONTH' | 'YEAR' | 'HOUR' | 'MINUTE' | 'SECOND'`
+    - Temporal (two columns) : `'DAYS_BETWEEN' | 'MONTHS_BETWEEN' | 'YEARS_BETWEEN' | 'SECONDS_BETWEEN'` (uses `column1` / `column2`, returns a `number`)
   - `renameAs` `(string)`: This property creates a new column with the given name
 
 `Example 1`
@@ -1454,6 +1474,23 @@ const oneResult = this.builder()
 
 // above typing will have the following properties
 // 'reviews', 'bookName', 'authorName', 'bookAndAuthorName'
+```
+
+`Example 2` : Temporal difference between two `Date` columns
+
+```ts
+const oneResult = await this.builder()
+  .findOne({ ID: 101 })
+  .columnsFormatter({
+    column1: 'dateOfBirth',
+    column2: 'dateOfDeath',
+    aggregate: 'YEARS_BETWEEN',
+    renameAs: 'yearsLived',
+  })
+  .execute();
+
+// above typing will have the following properties
+// original 'Author' properties + 'yearsLived' (number)
 ```
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
@@ -1927,7 +1964,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 `exists(keys: Entry<T>): Promise<boolean>`
 
-The `exists` method allows you to check whether entries exist in the table that match the specified fields.
+The `exists` method allows you to check whether entries exist in the table that match the specified fields. Internally it resolves through a single `count(*)` query, so it does not materialize the matching rows into memory.
 
 `Parameters`
 
@@ -1964,7 +2001,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 `count(): Promise<number>`
 
-The `count` method allows you to count all items from the table.
+The `count` method allows you to count all items from the table. It uses a `count(*)` aggregate query rather than loading every row and reading its length.
 
 `Return`
 
@@ -2131,7 +2168,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 #### countWhere
 
-The `countWhere` method counts entries in the table that match the specified criteria.
+The `countWhere` method counts entries in the table that match the specified criteria. It uses a `count(*)` aggregate query rather than loading every matching row and reading its length.
 
 `Overloads`
 
