@@ -108,8 +108,8 @@ npm install @dxfrontier/cds-ts-repository
 ```
 
 > [!IMPORTANT]
-> CDS-TS-Repository uses `@sap/cds`, `@sap/cds-dk` [version 9](https://cap.cloud.sap/docs/releases/may25)
-> 
+> CDS-TS-Repository uses `@sap/cds`, `@sap/cds-dk` [version 10](https://cap.cloud.sap/docs/releases/2026/jun26) and stays compatible with [version 9](https://cap.cloud.sap/docs/releases/2025/may25) — the `@sap/cds` peer dependency is `^9 || ^10`. Node.js `>= 22` is required.
+>
 > If you're using `@sap/cds`, `@sap/cds-dk` `version 8` then install `npm install @dxfrontier/cds-ts-repository@5`.
 
 ### `Generate CDS Typed entities`
