@@ -41,7 +41,7 @@ describe('SELECT', () => {
           expect(one).toBeDefined();
           expect(one).toMatchObject({
             genre_ID: 13,
-            price: 150,
+            price: '150', // @sap/cds 10 returns Decimal columns as strings
           });
         });
       });
@@ -552,6 +552,16 @@ describe('SELECT', () => {
           expect(one).not.toHaveProperty('price');
           expect(one).not.toHaveProperty('currency_code');
         });
+
+        it('should not add any explicit column projection when called with no arguments', async () => {
+          // Act
+          const one = await bookRepository.builder().findOne({ currency_code: 'USD' }).columns().execute();
+
+          // Assert
+          expect(one).toBeDefined();
+          expect(one).toHaveProperty('title');
+          expect(one).toHaveProperty('price');
+        });
       });
 
       describe('======> .columnFormatter()', () => {
@@ -584,6 +594,23 @@ describe('SELECT', () => {
         it('should execute the Promise and return one result', async () => {
           // Act
           const one = await bookRepository.builder().findOne({ currency_code: 'GBP' }).execute();
+
+          // Assert
+          expect(one).toBeDefined();
+          expect(Array.isArray(one)).toBe(false);
+          expect(one).toHaveProperty('ID');
+        });
+      });
+
+      describe('======> .findOne() - no keys', () => {
+        it('should not apply a where clause and still return a single result when called without keys', async () => {
+          // Act - the builder().findOne() implementation accepts an optional filter even though the
+          // public FindReturn<T> overloads always require one; calling it without arguments exercises
+          // FindOneBuilder's internal `if (this.keys)` guard on its false branch.
+          const one = await bookRepository
+            .builder()
+            .findOne(undefined as never)
+            .execute();
 
           // Assert
           expect(one).toBeDefined();

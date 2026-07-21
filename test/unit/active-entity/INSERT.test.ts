@@ -81,6 +81,25 @@ describe('INSERT', () => {
       expect(updateOrCreateMany).toBe(true);
     });
 
+    it('should return true when a single record is created/updated - .updateOrCreate({})', async () => {
+      const singleUpsert = await bookRepository.updateOrCreate({
+        ID: 789,
+        title: 'Single Upsert Book',
+        descr: 'A single-entry upsert must resolve to true',
+        stock: 20,
+        author_ID: 201,
+        price: 25,
+        currency_code: 'USD',
+        genre_ID: 8,
+      });
+
+      const found = await bookRepository.findOne({ ID: 789 });
+
+      expect(singleUpsert).toBe(true);
+      expect(found).toBeDefined();
+      expect(found?.ID).toBe(789);
+    });
+
     it('should successfully create multiple records in the database - .createMany([{}, {}])', async () => {
       const initialRecords = await bookRepository.getAll();
 

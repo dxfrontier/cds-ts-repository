@@ -78,4 +78,36 @@ describe('UPDATE - drafts', () => {
       expect(updatedCount).toBe(0);
     });
   });
+
+  describe('.findOneDraftAndUpdate()', () => {
+    it('should find and update a draft in the database', async () => {
+      // Arrange
+      const keys = { ID: '7e9b3cd2-1f78-4d48-8b0f-6a62dcf0f592' };
+      const originalDraft = await bookEventDraftRepository.findOneDraft(keys);
+      expect(originalDraft).toBeDefined();
+
+      // Act
+      const wasUpdated = await bookEventDraftRepository.findOneDraftAndUpdate(keys, {
+        name: 'FOUND AND UPDATED DRAFT',
+      });
+      const updatedDraft = await bookEventDraftRepository.findOneDraft(keys);
+
+      // Assert
+      expect(wasUpdated).toBe(true);
+      expect(updatedDraft).toBeDefined();
+      expect(updatedDraft?.name).toBe('FOUND AND UPDATED DRAFT');
+      expect(originalDraft?.name).not.toBe(updatedDraft?.name);
+    });
+
+    it('should return false when trying to update a non-existent draft', async () => {
+      // Act
+      const wasUpdated = await bookEventDraftRepository.findOneDraftAndUpdate(
+        { ID: '00000000-0000-0000-0000-000000000000' },
+        { name: 'SHOULD NOT APPLY' },
+      );
+
+      // Assert
+      expect(wasUpdated).toBe(false);
+    });
+  });
 });

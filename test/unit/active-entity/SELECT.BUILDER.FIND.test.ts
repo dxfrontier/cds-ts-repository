@@ -335,6 +335,19 @@ describe('SELECT', () => {
             expect(item).not.toHaveProperty('currency_code');
           });
         });
+
+        it('should not add any explicit column projection when called with no arguments', async () => {
+          // Act
+          const results = await bookRepository.builder().find({ currency_code: 'USD' }).columns().execute();
+
+          // Assert
+          expect(results!.length).toBeGreaterThan(0);
+
+          results?.forEach((item) => {
+            expect(item).toHaveProperty('title');
+            expect(item).toHaveProperty('price');
+          });
+        });
       });
 
       describe('======> .groupBy()', () => {
@@ -766,7 +779,7 @@ describe('SELECT', () => {
         expect(results!.length).toBe(1);
         expect(initialResult?.length).toBeGreaterThan(results!.length);
         expect(matchedItem.genre_ID).toBe(13);
-        expect(matchedItem.price).toBe(150);
+        expect(Number(matchedItem.price)).toBe(150); // @sap/cds 10 returns Decimal columns as strings
         expect(matchedItem.stock).not.toBe(100);
         expect(matchedItem.descr!.startsWith('Catweazle') || matchedItem.currency_code === 'JPY').toBe(true);
       });
@@ -797,7 +810,7 @@ describe('SELECT', () => {
 
         expect(results!.length).toBe(1);
         expect(matchedItem.genre_ID).toBe(13);
-        expect(matchedItem.price).toBe(150);
+        expect(Number(matchedItem.price)).toBe(150); // @sap/cds 10 returns Decimal columns as strings
         expect(initialResult?.length).toBeGreaterThan(results!.length);
       });
 
@@ -1144,7 +1157,7 @@ describe('SELECT', () => {
           const matchedItem = results![0];
 
           expect(results!.length).toBe(1);
-          expect(matchedItem.price).toBe(11.11);
+          expect(Number(matchedItem.price)).toBeCloseTo(11.11); // @sap/cds 10 returns Decimal columns as strings
           expect(initialResult?.length).toBeGreaterThan(results!.length);
         });
 
@@ -1211,6 +1224,93 @@ describe('SELECT', () => {
             });
           });
         });
+      });
+    });
+
+    /**
+     * ################################################################################################################################
+     * COVERAGE EDGE CASES: .hints() / .forShareLock() / .getExpand() implicit-overload guards
+     * ################################################################################################################################
+     */
+    describe('======> .hints()', () => {
+      it('should apply query hints (individual arguments) and still return results', async () => {
+        // Act
+        const results = await bookRepository
+          .builder()
+          .find({ currency_code: 'GBP' })
+          .hints('IGNORE_PLAN_CACHE')
+          .execute();
+
+        // Assert
+        expect(results).toBeDefined();
+        expect(results!.length).toBeGreaterThan(0);
+      });
+
+      it('should apply query hints (array argument) and still return results', async () => {
+        // Act
+        const results = await bookRepository
+          .builder()
+          .find({ currency_code: 'GBP' })
+          .hints(['IGNORE_PLAN_CACHE', 'ANOTHER_HINT'])
+          .execute();
+
+        // Assert
+        expect(results).toBeDefined();
+        expect(results!.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('======> .forShareLock()', () => {
+      it('should still return results when a share lock is requested', async () => {
+        // Act
+        const results = await bookRepository.builder().find({ currency_code: 'GBP' }).forShareLock().execute();
+
+        // Assert
+        expect(results).toBeDefined();
+        expect(results!.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('======> .getExpand() - implicit overload created by Overload 3 (no usable arguments)', () => {
+      it('should throw a friendly error when called with an empty string', () => {
+        expect(() => bookRepository.builder().find({ ID: 201 }).getExpand('')).toThrow(
+          'getExpand() method must have arguments !',
+        );
+      });
+
+      it('should throw a friendly error when called with no arguments at all', () => {
+        expect(() => (bookRepository.builder().find({ ID: 201 }) as any).getExpand()).toThrow(
+          'getExpand() method must have arguments !',
+        );
+      });
+
+      it('should throw a friendly error when called with an empty array', () => {
+        expect(() => bookRepository.builder().find({ ID: 201 }).getExpand([])).toThrow(
+          'getExpand() method must have arguments !',
+        );
+      });
+
+      it('should throw a friendly error when called with undefined', () => {
+        expect(() =>
+          bookRepository
+            .builder()
+            .find({ ID: 201 })
+            .getExpand(undefined as never),
+        ).toThrow('getExpand() method must have arguments !');
+      });
+
+      it('should not throw and should leave associations unexpanded for a non-object, non-string argument', async () => {
+        // Act
+        const results = await bookRepository
+          .builder()
+          .find({ ID: 201 })
+          .getExpand(5 as never)
+          .execute();
+
+        // Assert
+        expect(results).toBeDefined();
+        expect(results!.length).toBeGreaterThan(0);
+        expect(results![0]).not.toHaveProperty('reviews');
       });
     });
   });
