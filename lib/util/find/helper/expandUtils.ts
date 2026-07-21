@@ -12,7 +12,7 @@ export const expandUtils = {
    * @returns Returns true if property levels are found, false otherwise.
    */
   isPropertyLevelsFound(value: AutoExpandLevels): value is AutoExpandLevels {
-    return Object.prototype.hasOwnProperty.call(value, 'levels') && value.levels !== undefined;
+    return value != null && Object.prototype.hasOwnProperty.call(value, 'levels') && value.levels !== undefined;
   },
 
   /**
