@@ -35,10 +35,6 @@
       "#cds-models/*": ["./test/bookshop/@cds-models/*/index.ts"]
     }
   },
-  "typedocOptions": {
-    "entryPoints": ["./lib/**"],
-    "out": "./lib/docs"
-  },
   "include": ["./lib"],
-  "exclude": ["./node_modules", "./test", "./lib/docs"]
+  "exclude": ["./node_modules", "./test"]
 }
