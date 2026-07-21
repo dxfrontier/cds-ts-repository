@@ -7,6 +7,11 @@
   },
   "cds": {
     "requires": {
+      "db": {
+        "pool": {
+          "max": 1
+        }
+      },
       "API_BUSINESS_PARTNER": {
         "kind": "odata-v2",
         "model": "srv/external/API_BUSINESS_PARTNER"

@@ -14,7 +14,9 @@
     "emitDecoratorMetadata": true,
     "strict": true,
     "rootDir": "./",
-    "baseUrl": "."
+    // @sap/cds 10 no longer wires its types automatically (no @types/sap__cds symlink);
+    // load the global cds.ql APIs (SELECT, INSERT, ...) and the '@sap/cds' module types explicitly.
+    "types": ["@cap-js/cds-types", "node"]
   },
   "include": ["./@dispatcher"]
 }
