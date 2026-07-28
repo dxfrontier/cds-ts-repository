@@ -2,28 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.0.0] - 2026-07-28
+
+### ⚙️ Miscellaneous Tasks
+
+- *(workflows)* Publish with org-level NPM_ORG_TOKEN secret
+- Bump version, CHANGELOG.md generated
+
 ## [6.2.0] - 2026-01-13
 
 ### 🚀 Features
 
 - *(methods)* New filter methods added to the cds-ts-repository
+- *(repository)* Count(*) aggregates and temporal columnsFormatter functions
 
 ### 🐛 Bug Fixes
 
 - *(filter)* Filter doesn't treats anymore boolean as string
+- *(builder)* Fail fast on getExpand called without arguments
 
 ### 📚 Documentation
 
 - *(readme)* Updated readme for newly added methods
+- *(readme)* Document temporal formatter functions and count(*) behavior
+- *(readme)* Document cds 10 peer dependency and rewrite test guide
 
 ### 🧪 Testing
 
 - *(bookshop)* Updated tests for the newly added methods
+- *(coverage)* External-service, draft increment and builder edge cases
 
 ### ⚙️ Miscellaneous Tasks
 
 - Bump version, CHANGELOG.md generated
 - *(prettier)* Prettied files
+- *(docs)* Remove generated docs and typedoc tooling
+- *(prettier)* Prettied generated cds-typer model files
+- *(claude)* Add project Claude Code settings and DocsExplorer agent
+- *(claude)* Add CLAUDE.md repository guide
 
 ## [6.1.0] - 2025-10-14
 
