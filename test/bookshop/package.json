@@ -19,7 +19,7 @@
     }
   },
   "dependencies": {
-    "@dxfrontier/cds-ts-dispatcher": ">=5.0.1"
+    "@dxfrontier/cds-ts-dispatcher": "^6.0.0"
   },
   "imports": {
     "#dispatcher": "./@dispatcher/index.js"
