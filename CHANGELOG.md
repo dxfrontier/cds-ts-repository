@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.2.0] - 2026-01-13
+
+### 🚀 Features
+
+- *(methods)* New filter methods added to the cds-ts-repository
+
+### 🐛 Bug Fixes
+
+- *(filter)* Filter doesn't treats anymore boolean as string
+
+### 📚 Documentation
+
+- *(readme)* Updated readme for newly added methods
+
+### 🧪 Testing
+
+- *(bookshop)* Updated tests for the newly added methods
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, CHANGELOG.md generated
+- *(prettier)* Prettied files
+
 ## [6.1.0] - 2025-10-14
 
 ### 🚀 Features
