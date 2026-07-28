@@ -2,8 +2,10 @@
 const { createEntityProxy } = require('./_');
 // HelloRequest
 module.exports.HelloRequest = createEntityProxy(['', 'HelloRequest'], { target: { is_singular: true } });
+module.exports.__Array_HelloRequest_ = createEntityProxy(['', 'HelloRequest'], { target: { is_singular: false } });
 // HelloResponse
 module.exports.HelloResponse = createEntityProxy(['', 'HelloResponse'], { target: { is_singular: true } });
+module.exports.__Array_HelloResponse_ = createEntityProxy(['', 'HelloResponse'], { target: { is_singular: false } });
 // events
 // actions
 // enums

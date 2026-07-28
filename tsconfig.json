@@ -22,8 +22,8 @@
 
     "lib": ["ES2021"],
     "target": "ES2021",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "module": "preserve",
+    "moduleResolution": "bundler",
 
     /* Decorators */
     "experimentalDecorators": true,
@@ -32,13 +32,9 @@
     "outDir": "./dist",
 
     "paths": {
-      "#cds-models/*": ["./test/bookshop/@cds-models/*/index.ts"]
+      "#cds-models/*": ["./test/bookshop/@cds-models/*/index.d.ts"]
     }
   },
-  "typedocOptions": {
-    "entryPoints": ["./lib/**"],
-    "out": "./lib/docs"
-  },
   "include": ["./lib"],
-  "exclude": ["./node_modules", "./test", "./lib/docs"]
+  "exclude": ["./node_modules", "./test"]
 }

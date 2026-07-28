@@ -165,6 +165,11 @@ class BaseFind<T, Keys> {
 
     const associations: any[] = Array.isArray(args[0]) ? args[0] : args;
 
+    // Fail fast on `.getExpand()` / `.getExpand([])` before any argument inspection
+    if (util.noArgs(associations)) {
+      throw new Error(constants.MESSAGES.GET_EXPAND_NO_ARGS_MESSAGE);
+    }
+
     /**
      * Extremely difficult to work with typing on the projection
      * That's why we use 'any' instead of SAP type
@@ -184,7 +189,7 @@ class BaseFind<T, Keys> {
       const value = associations[0];
 
       // Implicit overload created by Overload 3
-      if (util.noArgs(value)) {
+      if (value == null || util.noArgs(value)) {
         throw new Error(constants.MESSAGES.GET_EXPAND_NO_ARGS_MESSAGE);
       }
 

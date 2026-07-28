@@ -7,6 +7,11 @@
   },
   "cds": {
     "requires": {
+      "db": {
+        "pool": {
+          "max": 1
+        }
+      },
       "API_BUSINESS_PARTNER": {
         "kind": "odata-v2",
         "model": "srv/external/API_BUSINESS_PARTNER"
@@ -14,7 +19,7 @@
     }
   },
   "dependencies": {
-    "@dxfrontier/cds-ts-dispatcher": ">=5.0.1"
+    "@dxfrontier/cds-ts-dispatcher": "^6.0.0"
   },
   "imports": {
     "#dispatcher": "./@dispatcher/index.js"

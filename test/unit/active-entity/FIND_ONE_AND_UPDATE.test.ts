@@ -61,7 +61,7 @@ describe('FIND_ONE_AND_UPDATE', () => {
       expect(updatedBook).toBeDefined();
       expect(updatedBook?.descr).toBe(updatedFields.descr);
       expect(updatedBook?.stock).toBe(updatedFields.stock);
-      expect(updatedBook?.price).toBe(updatedFields.price);
+      expect(Number(updatedBook?.price)).toBeCloseTo(updatedFields.price); // @sap/cds 10 returns Decimal columns as strings
       expect(originalBook?.descr).not.toBe(updatedBook?.descr);
       expect(originalBook?.stock).not.toBe(updatedBook?.stock);
       expect(originalBook?.price).not.toBe(updatedBook?.price);

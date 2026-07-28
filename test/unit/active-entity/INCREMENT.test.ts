@@ -48,6 +48,20 @@ describe('INCREMENT / DECREMENT', () => {
       // Assert
       expect(success).toBe(false);
     });
+
+    test('should default the increment value to 1 when omitted', async () => {
+      // Arrange
+      const initialBook = await bookRepository.findOne({ ID: 201 });
+      const initialStock = initialBook!.stock!;
+
+      // Act
+      const success = await bookRepository.increment({ ID: 201 }, 'stock');
+
+      // Assert
+      expect(success).toBe(true);
+      const updatedBook = await bookRepository.findOne({ ID: 201 });
+      expect(updatedBook!.stock).toBe(initialStock + 1);
+    });
   });
 
   describe('.decrement()', () => {
@@ -85,6 +99,20 @@ describe('INCREMENT / DECREMENT', () => {
 
       // Assert
       expect(success).toBe(false);
+    });
+
+    test('should default the decrement value to 1 when omitted', async () => {
+      // Arrange
+      const initialBook = await bookRepository.findOne({ ID: 201 });
+      const initialStock = initialBook!.stock!;
+
+      // Act
+      const success = await bookRepository.decrement({ ID: 201 }, 'stock');
+
+      // Assert
+      expect(success).toBe(true);
+      const updatedBook = await bookRepository.findOne({ ID: 201 });
+      expect(updatedBook!.stock).toBe(initialStock - 1);
     });
   });
 

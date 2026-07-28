@@ -94,6 +94,22 @@ export const columnUtils = {
   },
 
   /**
+   * The temporal difference functions (`DAYS_BETWEEN`, `MONTHS_BETWEEN`, `YEARS_BETWEEN`,
+   * `SECONDS_BETWEEN`). Unlike `CONCAT`, these take their two column arguments directly, without
+   * an interleaved separator literal.
+   */
+  temporalTwoColumnsFunctions: new Set(['DAYS_BETWEEN', 'MONTHS_BETWEEN', 'YEARS_BETWEEN', 'SECONDS_BETWEEN']),
+
+  /**
+   * Checks whether the provided aggregate is a two-column temporal difference function.
+   * @param aggregate - The aggregate function name.
+   * @returns `true` if the aggregate is a temporal difference function, `false` otherwise.
+   */
+  isTemporalTwoColumnsFunction(aggregate: unknown): boolean {
+    return typeof aggregate === 'string' && columnUtils.temporalTwoColumnsFunctions.has(aggregate);
+  },
+
+  /**
    * Builds aggregate columns for SQL based on the provided column formatters.
    * @param columns - An array of column formatters.
    * @returns An array of SQL aggregate column strings.
@@ -104,6 +120,11 @@ export const columnUtils = {
       if (twoColumns) {
         const column1 = item.column1 as string;
         const column2 = item.column2 as string;
+
+        // Temporal difference functions (e.g. DAYS_BETWEEN) take two column args, no separator.
+        if (columnUtils.isTemporalTwoColumnsFunction(item.aggregate)) {
+          return `${item.aggregate}(${column1}, ${column2}) as ${item.renameAs}`;
+        }
 
         return `${item.aggregate}(${column1}, ' ',${column2}) as ${item.renameAs}`;
       }

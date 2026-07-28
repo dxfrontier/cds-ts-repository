@@ -133,6 +133,8 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
    * .columnsFormatter(
    *    { column: 'price', aggregate: 'AVG', renameAs: 'theAvg' }, // using 'AVG'
    *    { column: 'stock', renameAs: 'stockRenamed' }, // just renaming
+   *    // temporal difference between two date columns
+   *    { column1: 'dateOfBirth', column2: 'dateOfDeath', aggregate: 'DAYS_BETWEEN', renameAs: 'daysLived' },
    * )
    * .execute();
    */

@@ -17,6 +17,44 @@ const coreRepositoryUtils = {
   },
 
   /**
+   * Normalizes the resolved result of a CDS write query (UPDATE / UPSERT / DELETE) into the affected-row count.
+   * `@sap/cds` 9 and `@cap-js/sqlite` (including under `@sap/cds` 10) resolve these queries directly to a numeric
+   * row count, whereas some `@sap/cds` 10 services resolve to a consolidated `{ affected, rows }` object. Handling
+   * both shapes keeps the repository's boolean/count return values identical for consumers on cds 9 and cds 10.
+   * @param result - The resolved value of an awaited write query.
+   * @returns The number of affected rows (0 when it cannot be determined).
+   */
+  resolveAffected(result: unknown): number {
+    if (typeof result === 'number') {
+      return result;
+    }
+
+    if (result !== null && typeof result === 'object' && 'affected' in result) {
+      const affected = (result as { affected?: unknown }).affected;
+      return typeof affected === 'number' ? affected : 0;
+    }
+
+    return 0;
+  },
+
+  /**
+   * Normalizes the resolved row of a `count(*)` aggregate query into a numeric count.
+   * `@cap-js/sqlite` resolves the aliased `count(*)` column to a JS `number`, whereas other
+   * databases (for example `HANA`) may resolve it to a `string` or `bigint`. Coercing keeps the
+   * repository's `count` / `countWhere` / `exists` return values numeric across databases.
+   * @param result - The resolved single-row result of a `SELECT count(*) as total` query.
+   * @returns The count as a number (0 when it cannot be determined).
+   */
+  resolveCount(result: { total?: unknown } | undefined | null): number {
+    if (result === null || result === undefined) {
+      return 0;
+    }
+
+    const total = Number(result.total);
+    return Number.isNaN(total) ? 0 : total;
+  },
+
+  /**
    * Builds query keys for SQL based on the provided keys object.
    * @param keys - The keys object (can be a single filter, multiple filters, or a string).
    * @returns The query keys string, entry object, or undefined if keys are not modified.
@@ -50,8 +88,19 @@ const coreRepositoryUtils = {
     const padWithSpace = ' ';
 
     const constructedQuery = filters!.reduce((accumulator, filter) => {
+      // Raw nested array group (e.g. the inner array of `[[Filter1, 'AND', Filter2], 'OR', Filter3]`)
+      if (Array.isArray(filter)) {
+        return accumulator + this.buildMultidimensionalFilters(filter, { isInnerCalled: true });
+      }
+
       if (filter instanceof Filter && filter.filters && filter.filters.length > 0) {
-        return this.buildMultidimensionalFilters(filter.filters, { isInnerCalled: true });
+        // Combined filter (`new Filter('AND' | 'OR', ...)`) — its connector lives on
+        // `logicalOperator`, not as array tokens, so it must be built by buildMultipleFilters.
+        if (filter.logicalOperator !== undefined) {
+          return accumulator + `${this.buildMultipleFilters(filter)}${padWithSpace}`;
+        }
+
+        return accumulator + this.buildMultidimensionalFilters(filter.filters, { isInnerCalled: true });
       }
 
       if (filter instanceof Filter && filter.filters === undefined) {
