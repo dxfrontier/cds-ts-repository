@@ -103,6 +103,66 @@ describe('externalService constructor wiring', () => {
       expect(run).toHaveBeenCalledTimes(1);
       expect(result).toEqual([{ BusinessPartner: '1' }]);
     });
+
+    it('should throw when calling createDraft with an external service attached', async () => {
+      const run = jest.fn();
+      const fakeService = createFakeExternalService(run, { A_BusinessPartner: mappedEntity });
+
+      class ExternalDraftRepository extends BaseRepositoryDraft<{ BusinessPartner: string }> {
+        static externalService = fakeService;
+
+        constructor() {
+          super({ name: 'Original.A_BusinessPartner' } as Entity & { BusinessPartner: string });
+        }
+      }
+
+      const repo = new ExternalDraftRepository();
+
+      await expect(repo.createDraft({ BusinessPartner: '1' })).rejects.toThrow(
+        'createDraft is currently not supported on External services !',
+      );
+      expect(run).not.toHaveBeenCalled();
+    });
+
+    it('should throw when calling createManyDrafts with an external service attached', async () => {
+      const run = jest.fn();
+      const fakeService = createFakeExternalService(run, { A_BusinessPartner: mappedEntity });
+
+      class ExternalDraftRepository extends BaseRepositoryDraft<{ BusinessPartner: string }> {
+        static externalService = fakeService;
+
+        constructor() {
+          super({ name: 'Original.A_BusinessPartner' } as Entity & { BusinessPartner: string });
+        }
+      }
+
+      const repo = new ExternalDraftRepository();
+
+      await expect(repo.createManyDrafts({ BusinessPartner: '1' })).rejects.toThrow(
+        'createManyDrafts is currently not supported on External services !',
+      );
+      expect(run).not.toHaveBeenCalled();
+    });
+
+    it('should throw when calling updateOrCreateDraft with an external service attached', async () => {
+      const run = jest.fn();
+      const fakeService = createFakeExternalService(run, { A_BusinessPartner: mappedEntity });
+
+      class ExternalDraftRepository extends BaseRepositoryDraft<{ BusinessPartner: string }> {
+        static externalService = fakeService;
+
+        constructor() {
+          super({ name: 'Original.A_BusinessPartner' } as Entity & { BusinessPartner: string });
+        }
+      }
+
+      const repo = new ExternalDraftRepository();
+
+      await expect(repo.updateOrCreateDraft({ BusinessPartner: '1' })).rejects.toThrow(
+        'updateOrCreateDraft is currently not supported on External services !',
+      );
+      expect(run).not.toHaveBeenCalled();
+    });
   });
 });
 

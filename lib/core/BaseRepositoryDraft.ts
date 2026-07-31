@@ -1,3 +1,5 @@
+import cds from '@sap/cds';
+
 import { CoreRepository } from './CoreRepository';
 
 import type {
@@ -8,6 +10,7 @@ import type {
   ShowOnlyColumns,
   ExtractSingular,
   BaseRepositoryConstructor,
+  InsertResult,
   Draft,
   NumericKeys,
   IncrementFields,
@@ -40,7 +43,133 @@ abstract class BaseRepositoryDraft<T> {
     this.coreRepository = new CoreRepository(this.entity);
   }
 
+  /**
+   * Guards the create/upsert draft methods against an attached external service.
+   *
+   * The constructor swaps `this.entity` for the external service's entity when `@ExternalService` is
+   * used, and that remote entity has no `.drafts` - `findUtils.resolveEntityName` would silently fall
+   * back to the active entity name, so a create/upsert would INSERT into the remote active entity set
+   * with draft-only fields the remote does not declare. Throwing here instead matches how
+   * `CoreRepository.getLocaleTexts` guards its own external-service-unsupported path.
+   * @param methodName The name of the calling method, used in the thrown error message.
+   * @throws {Error} Always, when an external service is attached via `@ExternalService`.
+   */
+  private assertNoExternalService(methodName: string): void {
+    const constructor = this.constructor as BaseRepositoryConstructor;
+
+    if (constructor.externalService) {
+      throw new Error(`${methodName} is currently not supported on External services !`);
+    }
+  }
+
+  /**
+   * Normalizes a draft entry before it is persisted into the drafts table.
+   *
+   * Always defaults `DraftAdministrativeData_DraftUUID` (generated via `cds.utils.uuid()`) when the
+   * caller did not supply one, without overwriting a caller-provided value and without mutating the
+   * original entry. `HasActiveEntity` is only defaulted (to `false`) when `defaultHasActiveEntity` is
+   * `true` - the update path of an upsert must pass `false` so that an existing draft's
+   * `HasActiveEntity` is left untouched instead of being silently reset.
+   * @param entry The draft entry to normalize.
+   * @param defaultHasActiveEntity Whether to default `HasActiveEntity` to `false` when omitted.
+   * @returns A new object with the draft administrative fields defaulted where applicable.
+   */
+  private normalizeDraftEntry(entry: Draft<T>, defaultHasActiveEntity: boolean): Draft<T> {
+    const normalized = {
+      ...entry,
+      DraftAdministrativeData_DraftUUID: entry.DraftAdministrativeData_DraftUUID ?? cds.utils.uuid(),
+    } as Draft<T>;
+
+    if (defaultHasActiveEntity) {
+      normalized.HasActiveEntity = entry.HasActiveEntity ?? false;
+    }
+
+    return normalized;
+  }
+
   // Public routines
+
+  /**
+   * Inserts a single draft entry into the drafts persistence table.
+   *
+   * This is a repository-level insert directly into the drafts table - no `DraftAdministrativeData`
+   * admin row is created and no Fiori draft-lifecycle events fire (drafts normally originate via the
+   * service's `draftEdit`/NEW flow). `DraftAdministrativeData_DraftUUID` is auto-generated for the
+   * entry when omitted; `HasActiveEntity` defaults to `false` when omitted.
+   * @param entry An object representing the draft entry to be created.
+   * @returns A promise that resolves to the inserted result.
+   * @throws {Error} When an external service is attached via `@ExternalService` - the drafts table
+   * only exists on the primary database, so this is not supported the way the active `create` is.
+   * @example
+   * const created = await this.createDraft({ name: 'John', IsActiveEntity: false });
+   */
+  public async createDraft(entry: Draft<T>): Promise<InsertResult<Draft<T>>> {
+    this.assertNoExternalService('createDraft');
+
+    return await this.coreRepository.create(this.normalizeDraftEntry(entry, true));
+  }
+
+  /**
+   * Inserts multiple draft entries into the drafts persistence table.
+   *
+   * This is a repository-level insert directly into the drafts table - no `DraftAdministrativeData`
+   * admin row is created and no Fiori draft-lifecycle events fire (drafts normally originate via the
+   * service's `draftEdit`/NEW flow). `DraftAdministrativeData_DraftUUID` is auto-generated per entry
+   * when omitted; `HasActiveEntity` defaults to `false` when omitted.
+   * @param entries An array of objects representing the draft entries to be created.
+   * @returns A promise that resolves to the insert result.
+   * @throws {Error} When an external service is attached via `@ExternalService` - the drafts table
+   * only exists on the primary database, so this is not supported the way the active `createMany` is.
+   * @example
+   * const createdInstance = await this.createManyDrafts([
+   *  { name: 'Event draft 1', IsActiveEntity: false },
+   *  { name: 'Event draft 2', IsActiveEntity: false },
+   * ]);
+   */
+  public async createManyDrafts(...entries: DraftEntries<ExtractSingular<T>>[]): Promise<InsertResult<Draft<T>>> {
+    this.assertNoExternalService('createManyDrafts');
+
+    const normalizedEntries = entries.map((entry) =>
+      Array.isArray(entry)
+        ? entry.map((item) => this.normalizeDraftEntry(item, true))
+        : this.normalizeDraftEntry(entry, true),
+    );
+
+    return await this.coreRepository.createMany(...normalizedEntries);
+  }
+
+  /**
+   * Updates existing draft entries or creates new ones if they do not exist in the drafts persistence table.
+   *
+   * Has UPSERT PATCH semantics. `DraftAdministrativeData_DraftUUID` is auto-generated per entry when
+   * omitted - for an entry that updates an existing draft this replaces its current linkage, so pass
+   * the existing UUID to preserve it. `HasActiveEntity` is left untouched when the caller omits it: on
+   * an update this preserves whatever value the draft already has (so a draft activated via
+   * `draftEdit`, where `HasActiveEntity` is `true`, is not silently reset to `false`); on the create
+   * path of an upsert it stays `NULL` unless explicitly provided (the column is nullable).
+   * @param entries An array of objects representing the draft entries to be created or updated.
+   * @returns A promise that resolves to `true` if the update is successful, `false` otherwise.
+   * @throws {Error} When an external service is attached via `@ExternalService` - the drafts table
+   * only exists on the primary database, so this is not supported the way the active `updateOrCreate` is.
+   * @example
+   * const updated = await this.updateOrCreateDraft({
+   *   ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db',
+   *   IsActiveEntity: false,
+   *   DraftAdministrativeData_DraftUUID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19',
+   *   name: 'a new name',
+   * });
+   */
+  public async updateOrCreateDraft(...entries: DraftEntries<ExtractSingular<T>>[]): Promise<boolean> {
+    this.assertNoExternalService('updateOrCreateDraft');
+
+    const normalizedEntries = entries.map((entry) =>
+      Array.isArray(entry)
+        ? entry.map((item) => this.normalizeDraftEntry(item, false))
+        : this.normalizeDraftEntry(entry, false),
+    );
+
+    return await this.coreRepository.updateOrCreate(...normalizedEntries);
+  }
 
   /**
    * Retrieves all draft entries from the table.
