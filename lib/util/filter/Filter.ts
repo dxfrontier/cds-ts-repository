@@ -1,4 +1,11 @@
-import type { CompoundFilter, FilterOperator, FilterOptions, FilterValue, LogicalOperator } from '../../types/types';
+import type {
+  CompoundFilter,
+  FilterField,
+  FilterOperator,
+  FilterOptions,
+  FilterValue,
+  LogicalOperator,
+} from '../../types/types';
 
 /**
  * Represents a filter to be applied on entities.
@@ -7,8 +14,9 @@ import type { CompoundFilter, FilterOperator, FilterOptions, FilterValue, Logica
 class Filter<T> {
   public readonly operator?: FilterOperator;
 
-  public readonly field?: keyof T;
+  public readonly field?: FilterField<T>;
   public readonly logicalOperator?: LogicalOperator;
+  // Combined / compound filters and, for 'EXISTS' and 'NOT EXISTS', the single inner filter applied on the association
   public readonly filters?: Filter<T>[] | CompoundFilter<T>;
 
   // Like, In, Not in fields
@@ -22,11 +30,12 @@ class Filter<T> {
    * Creates a `Filter` instance with filter options.
    *
    * @param options - An object representing the filter options.
-   * @param options.field - The field of the entity to filter on.
-   * @param options.operator - The operator to apply on the field (e.g., `'LIKE'`, `'BETWEEN'`).
+   * @param options.field - The field of the entity to filter on, a one-hop path expression across a to-one association (e.g. `'author.name'`) or, for `'EXISTS'` and `'NOT EXISTS'`, an association of the entity.
+   * @param options.operator - The operator to apply on the field (e.g., `'LIKE'`, `'BETWEEN'`, `'EXISTS'`).
    * @param options.value - The filter value.
    * @param options.value1 - The first value for `'BETWEEN'` and `'NOT BETWEEN'` operators.
    * @param options.value2 - The second value for `'BETWEEN'` and `'NOT BETWEEN'` operators.
+   * @param options.filters - The optional inner `Filter` applied on the association for `'EXISTS'` and `'NOT EXISTS'` operators.
    *
    * @example
    * const filter = new Filter<Book>({
@@ -36,6 +45,28 @@ class Filter<T> {
    * });
    *
    * this.find(filter)
+   *
+   * @example
+   * const filterPath = new Filter<Book>({
+   *  field: 'author.name',
+   *  operator: 'EQUALS',
+   *  value: 'Edgar Allen Poe',
+   * });
+   *
+   * this.find(filterPath)
+   *
+   * @example
+   * const filterExists = new Filter<Author>({
+   *  field: 'books',
+   *  operator: 'EXISTS',
+   *  filters: new Filter<Book>({
+   *    field: 'stock',
+   *    operator: 'GREATER THAN',
+   *    value: 100,
+   *  }),
+   * });
+   *
+   * this.find(filterExists)
    */
   constructor(options: FilterOptions<T>);
 
@@ -100,6 +131,15 @@ class Filter<T> {
     if (typeof filter === 'object' && !Array.isArray(filter)) {
       this.field = filter.field;
       this.operator = filter.operator;
+
+      if (filter.operator === 'EXISTS' || filter.operator === 'NOT EXISTS') {
+        // The inner filter targets the association and not `T`, it is kept as the single entry of `filters`
+        if (filter.filters !== undefined) {
+          this.filters = [filter.filters] as unknown as Filter<T>[];
+        }
+
+        return;
+      }
 
       if (filter.operator === 'BETWEEN' || filter.operator === 'NOT BETWEEN') {
         this.value1 = filter.value1;

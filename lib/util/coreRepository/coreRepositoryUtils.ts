@@ -93,6 +93,12 @@ const coreRepositoryUtils = {
         return accumulator + this.buildMultidimensionalFilters(filter, { isInnerCalled: true });
       }
 
+      // 'EXISTS' / 'NOT EXISTS' filter — its `filters` holds the inner predicate of the association,
+      // it is a single filter and must not be expanded as a nested group.
+      if (filter instanceof Filter && this.isExistsOrNotExists(filter)) {
+        return accumulator + `${this.buildSingleFilter(filter)}${padWithSpace}`;
+      }
+
       if (filter instanceof Filter && filter.filters && filter.filters.length > 0) {
         // Combined filter (`new Filter('AND' | 'OR', ...)`) — its connector lives on
         // `logicalOperator`, not as array tokens, so it must be built by buildMultipleFilters.
@@ -129,6 +135,12 @@ const coreRepositoryUtils = {
    * @returns The SQL query string.
    */
   buildMultipleFilters<T>(filter: Filter<T>): string {
+    // Handle 'EXISTS' / 'NOT EXISTS' case — it holds the inner predicate of the association in
+    // `filters` and no value, so it would otherwise be mistaken for a combined filter.
+    if (coreRepositoryUtils.isExistsOrNotExists(filter)) {
+      return coreRepositoryUtils.buildSingleFilter(filter);
+    }
+
     // Handle single filter case
     const propertyValueFound: boolean = 'value' in filter || 'value1' in filter;
     const filterOptionsFound = propertyValueFound && filter.logicalOperator === undefined;
@@ -156,6 +168,18 @@ const coreRepositoryUtils = {
   buildSingleFilter<T>(keys: Filter<T>): string {
     const filterOperator = keys.operator;
     const key = keys.field as string;
+
+    if (this.isExistsOrNotExists(keys)) {
+      const existsOperator = filterOperator === 'EXISTS' ? 'exists' : 'not exists';
+      const [innerFilter] = (keys.filters ?? []) as Filter<T>[];
+
+      // Bare existence of the association (E.g. `exists books`)
+      if (innerFilter === undefined) {
+        return `${existsOperator} ${key}`;
+      }
+
+      return `${existsOperator} ${key}[${this.buildQueryKeys(innerFilter) as string}]`;
+    }
 
     if (this.isBetweenOrNotBetween(keys)) {
       return `(${key} ${filterOperator} ${keys.value1} AND ${keys.value2})`;
@@ -241,6 +265,16 @@ const coreRepositoryUtils = {
   isNullOrNotNull<T>(keys: Filter<T>): boolean {
     const operator = keys.operator;
     return operator === 'IS NULL' || operator === 'IS NOT NULL';
+  },
+
+  /**
+   * Checks if the filter operator is either 'EXISTS' or 'NOT EXISTS'.
+   * @param keys - The filter object.
+   * @returns Returns true if the operator is 'EXISTS' or 'NOT EXISTS', false otherwise.
+   */
+  isExistsOrNotExists<T>(keys: Filter<T>): boolean {
+    const operator = keys.operator;
+    return operator === 'EXISTS' || operator === 'NOT EXISTS';
   },
 
   /**
