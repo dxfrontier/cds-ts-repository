@@ -66,6 +66,7 @@
     "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
     "axios": "^1.13.2",
+    "better-sqlite3": "^12.11.1",
     "concurrently": "^9.2.1",
     "eslint": "^9.39.2",
     "husky": "^9.1.7",
