@@ -1273,6 +1273,7 @@ describe('SELECT', () => {
 
     describe('======> .getExpand() - implicit overload created by Overload 3 (no usable arguments)', () => {
       it('should throw a friendly error when called with an empty string', () => {
+        // @ts-expect-error an empty string is rejected at compile time, the runtime guard is under test
         expect(() => bookRepository.builder().find({ ID: 201 }).getExpand('')).toThrow(
           'getExpand() method must have arguments !',
         );

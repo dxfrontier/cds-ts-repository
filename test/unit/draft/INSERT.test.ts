@@ -17,7 +17,7 @@ describe('INSERT - drafts', () => {
       const entry = {
         ID: draftId,
         name: 'Minimal Draft Event',
-        types: 'BOOK_SIGNING',
+        types: 'BOOK_SIGNING' as const,
       };
 
       // Act
