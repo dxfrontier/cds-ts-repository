@@ -2949,7 +2949,7 @@ Use `Filter` to create complex `WHERE QUERY` filters.
 >
 > - `FilterOperator` values are predefined operators for filtering.
 > - `T` should be a type generated using [CDS-Typer](#generate-cds-typed-entities).
-> - `field` can also be a one-hop path expression across a `to-one` association (e.g. `'author.name'`), usable with every operator above except `'EXISTS'` / `'NOT EXISTS'`.
+> - `field` can also be a one-hop path expression across a `to-one` association (e.g. `'author.name'`), usable with every operator above except `'EXISTS'` / `'NOT EXISTS'`. Path expressions are fully type-checked and autocompleted by the compiler (typing `'author.` suggests `'author.name'`, `'author.ID'`, ...).
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 

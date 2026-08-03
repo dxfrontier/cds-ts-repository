@@ -163,7 +163,11 @@ type FilterValue = string | number | null | boolean;
  * date / time elements are generated as `string` types.
  */
 type ValueKeys<T> = {
-  [K in keyof T]-?: NonNullable<T[K]> extends string | number | boolean | bigint ? K : never;
+  [K in keyof T]-?: 0 extends 1 & T[K]
+    ? never
+    : NonNullable<T[K]> extends string | number | boolean | bigint
+      ? K
+      : never;
 }[keyof T];
 
 /**
@@ -172,16 +176,29 @@ type ValueKeys<T> = {
  *
  * Everything holding a value is left out : primitives, the primitive intersections branding the
  * key elements (`Key<number>` is `number & { ... }`), the streams behind the `LargeBinary`
- * elements, functions and the `Date` / `Buffer` objects.
+ * elements, functions and the `Date` objects / binary buffers (`Uint8Array` also covers `Buffer`).
+ *
+ * Only ES lib types may be referenced here : a global from `@types/node` (E.g. `Buffer`) resolves
+ * to an error type when the consumer has no Node typings loaded, which silently collapses this
+ * type (and everything built on it, like `AssociationPath`) to `any`.
+ *
+ * The `0 extends 1 & T[K]` arm (here and in `ValueKeys`) drops the elements explicitly typed
+ * `any` : a conditional on `any` takes both branches, so they would otherwise show up as
+ * associations and leak `${string}` patterns into `AssociationPath`. An unresolvable element
+ * type (E.g. the `import('stream').Readable` behind a `LargeBinary` element when the Node
+ * typings are missing) cannot be guarded against : the checker's error type infects every
+ * conditional touching it and collapses the union to `any`.
  */
 type AssociationKeys<T> = {
-  [K in keyof T]-?: NonNullable<T[K]> extends string | number | boolean | bigint
+  [K in keyof T]-?: 0 extends 1 & T[K]
     ? never
-    : NonNullable<T[K]> extends Date | Buffer | ((...args: any[]) => any) | { pipe: (...args: any[]) => any }
+    : NonNullable<T[K]> extends string | number | boolean | bigint
       ? never
-      : NonNullable<T[K]> extends object
-        ? K
-        : never;
+      : NonNullable<T[K]> extends Date | Uint8Array | ((...args: any[]) => any) | { pipe: (...args: any[]) => any }
+        ? never
+        : NonNullable<T[K]> extends object
+          ? K
+          : never;
 }[keyof T];
 
 /**
