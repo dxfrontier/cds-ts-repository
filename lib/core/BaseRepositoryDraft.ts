@@ -23,6 +23,8 @@ import util from '../util/util';
  * `BaseRepository`, named with a `Draft` / `Drafts` suffix and executed against the entity's drafts
  * persistence table (`<Entity>.drafts`) instead of the active one.
  *
+ * @template T The type of the entity.
+ *
  * @remarks
  * The entity MUST be draft-enabled (`@odata.draft.enabled: true`) — the drafts table is resolved from
  * `entity.drafts`, and for an entity without it EVERY method here silently falls back to the ACTIVE
@@ -59,6 +61,7 @@ abstract class BaseRepositoryDraft<T> {
 
   /**
    * Creates a draft repository bound to the given `cds-typer` entity.
+   * @param entity - The entity this repository manages.
    */
   constructor(protected entity: Entity & Draft<T>) {
     const constructor = this.constructor as BaseRepositoryConstructor;
@@ -133,6 +136,11 @@ abstract class BaseRepositoryDraft<T> {
    * table. THROWS when an external service is attached, the drafts table only lives on the primary
    * database. Many rows at once: `createManyDrafts`. Active counterpart: `create`.
    *
+   * @param entry - An object representing the draft entry to be created.
+   * @returns A promise that resolves to the inserted result.
+   * @throws {Error} - When an external service is attached via `@ExternalService` - the drafts table
+   * only exists on the primary database, so this is not supported the way the active `create` is.
+   *
    * @example
    * ```ts
    * const created = await this.createDraft({ ID: 201, title: 'Wuthering Heights', stock: 12 });
@@ -161,6 +169,11 @@ abstract class BaseRepositoryDraft<T> {
    * forms behave identically. EVERY entry gets its own generated `DraftAdministrativeData_DraftUUID`
    * when it omits one (the rows are never linked to each other) and `HasActiveEntity` defaults to
    * `false`. THROWS when an external service is attached. Active counterpart: `createMany`.
+   *
+   * @param entries - The draft entries to be created, passed as varargs or as a single array.
+   * @returns A promise that resolves to the insert result.
+   * @throws {Error} - When an external service is attached via `@ExternalService` - the drafts table
+   * only exists on the primary database, so this is not supported the way the active `createMany` is.
    *
    * @example
    * ```ts
@@ -202,6 +215,12 @@ abstract class BaseRepositoryDraft<T> {
    * `NULL` unless provided. Entries are passed as varargs or as a single array. THROWS when an external
    * service is attached. Active counterpart: `updateOrCreate`.
    *
+   * @param entries - The draft entries to be created or updated, passed as varargs or as a single array.
+   * @returns A promise that resolves to `true` when at least one row was written, `false` when the
+   * statement affected nothing.
+   * @throws {Error} - When an external service is attached via `@ExternalService` - the drafts table
+   * only exists on the primary database, so this is not supported the way the active `updateOrCreate` is.
+   *
    * @example
    * ```ts
    * const draft = await this.findOneDraft({ ID: 201 });
@@ -240,6 +259,8 @@ abstract class BaseRepositoryDraft<T> {
    * drafts table resolves to an empty array, so the `undefined` of the return type is defensive: narrow
    * with `drafts?.length` rather than a plain truthiness check. Active counterpart: `getAll`.
    *
+   * @returns A promise that resolves to all draft rows, an empty array when the drafts table is empty.
+   *
    * @example
    * ```ts
    * const drafts = await this.getAllDrafts();
@@ -266,6 +287,11 @@ abstract class BaseRepositoryDraft<T> {
    * the requested columns - the draft administrative fields are absent unless they are part of the list.
    * An empty match resolves to an empty array, so the `undefined` of the return type is defensive.
    * Active counterpart: `getDistinctColumns`.
+   *
+   * @param columns - The column names to retrieve the distinct entries for, passed as varargs or as a
+   * single array.
+   * @returns A promise that resolves to the distinct entries narrowed to the requested columns, an empty
+   * array when nothing matches.
    *
    * @example
    * ```ts
@@ -295,6 +321,11 @@ abstract class BaseRepositoryDraft<T> {
    * with its own `paginate` when the page order matters. An exhausted page resolves to an empty array,
    * not to `undefined`. Active counterpart: `paginate`.
    *
+   * @param options.limit - The limit for the result set.
+   * @param [options.skip] - Optional 'skip', which will skip a specified number of items for the result
+   * set (default: 0).
+   * @returns A promise that resolves to one page of draft rows, an empty array when the page is exhausted.
+   *
    * @example
    * ```ts
    * const firstPage = await this.paginateDrafts({ limit: 10 });
@@ -321,6 +352,9 @@ abstract class BaseRepositoryDraft<T> {
    * expected. Keys that match nothing resolve to an empty array, NOT to `undefined` and never to an
    * error. Active counterpart: `find`.
    *
+   * @param keys - An object representing the keys to filter the entries.
+   * @returns A promise that resolves to the matching draft rows, an empty array when nothing matches.
+   *
    * @example
    * ```ts
    * const drafts = await this.findDrafts({ title: 'Wuthering Heights' });
@@ -343,6 +377,9 @@ abstract class BaseRepositoryDraft<T> {
    * `EXISTS`, ...) and `'AND'` / `'OR'` composition; a `Filter` is compiled into a CQL condition string
    * whereas a keys object stays a structured where clause. A `Filter` typed on the active entity is
    * accepted here - the draft rows carry the same elements. Active counterpart: `find`.
+   *
+   * @param filter - A Filter instance.
+   * @returns A promise that resolves to the matching draft rows, an empty array when nothing matches.
    *
    * @example
    * ```ts
@@ -371,6 +408,10 @@ abstract class BaseRepositoryDraft<T> {
    * row, so a keys object matching several drafts reports `false` although the rows WERE written - use
    * `updateManyDrafts` there. The read and the write are two statements in the ambient CDS transaction,
    * NOT an atomic compare-and-set. Active counterpart: `findOneAndUpdate`.
+   *
+   * @param keys - The keys to identify the draft entity to find and update.
+   * @param fieldsToUpdate - The fields and their new values to update on the found draft entity.
+   * @returns A promise that resolves to `true` when exactly one draft row was updated, `false` otherwise.
    *
    * @example
    * ```ts
@@ -401,6 +442,9 @@ abstract class BaseRepositoryDraft<T> {
    * all of them, or `findFirstDraft` / `findLastDraft` for a deterministic pick. This method takes keys
    * ONLY, a `Filter` is not accepted here. Active counterpart: `findOne`.
    *
+   * @param keys - An object representing the keys to filter the record.
+   * @returns A promise that resolves to a single matching draft row, `undefined` when nothing matches.
+   *
    * @example
    * ```ts
    * const draft = await this.findOneDraft({ ID: 201 });
@@ -427,6 +471,8 @@ abstract class BaseRepositoryDraft<T> {
    * and the terminals `execute`, `executeAndCount`, `forEach`, `pipeline`, `stream`. NOTHING is sent to
    * the database until a terminal is awaited. `find` and `findOne` accept keys, a `Filter`, or nothing.
    * Active counterpart: `builder`.
+   *
+   * @returns An instance of FindReturn for building queries.
    *
    * @example
    * ```ts
@@ -457,6 +503,11 @@ abstract class BaseRepositoryDraft<T> {
    * statement at all when the row does not exist. Draft administrative fields are only touched when they
    * are part of `fieldsToUpdate`, and no Fiori draft-lifecycle event fires. Active counterpart: `update`.
    *
+   * @param keys - An object representing the keys to filter the entries.
+   * @param fieldsToUpdate - An object representing the fields and their updated values for the matching
+   * entries.
+   * @returns A promise that resolves to `true` when exactly one draft row was updated, `false` otherwise.
+   *
    * @example
    * ```ts
    * const updated = await this.updateDraft(
@@ -483,6 +534,9 @@ abstract class BaseRepositoryDraft<T> {
    * count instead, and `deleteManyDrafts` takes a list of key objects. The ACTIVE row is NOT touched, so
    * this is a repository-level discard which does NOT fire the service's `draftDiscard`.
    * Active counterpart: `delete`.
+   *
+   * @param keys - An object representing the keys to filter the entries.
+   * @returns A promise that resolves to `true` when exactly one draft row was deleted, `false` otherwise.
    *
    * @example
    * ```ts
@@ -511,6 +565,10 @@ abstract class BaseRepositoryDraft<T> {
    * deletes applied, up to the ambient CDS transaction. Prefer `deleteDraftsWhere` when a single
    * predicate covers all rows. Active counterpart: `deleteMany`.
    *
+   * @param entries - An array of objects representing the keys to filter the entries.
+   * @returns A promise that resolves to `true` when every statement removed exactly one draft row,
+   * `false` otherwise.
+   *
    * @example
    * ```ts
    * const deleted = await this.deleteManyDrafts([{ ID: 201 }, { ID: 202 }]);
@@ -534,6 +592,9 @@ abstract class BaseRepositoryDraft<T> {
    * leaves every ACTIVE row untouched. There is no confirmation step - scope the deletion with
    * `deleteDraftsWhere` when only part of the drafts should go. Active counterpart: `deleteAll`.
    *
+   * @returns A promise that resolves to `true` when at least one draft row was removed, `false` when the
+   * drafts table was already empty.
+   *
    * @example
    * ```ts
    * const deleted = await this.deleteAllDrafts();
@@ -555,6 +616,9 @@ abstract class BaseRepositoryDraft<T> {
    * The existence is resolved by a `count(*)` aggregate, NOT by materializing rows, so prefer this over
    * `(await this.findOneDraft(keys)) !== undefined` for a pure presence check. `true` as soon as ONE row
    * matches; use `countDraftsWhere` when the number itself matters. Active counterpart: `exists`.
+   *
+   * @param keys - An object representing the keys to filter the entries.
+   * @returns A promise that resolves to `true` when at least one draft row matches, `false` otherwise.
    *
    * @example
    * ```ts
@@ -582,6 +646,8 @@ abstract class BaseRepositoryDraft<T> {
    * only the presence matters. Counts the drafts of ALL users currently in flight, not just the ones of
    * the requesting user. Active counterpart: `count`.
    *
+   * @returns A promise that resolves to the count of draft rows, `0` on an empty drafts table.
+   *
    * @example
    * ```ts
    * const count = await this.countDrafts();
@@ -608,6 +674,9 @@ abstract class BaseRepositoryDraft<T> {
    * "first". `NULL` values sort according to the database's collation, so they may come first. Mirror
    * method: `findLastDraft`. Active counterpart: `findFirst`.
    *
+   * @param column - The column to order by.
+   * @returns A promise that resolves to the first draft entry, `undefined` on an empty drafts table.
+   *
    * @example
    * ```ts
    * const oldestDraft = await this.findFirstDraft('createdAt');
@@ -631,6 +700,9 @@ abstract class BaseRepositoryDraft<T> {
    * drafts table, and `NULL` values again sort by the database's collation. Use
    * `builderDraft().find(...).orderDesc([...])` when the "last" row has to be filtered or ordered on more
    * than one column. Active counterpart: `findLast`.
+   *
+   * @param column - The column to order by.
+   * @returns A promise that resolves to the last draft entry, `undefined` on an empty drafts table.
    *
    * @example
    * ```ts
@@ -657,6 +729,11 @@ abstract class BaseRepositoryDraft<T> {
    * `createDraft` normalization — `DraftAdministrativeData_DraftUUID` and `HasActiveEntity` are NOT
    * defaulted, pass them in `defaults` when the new draft has to carry them. Read and insert are separate
    * statements, so a concurrent insert can still make the write fail. Active counterpart: `findOrCreate`.
+   *
+   * @param keys - An object representing the keys to find the draft entry.
+   * @param defaults - An object representing the default values for the new draft entry if not found.
+   * @returns A promise that resolves to an object containing the draft entry and a boolean indicating if
+   * it was created.
    *
    * @example
    * ```ts
@@ -686,6 +763,9 @@ abstract class BaseRepositoryDraft<T> {
    * are transferred - cheaper than `(await this.findDrafts(keys))?.length`. Use `countDrafts` for the
    * unfiltered total and `existsDraft` when only the presence matters. Active counterpart: `countWhere`.
    *
+   * @param keys - An object representing the keys to filter the draft entries.
+   * @returns A promise that resolves to the count of matching draft entries, `0` when nothing matches.
+   *
    * @example
    * ```ts
    * const outOfStock = await this.countDraftsWhere({ stock: 0 });
@@ -709,6 +789,9 @@ abstract class BaseRepositoryDraft<T> {
    * instead of plain equality. Resolves `0` when the predicate matches nothing. A `Filter` typed on the
    * active entity is accepted here - the draft rows carry the same elements. Active counterpart:
    * `countWhere`.
+   *
+   * @param filter - A Filter instance.
+   * @returns A promise that resolves to the count of matching draft entries, `0` when nothing matches.
    *
    * @example
    * ```ts
@@ -737,6 +820,10 @@ abstract class BaseRepositoryDraft<T> {
    * multi-row hit even though it wrote those rows. Only the listed fields are written, the rest of the
    * draft row - including its administrative fields - stays as it is. Active counterpart: `updateMany`.
    *
+   * @param keys - An object representing the keys to filter the draft entries.
+   * @param fieldsToUpdate - An object representing the fields and their updated values.
+   * @returns A promise that resolves to the number of updated draft entries, `0` when nothing matched.
+   *
    * @example
    * ```ts
    * const updatedCount = await this.updateManyDrafts({ stock: 0 }, { isAvailable: false });
@@ -758,6 +845,10 @@ abstract class BaseRepositoryDraft<T> {
    * composition instead of plain equality. Resolves `0` when the predicate matches nothing. Beware of an
    * over-broad filter — there is no row limit, EVERY matching draft of EVERY user is rewritten.
    * Active counterpart: `updateMany`.
+   *
+   * @param filter - A Filter instance.
+   * @param fieldsToUpdate - An object representing the fields and their updated values.
+   * @returns A promise that resolves to the number of updated draft entries, `0` when nothing matched.
    *
    * @example
    * ```ts
@@ -786,6 +877,9 @@ abstract class BaseRepositoryDraft<T> {
    * predicate rather than one statement per key object. The ACTIVE rows are NOT touched and no Fiori
    * `draftDiscard` fires. Active counterpart: `deleteWhere`.
    *
+   * @param keys - An object representing the keys to filter the draft entries.
+   * @returns A promise that resolves to the number of deleted draft entries, `0` when nothing matched.
+   *
    * @example
    * ```ts
    * const deletedCount = await this.deleteDraftsWhere({ stock: 0 });
@@ -807,6 +901,9 @@ abstract class BaseRepositoryDraft<T> {
    * composition instead of plain equality. Resolves `0` when the predicate matches nothing. Beware of an
    * over-broad filter — there is no row limit, and a `Filter` matching everything is equivalent to
    * `deleteAllDrafts`. Active counterpart: `deleteWhere`.
+   *
+   * @param filter - A Filter instance.
+   * @returns A promise that resolves to the number of deleted draft entries, `0` when nothing matched.
    *
    * @example
    * ```ts
@@ -840,6 +937,11 @@ abstract class BaseRepositoryDraft<T> {
    * when EXACTLY one draft row was affected - use `incrementManyDrafts` for several rows or several
    * columns at once, and `decrementDraft` to subtract. Active counterpart: `increment`.
    *
+   * @param keys - The keys to identify the draft entity to update.
+   * @param column - The numeric column to increment.
+   * @param value - The value to increment by (default: 1).
+   * @returns A promise that resolves to `true` when exactly one draft row was affected, `false` otherwise.
+   *
    * @example
    * ```ts
    * const bumped = await this.incrementDraft({ ID: 201 }, 'stock', 5);
@@ -864,6 +966,11 @@ abstract class BaseRepositoryDraft<T> {
    * same `true` ONLY on EXACTLY one affected draft row. The value defaults to `1`. NO floor is applied -
    * the column can go negative unless the CDS model constrains it. Several rows or several columns at
    * once: `decrementManyDrafts`. Active counterpart: `decrement`.
+   *
+   * @param keys - The keys to identify the draft entity to update.
+   * @param column - The numeric column to decrement.
+   * @param value - The value to decrement by (default: 1).
+   * @returns A promise that resolves to `true` when exactly one draft row was affected, `false` otherwise.
    *
    * @example
    * ```ts
@@ -890,6 +997,10 @@ abstract class BaseRepositoryDraft<T> {
    * restricted to the NUMERIC elements by `IncrementFields<Draft<T>>`. Prefer `incrementDraft` when a
    * single row and a single column are targeted. Active counterpart: `incrementMany`.
    *
+   * @param keys - The keys to identify the draft entities to update.
+   * @param fields - An object with numeric field names as keys and increment values as values.
+   * @returns A promise that resolves to the number of updated draft entries, `0` when nothing matched.
+   *
    * @example
    * ```ts
    * const updatedCount = await this.incrementManyDrafts({ isAvailable: true }, { stock: 10, price: 1 });
@@ -911,6 +1022,10 @@ abstract class BaseRepositoryDraft<T> {
    * composition instead of plain equality. Resolves `0` when the predicate matches nothing, and fields
    * with an `undefined` amount are skipped. Beware of an over-broad filter — EVERY matching draft of
    * EVERY user is incremented. Active counterpart: `incrementMany`.
+   *
+   * @param filter - A Filter instance.
+   * @param fields - An object with numeric field names as keys and increment values as values.
+   * @returns A promise that resolves to the number of updated draft entries, `0` when nothing matched.
    *
    * @example
    * ```ts
@@ -943,6 +1058,10 @@ abstract class BaseRepositoryDraft<T> {
    * comes from the method. NO floor is applied, columns can go negative. Single row and column:
    * `decrementDraft`. Active counterpart: `decrementMany`.
    *
+   * @param keys - The keys to identify the draft entities to update.
+   * @param fields - An object with numeric field names as keys and decrement values as values.
+   * @returns A promise that resolves to the number of updated draft entries, `0` when nothing matched.
+   *
    * @example
    * ```ts
    * const updatedCount = await this.decrementManyDrafts({ isAvailable: true }, { stock: 1 });
@@ -964,6 +1083,10 @@ abstract class BaseRepositoryDraft<T> {
    * composition instead of plain equality. Resolves `0` when the predicate matches nothing, and fields
    * with an `undefined` amount are skipped. Beware of an over-broad filter — EVERY matching draft of
    * EVERY user is decremented, with no floor at zero. Active counterpart: `decrementMany`.
+   *
+   * @param filter - A Filter instance.
+   * @param fields - An object with numeric field names as keys and decrement values as values.
+   * @returns A promise that resolves to the number of updated draft entries, `0` when nothing matched.
    *
    * @example
    * ```ts

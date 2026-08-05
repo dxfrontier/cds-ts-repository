@@ -21,6 +21,8 @@ import util from '../util/util';
  * `T` is a cds-typer entity type — plural types (`Books`) are accepted and narrowed to their singular by
  * `ExtractSingular`.
  *
+ * @template T - The type of the entity, a cds-typer singular or plural type.
+ *
  * @remarks
  * Mental model — read this before calling anything:
  * - Subclass it once per entity and hand the cds-typer entity to `super(...)`; EVERY method then targets that entity.
@@ -62,6 +64,8 @@ abstract class BaseRepository<T> {
    * Binds the repository to ONE cds-typer entity — call it as `super(Books)` from the subclass constructor.
    * When the subclass carries `@ExternalService('NAME')`, the entity is re-resolved from that service's entity set
    * and every query of this repository is routed there.
+   *
+   * @param entity - The entity this repository manages.
    */
   constructor(protected readonly entity: Entity) {
     const constructor = this.constructor as BaseRepositoryConstructor;
@@ -88,6 +92,9 @@ abstract class BaseRepository<T> {
    * be inserted ONLY if missing. Draft counterpart: `createDraft`.
    * Bound to an external service via `@ExternalService`, the insert runs remotely and the single row returned by the
    * service is wrapped into the same `InsertResult` shape.
+   *
+   * @param entry - An object representing the entry to be created.
+   * @returns A promise that resolves to the `InsertResult` of the insert, not to the created row.
    *
    * @example
    * ```ts
@@ -120,6 +127,9 @@ abstract class BaseRepository<T> {
    * Bound to an external service via `@ExternalService`, the entries are NOT batched: one `INSERT` per entry is sent
    * sequentially and the returned rows are collected into the same `InsertResult` shape.
    *
+   * @param entries - The entries to be created, passed as a spread of objects or as a single array.
+   * @returns A promise that resolves to the `InsertResult` of the insert, not to the created rows.
+   *
    * @example
    * ```ts
    * const created = await this.createMany(
@@ -148,6 +158,8 @@ abstract class BaseRepository<T> {
    * table to an empty array, so the `undefined` of the return type is defensive: narrow with `results?.length`
    * rather than a plain truthiness check. Draft counterpart: `getAllDrafts`.
    *
+   * @returns A promise that resolves to every entry of the table, an empty array on an empty table.
+   *
    * @example
    * ```ts
    * const books = await this.getAll();
@@ -175,6 +187,9 @@ abstract class BaseRepository<T> {
    * is not issued: the same columns are grouped instead (`SELECT.from(<Entity>).columns(...).groupBy(...)`). Draft
    * counterpart: `getDraftsDistinctColumns`.
    *
+   * @param columns - The column names to retrieve distinct entries for, passed as a spread or as a single array.
+   * @returns A promise that resolves to the distinct value combinations, narrowed to the requested columns.
+   *
    * @example
    * ```ts
    * const combinations = await this.getDistinctColumns('currency_code', 'genre_ID');
@@ -200,6 +215,11 @@ abstract class BaseRepository<T> {
    * `skip` is optional and defaults to no offset. The rows are NOT ordered explicitly, so pages are only stable when
    * the database happens to be — chain `.builder().find().orderAsc(...).paginate(...)` when the sequence matters.
    * An exhausted page resolves to an empty array, not to `undefined`. Draft counterpart: `paginateDrafts`.
+   *
+   * @param options - The pagination options.
+   * @param options.limit - The limit for the result set.
+   * @param options.skip - Optional 'skip', which skips a number of items before the page starts (default: 0).
+   * @returns A promise that resolves to one page of entries, an empty array when the page is exhausted.
    *
    * @example
    * ```ts
@@ -227,6 +247,9 @@ abstract class BaseRepository<T> {
    * as the picked columns plus `locale`. Throws an `Error` when the repository is bound to an external service via
    * `@ExternalService`. Write the same texts back with `updateLocaleTexts`.
    *
+   * @param columns - The localized column names to retrieve, passed as a spread or as a single array.
+   * @returns A promise that resolves to the rows of the `.texts` table, typed as the picked columns plus `locale`.
+   *
    * @example
    * ```ts
    * const texts = await this.getLocaleTexts('title', 'descr');
@@ -252,6 +275,8 @@ abstract class BaseRepository<T> {
    * are needed. Resolves to an empty array on an empty table, so the `undefined` of the return type is defensive.
    * Draft counterpart: `findDrafts`.
    *
+   * @returns A promise that resolves to every entry of the table, an empty array on an empty table.
+   *
    * @example
    * ```ts
    * const books = await this.find();
@@ -273,6 +298,9 @@ abstract class BaseRepository<T> {
    * empty array, NOT to `undefined` and never to an error. Use `findOne` when at most one row is expected. Draft
    * counterpart: `findDrafts`.
    *
+   * @param keys - An object representing the keys to filter the entries.
+   * @returns A promise that resolves to the matching entries, an empty array when nothing matches.
+   *
    * @example
    * ```ts
    * const soldOutBritish = await this.find({ stock: 0, currency_code: 'GBP' });
@@ -292,6 +320,9 @@ abstract class BaseRepository<T> {
    * `BETWEEN` / `EXISTS`, one-hop association paths (`'author.name'`) and nested `'AND'` / `'OR'` combinations. The
    * very same instance can be handed to `countWhere`, `updateMany`, `deleteWhere` and `.builder().find(...)`. Draft
    * counterpart: `findDrafts`.
+   *
+   * @param filter - A `Filter` instance describing the where clause.
+   * @returns A promise that resolves to the matching entries, an empty array when nothing matches.
    *
    * @example
    * ```ts
@@ -322,6 +353,9 @@ abstract class BaseRepository<T> {
    * or read them all with `find`. Use `findOrCreate` when a miss should insert the row. Draft counterpart:
    * `findOneDraft`.
    *
+   * @param keys - An object representing the keys to filter the record.
+   * @returns A promise that resolves to the single matching entry, or `undefined` when nothing matches.
+   *
    * @example
    * ```ts
    * const book = await this.findOne({ ID: 201 });
@@ -349,6 +383,10 @@ abstract class BaseRepository<T> {
    * separate round trips and are NOT locked against each other, so wrap the call in a CDS transaction when a
    * concurrent write would be harmful. `fieldsToUpdate` is a partial patch: omitted columns keep their value. Use
    * `updateMany` to patch every matching row. Draft counterpart: `findOneDraftAndUpdate`.
+   *
+   * @param keys - The keys to find the entity.
+   * @param fieldsToUpdate - The fields to update on the found entity.
+   * @returns A promise that resolves to `true` when exactly one row was updated, `false` otherwise.
    *
    * @example
    * ```ts
@@ -380,6 +418,8 @@ abstract class BaseRepository<T> {
    * `forShareLock` and `hints`. Both `find(...)` and `findOne(...)` take a keys object or a `Filter`, exactly like
    * `find` / `findOne`. Draft counterpart: `builderDraft`.
    *
+   * @returns An instance of `FindReturn` whose `find(...)` / `findOne(...)` open the chainable query builder.
+   *
    * @example
    * ```ts
    * const books = await this.builder()
@@ -408,6 +448,10 @@ abstract class BaseRepository<T> {
    * insert the missing row with `updateOrCreate`. `fieldsToUpdate` is a partial patch: omitted columns keep their
    * value. Draft counterpart: `updateDraft`.
    *
+   * @param keys - An object representing the keys to filter the entries.
+   * @param fieldsToUpdate - An object representing the fields and their updated values for the matching entries.
+   * @returns A promise that resolves to `true` when exactly one row was affected, `false` otherwise.
+   *
    * @example
    * ```ts
    * const updated = await this.update({ ID: 201 }, { title: 'a new title', stock: 42 });
@@ -430,6 +474,9 @@ abstract class BaseRepository<T> {
    * distinguishable from a fully applied one; use `update` for a targeted patch and `findOrCreate` when an existing
    * row must stay untouched. Throws an `Error` when the repository is bound to an external service via
    * `@ExternalService` — use `update` there instead. Draft counterpart: `updateOrCreateDraft`.
+   *
+   * @param entries - The entries to be created or updated, passed as a spread of objects or as a single array.
+   * @returns A promise that resolves to `true` when at least one row was affected, `false` otherwise.
    *
    * @example
    * ```ts
@@ -457,6 +504,10 @@ abstract class BaseRepository<T> {
    * default-language values with `update`. Read the same texts back with `getLocaleTexts` — which, unlike this
    * method, is NOT available on an external service.
    *
+   * @param localeCodeKeys - An object representing the language code and the keys to filter the entries.
+   * @param fieldsToUpdate - An object representing the fields and their updated values for the matching entries.
+   * @returns A promise that resolves to `true` when exactly one row was affected, `false` otherwise.
+   *
    * @example
    * ```ts
    * const updated = await this.updateLocaleTexts({ locale: 'de', ID: 201 }, { title: 'Sturmhöhe' });
@@ -482,6 +533,9 @@ abstract class BaseRepository<T> {
    * `false` without an error. Use `deleteMany` for a list of key objects and `deleteAll` to empty the table. Draft
    * counterpart: `deleteDraft`.
    *
+   * @param keys - An object representing the keys to filter the entries.
+   * @returns A promise that resolves to `true` when exactly one row was deleted, `false` otherwise.
+   *
    * @example
    * ```ts
    * const deleted = await this.delete({ ID: 201 });
@@ -503,6 +557,9 @@ abstract class BaseRepository<T> {
    * ONLY when EVERY single delete affected exactly one row — one key matching nothing turns the whole call `false`
    * even though the other deletes have already been executed. Use `deleteWhere` to remove a whole matching set with
    * one statement and get the count back. Draft counterpart: `deleteManyDrafts`.
+   *
+   * @param entries - The key objects of the entries to be deleted, passed as a spread or as a single array.
+   * @returns A promise that resolves to `true` when every single delete affected exactly one row, `false` otherwise.
    *
    * @example
    * ```ts
@@ -526,6 +583,8 @@ abstract class BaseRepository<T> {
    * There is no filter and no confirmation step — scope the deletion with `deleteWhere` or `deleteMany` whenever
    * only a subset must go. Draft counterpart: `deleteAllDrafts`.
    *
+   * @returns A promise that resolves to `true` when at least one row was deleted, `false` otherwise.
+   *
    * @example
    * ```ts
    * const deleted = await this.deleteAll();
@@ -547,6 +606,9 @@ abstract class BaseRepository<T> {
    * than `findOne` whenever the row itself is not needed. Use `countWhere` when the number of matches matters. Bound
    * to an external service via `@ExternalService`, the aggregate is NOT used: the matching rows are fetched and
    * their length is checked. Draft counterpart: `existsDraft`.
+   *
+   * @param keys - An object representing the keys to filter the entries.
+   * @returns A promise that resolves to `true` if the item exists, `false` otherwise.
    *
    * @example
    * ```ts
@@ -572,6 +634,8 @@ abstract class BaseRepository<T> {
    * needed. Bound to an external service via `@ExternalService`, every row is fetched and its length returned
    * instead. Draft counterpart: `countDrafts`.
    *
+   * @returns A promise that resolves to the count of entries, `0` on an empty table.
+   *
    * @example
    * ```ts
    * const numberOfBooks = await this.count();
@@ -592,6 +656,9 @@ abstract class BaseRepository<T> {
    * The column ONLY defines the order — it neither filters nor narrows the projection, the whole row is returned, or
    * `undefined` on an empty table. `findLast` is the descending twin. There is no keys or `Filter` parameter: order
    * a filtered set with `.builder().find(...).orderAsc(...)` instead. Draft counterpart: `findFirstDraft`.
+   *
+   * @param column - The column to order by.
+   * @returns A promise that resolves to the first entry, or `undefined` on an empty table.
    *
    * @example
    * ```ts
@@ -616,6 +683,9 @@ abstract class BaseRepository<T> {
    * on an empty table. `NULL` values sort wherever the database puts them, so a nullable column gives a
    * database-dependent answer. There is no keys or `Filter` parameter: order a filtered set with
    * `.builder().find(...).orderDesc(...)` instead. Draft counterpart: `findLastDraft`.
+   *
+   * @param column - The column to order by.
+   * @returns A promise that resolves to the last entry, or `undefined` on an empty table.
    *
    * @example
    * ```ts
@@ -642,6 +712,10 @@ abstract class BaseRepository<T> {
    * AFTER `keys`, so a column present in both takes its value from `defaults`. Because the insert is followed by a
    * re-read, `entry` carries the database-generated values as well. The read and the insert are two round trips and
    * are NOT locked against each other. Draft counterpart: `findOrCreateDraft`.
+   *
+   * @param keys - An object representing the keys to find the entry.
+   * @param defaults - An object representing the default values for the new entry if not found.
+   * @returns A promise that resolves to an object containing the entry and a boolean indicating if it was created.
    *
    * @example
    * ```ts
@@ -672,6 +746,9 @@ abstract class BaseRepository<T> {
    * row is materialized, and more informative than `exists` when the amount matters. Draft counterpart:
    * `countDraftsWhere`.
    *
+   * @param keys - An object representing the keys to filter the entries.
+   * @returns A promise that resolves to the count of matching entries, `0` when nothing matches.
+   *
    * @example
    * ```ts
    * const soldOut = await this.countWhere({ stock: 0 });
@@ -691,6 +768,9 @@ abstract class BaseRepository<T> {
    * a set before writing to it. ALWAYS resolves to a number, `0` when nothing matches. Bound to an external service
    * via `@ExternalService`, the matching rows are fetched and counted in memory instead. Draft counterpart:
    * `countDraftsWhere`.
+   *
+   * @param filter - A `Filter` instance describing the where clause.
+   * @returns A promise that resolves to the count of matching entries, `0` when nothing matches.
    *
    * @example
    * ```ts
@@ -717,6 +797,10 @@ abstract class BaseRepository<T> {
    * patch, omitted columns keep their value; use `incrementMany` / `decrementMany` when a numeric column must change
    * relative to its current value. Draft counterpart: `updateManyDrafts`.
    *
+   * @param keys - An object representing the keys to filter the entries.
+   * @param fieldsToUpdate - An object representing the fields and their updated values.
+   * @returns A promise that resolves to the number of updated entries, `0` when nothing matched.
+   *
    * @example
    * ```ts
    * const updatedCount = await this.updateMany({ currency_code: 'GBP' }, { currency_code: 'EUR' });
@@ -735,6 +819,10 @@ abstract class BaseRepository<T> {
    * Reaches the rows a keys object cannot address — ranges, `LIKE`, `IN`, association paths, `'OR'` combinations —
    * with a single statement, resolving to the affected-row count (`0` when nothing matched). Count the set first
    * with the same `Filter` via `countWhere` when the write must be previewed. Draft counterpart: `updateManyDrafts`.
+   *
+   * @param filter - A `Filter` instance describing the where clause.
+   * @param fieldsToUpdate - An object representing the fields and their updated values.
+   * @returns A promise that resolves to the number of updated entries, `0` when nothing matched.
    *
    * @example
    * ```ts
@@ -766,6 +854,9 @@ abstract class BaseRepository<T> {
    * of a boolean — `0` when nothing matched. Use `deleteMany` when the rows are addressed by a list of key objects
    * and `deleteAll` to empty the table. Draft counterpart: `deleteDraftsWhere`.
    *
+   * @param keys - An object representing the keys to filter the entries.
+   * @returns A promise that resolves to the number of deleted entries, `0` when nothing matched.
+   *
    * @example
    * ```ts
    * const deletedCount = await this.deleteWhere({ stock: 0 });
@@ -784,6 +875,9 @@ abstract class BaseRepository<T> {
    * Removes rows a keys object cannot address — ranges, `LIKE`, `IN`, association paths, `'OR'` combinations — with
    * one statement, resolving to the deleted-row count (`0` when nothing matched). Sizing the set first with the same
    * `Filter` via `countWhere` is the only way to preview the damage. Draft counterpart: `deleteDraftsWhere`.
+   *
+   * @param filter - A `Filter` instance describing the where clause.
+   * @returns A promise that resolves to the number of deleted entries, `0` when nothing matched.
    *
    * @example
    * ```ts
@@ -815,6 +909,11 @@ abstract class BaseRepository<T> {
    * nothing yield `false`. Use `incrementMany` for several columns or several rows and `decrement` for the opposite
    * direction. Draft counterpart: `incrementDraft`.
    *
+   * @param keys - The keys to identify the entity to update.
+   * @param column - The numeric column to increment.
+   * @param value - The value to increment by (default: 1).
+   * @returns A promise that resolves to `true` when exactly one row was affected, `false` otherwise.
+   *
    * @example
    * ```ts
    * const bumped = await this.increment({ ID: 201 }, 'stock'); // + 1
@@ -841,6 +940,11 @@ abstract class BaseRepository<T> {
    * clamps the result: the column can go negative, so guard the floor yourself (for example with a preceding
    * `countWhere`) when that is not acceptable. Resolves to `true` ONLY when exactly one row was affected. Use
    * `decrementMany` for several columns or several rows. Draft counterpart: `decrementDraft`.
+   *
+   * @param keys - The keys to identify the entity to update.
+   * @param column - The numeric column to decrement.
+   * @param value - The value to decrement by (default: 1).
+   * @returns A promise that resolves to `true` when exactly one row was affected, `false` otherwise.
    *
    * @example
    * ```ts
@@ -869,6 +973,10 @@ abstract class BaseRepository<T> {
    * field left `undefined` is skipped instead of being treated as `0`. Use `increment` for the single-row, single-
    * column case. Draft counterpart: `incrementManyDrafts`.
    *
+   * @param keys - The keys to identify the entries to update.
+   * @param fields - An object with numeric field names as keys and increment values as values.
+   * @returns A promise that resolves to the number of updated entries, `0` when nothing matched.
+   *
    * @example
    * ```ts
    * const updatedCount = await this.incrementMany({ currency_code: 'GBP' }, { stock: 10, price: 1 });
@@ -891,6 +999,10 @@ abstract class BaseRepository<T> {
    * Same single-statement, in-database arithmetic as the keys overload, but over the sets only a `Filter` can
    * address — ranges, `LIKE`, `IN`, association paths, `'OR'` combinations. Resolves to the affected-row count, `0`
    * when nothing matched. Draft counterpart: `incrementManyDrafts`.
+   *
+   * @param filter - A `Filter` instance describing the where clause.
+   * @param fields - An object with numeric field names as keys and increment values as values.
+   * @returns A promise that resolves to the number of updated entries, `0` when nothing matched.
    *
    * @example
    * ```ts
@@ -923,6 +1035,10 @@ abstract class BaseRepository<T> {
    * results — the columns can go negative. Use `decrement` for the single-row, single-column case. Draft
    * counterpart: `decrementManyDrafts`.
    *
+   * @param keys - The keys to identify the entries to update.
+   * @param fields - An object with numeric field names as keys and decrement values as values.
+   * @returns A promise that resolves to the number of updated entries, `0` when nothing matched.
+   *
    * @example
    * ```ts
    * const updatedCount = await this.decrementMany({ currency_code: 'GBP' }, { stock: 1 });
@@ -945,6 +1061,10 @@ abstract class BaseRepository<T> {
    * Same single-statement, in-database arithmetic as the keys overload, but over the sets only a `Filter` can
    * address. Resolves to the affected-row count, `0` when nothing matched, and NOTHING clamps the results — the
    * columns can go negative. Draft counterpart: `decrementManyDrafts`.
+   *
+   * @param filter - A `Filter` instance describing the where clause.
+   * @param fields - An object with numeric field names as keys and decrement values as values.
+   * @returns A promise that resolves to the number of updated entries, `0` when nothing matched.
    *
    * @example
    * ```ts
