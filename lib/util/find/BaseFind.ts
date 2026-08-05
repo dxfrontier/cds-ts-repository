@@ -5,25 +5,10 @@ import type { Expand, Columns, Entity } from '../../types/types';
 import { findUtils } from './findUtils';
 
 /**
- * Shared base of `FindBuilder` and `FindOneBuilder`: initializes the `SELECT` and hosts every
- * modifier method common to finding one row and finding many.
+ * Common Select builder class, this class contains constructor initialization and common methods used in FindBuilder.ts and FindOneBuilder.ts.
  *
- * @remarks
- * Never instantiated directly — extended by `FindBuilder` (`repository.builder().find(...)`) and
- * `FindOneBuilder` (`repository.builder().findOne(...)`), which each add their own terminal(s):
- * `.execute()` on both, plus `.executeAndCount()` / `.forEach()` / `.pipeline()` / `.stream()` on
- * `FindBuilder` only.
- *
- * @example
- * ```ts
- * const results = await this.builder()
- *   .find({ currency_code: 'GBP' })
- *   .forUpdate({ wait: 5 })
- *   .execute();
- * ```
- *
- * @see {@link https://github.com/dxfrontier/cds-ts-repository#builder | CDS-TS-Repository - builder}
- * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § builder
+ * @template T The type of the entity.
+ * @template Keys The type of the keys used to filter the entity.
  */
 class BaseFind<T, Keys> {
   protected select: SELECT<any>;
@@ -32,7 +17,10 @@ class BaseFind<T, Keys> {
   protected resolvedEntity: string;
 
   /**
-   * Resolves the entity name and initializes `SELECT.from(...)`, applying `keys` as the `WHERE` when given.
+   * Creates an instance of BaseFind.
+   *
+   * @param entity - The entity for which the SELECT query is being built.
+   * @param keys - The keys used to filter the SELECT query.
    */
   constructor(
     protected readonly entity: Entity,
@@ -54,25 +42,15 @@ class BaseFind<T, Keys> {
   }
 
   /**
-   * Passes query-optimizer hints to the database, as individual arguments or a single array.
-   * Calls `.hints(...)` on the SELECT.
+   * Passes hints to the database query optimizer that can influence the execution plan. The hints can be passed as individual arguments or as an array.
    *
-   * @remarks
-   * Only takes effect on HANA DB — the optimizer normally picks the access path (index search vs.
-   * table scan) by cost, and hints override that choice for this query; a no-op on other database
-   * services. SAP HANA hints reference:
-   * https://help.sap.com/docs/HANA_SERVICE_CF/7c78579ce9b14a669c1f3295b0d8ca16/4ba9edce1f2347a0b9fcda99879c17a1.html
+   * The SQL Optimizer usually determines the access path (for example, index search versus table scan) on the basis of the costs (Cost-Based Optimizer). You can override the SQL Optimizer choice by explicitly specifying hints in the query that enforces a certain access path.
    *
-   * @example
-   * ```ts
-   * const results = await this.builder()
-   *   .find({ currency_code: 'GBP' })
-   *   .hints('IGNORE_PLAN_CACHE', 'MAX_CONCURRENCY(1)')
-   *   .execute();
-   * ```
+   * @param ...hints - Query optimizer hings
    *
-   * @see {@link https://github.com/dxfrontier/cds-ts-repository#hints | CDS-TS-Repository - hints}
-   * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § hints
+   * `Note`: This works only for `HANA DB`.
+   *
+   * @link [SAP Hana Hints details](https://help.sap.com/docs/HANA_SERVICE_CF/7c78579ce9b14a669c1f3295b0d8ca16/4ba9edce1f2347a0b9fcda99879c17a1.html)
    */
   hints(...hints: (string | string[])[]): this {
     const flattenedHints = hints.flat(); // Flatten in case an array of strings is passed
@@ -81,45 +59,31 @@ class BaseFind<T, Keys> {
   }
 
   /**
-   * Exposes the entity's CDS metadata (its `EntityElements`).
-   * Reads `SELECT.elements` off the built query.
+   * Provides the Metadata of the fields.
+   * `Note`: currently SAP does not offer typing on EntityElements.
    *
-   * @remarks
-   * Typed as `unknown` — SAP does not currently ship typing for `EntityElements`; narrow it yourself
-   * before indexing into specific fields. Accessed as a property, not called as a method.
+   * @returns Metadata of the fields.
    *
    * @example
-   * ```ts
-   * const elements = this.builder().find({ currency_code: 'GBP' }).elements;
-   * ```
-   *
-   * @see {@link https://github.com/dxfrontier/cds-ts-repository#elements | CDS-TS-Repository - elements}
-   * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § elements
+   * const results = await this.builder().find({
+   *   name: 'A company name',
+   * }).elements;
    */
   get elements(): unknown {
     return this.select.elements;
   }
 
   /**
-   * Exclusively locks the selected rows for the current transaction, blocking concurrent updates from
-   * other transactions.
-   * Calls `.forUpdate({ wait })` on the SELECT.
+   * Exclusively locks the selected rows for subsequent updates in the current transaction, thereby preventing concurrent updates by other parallel transactions.
    *
-   * @remarks
-   * `wait` bounds how long to wait for the lock before failing with an error; omit it to wait
-   * indefinitely. Sibling: `.forShareLock()` takes a SHARED lock instead, which still allows other
-   * transactions to READ the locked rows.
+   * @param options [optional]
+   * @param options.wait - An integer specifying the timeout after which to fail with an error in case a lock couldn't be obtained.
+   * @returns The current instance of BaseFind.
    *
    * @example
-   * ```ts
-   * const results = await this.builder()
-   *   .find({ currency_code: 'GBP' })
-   *   .forUpdate({ wait: 10 })
-   *   .execute();
-   * ```
-   *
-   * @see {@link https://github.com/dxfrontier/cds-ts-repository#forupdate | CDS-TS-Repository - forUpdate}
-   * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § forUpdate
+   * const results = await this.builder().find({
+   *   name: 'A company name',
+   * }).forUpdate({ wait: 10 }).execute();
    */
   public forUpdate(options?: { wait?: number }): this {
     void this.select.forUpdate({ wait: options?.wait });
@@ -127,24 +91,11 @@ class BaseFind<T, Keys> {
   }
 
   /**
-   * Locks the selected rows with a SHARED lock, until the current transaction commits or rolls back.
-   * Calls `.forShareLock()` on the SELECT.
+   * Locks the selected rows in the current transaction, thereby preventing concurrent updates by other parallel transactions, until the transaction is committed or rolled back.
+   * Using a shared lock allows all transactions to read the locked record.
+   * If a queried record is already exclusively locked by another transaction, the .forShareLock() method waits for the lock to be released.
    *
-   * @remarks
-   * Allows every transaction to keep READING the locked rows (unlike `.forUpdate()`'s exclusive lock);
-   * waits for the lock to be released if a queried row is already exclusively locked by another
-   * transaction. Sibling: `.forUpdate()` for an exclusive lock ahead of an update.
-   *
-   * @example
-   * ```ts
-   * const results = await this.builder()
-   *   .find({ currency_code: 'GBP' })
-   *   .forShareLock()
-   *   .execute();
-   * ```
-   *
-   * @see {@link https://github.com/dxfrontier/cds-ts-repository#forsharelock | CDS-TS-Repository - forShareLock}
-   * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § forShareLock
+   * @returns The current instance of BaseFind.
    */
   public forShareLock(): this {
     void this.select.forShareLock();
@@ -152,78 +103,60 @@ class BaseFind<T, Keys> {
   }
 
   /**
-   * Auto-expands every association/composition of the entity, recursively, up to `levels` deep.
-   * Builds the deep-expand column projection from the entity's own metadata.
+   * Auto expands and exposes associations/compositions of the entity.
    *
-   * @remarks
-   * `levels` counts from `1` (the root's direct associations); the expansion stops once that depth is
-   * reached. Use the array overload (`getExpand(...associations)`) for a flat, root-only expand
-   * instead, or the object overload (`getExpand(associations: Expand<T>)`) to control `select` /
-   * nested `expand` per association.
+   * @param options - Options for expanding associations.
+   * @param options.levels - Depth number to expand the associations, this will do a deep expand equals to the levels number, `depth can start from 1...n`.
+   * @returns The current instance of BaseFind.
    *
    * @example
-   * ```ts
-   * const results = await this.builder()
-   *   .find({ currency_code: 'GBP' })
-   *   .getExpand({ levels: 2 })
-   *   .execute();
-   * ```
-   *
-   * @see {@link https://github.com/dxfrontier/cds-ts-repository#getexpand | CDS-TS-Repository - getExpand}
-   * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § getExpand
+   * const results = await this.builder().find({
+   *     name: 'A company name',
+   * }).getExpand({ levels: 2 }).execute();
    */
   public getExpand(options: { levels: number }): this;
 
   /**
-   * Deep-expands specific associations, with per-association column selection and nested expands.
-   * Builds the deep-expand column projection from the given `Expand<T>` object.
+   * Deep expand of the associated entities.
    *
-   * @remarks
-   * An empty object (`{}`) as an association's value expands it fully; `select` restricts its
-   * columns, `expand` recurses into ITS OWN associations. Passing `{}` for the WHOLE call is a silent
-   * no-op (nothing gets expanded) — unlike the array overload, this one does not validate for
-   * emptiness. Use the array overload (`getExpand(...associations)`) for a flat, root-only expand, or
-   * the `{ levels }` overload to expand every association without listing them.
+   * @param associations - An object of column names to expand, representing associated entities.
+   * @returns The current instance of BaseFind.
    *
    * @example
-   * ```ts
-   * const results = await this.builder()
-   *   .find({ currency_code: 'GBP' })
-   *   .getExpand({
-   *     author: {}, // full expand
-   *     genre: { select: ['ID', 'name'] },
-   *     reviews: { select: ['ID'], expand: { reviewer: { select: ['ID'] } } },
-   *   })
-   *   .execute();
-   * ```
-   *
-   * @see {@link https://github.com/dxfrontier/cds-ts-repository#getexpand | CDS-TS-Repository - getExpand}
-   * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § getExpand
+   * const results = await this.builder().find({
+   *     name: 'A company name',
+   * }).getExpand({
+   *  // expand full 'author' up to 1 level
+   *  author: {},
+   *  // expand 'genre', having only 'ID' and 'name'
+   *  genre: {
+   *    select: ['ID', 'name'],
+   *  },
+   *  // expand 'reviews', having only 'ID', 'book_ID' and 'reviewer' having only 'ID'
+   *  reviews: {
+   *    select: ['ID', 'book_ID'],
+   *    expand: {
+   *      reviewer: {
+   *        select: ['ID'],
+   *      },
+   *    },
+   *  },
+   * }).execute();
    */
   public getExpand(associations: Expand<T>): this;
 
   /**
-   * Expands the given associations up to their first level only (no nested `select` / `expand`).
-   * Builds the deep-expand column projection from the flat association-name list.
+   * Retrieves the associated entities expanded up to `1 level`.
    *
-   * @remarks
-   * Accepts either spread arguments or a single array of names. THROWS `Error('getExpand() method
-   * must have arguments !')` when called with zero associations (`.getExpand()` / `.getExpand([])`) —
-   * the only overload where this is reachable through the public types. Use the object overload
-   * (`getExpand(associations: Expand<T>)`) for per-association `select` / nested `expand`, or the
-   * `{ levels }` overload to expand every association without listing them.
+   * @param associations - An array of column names to expand, representing associated entities.
+   * @returns The current instance of BaseFind.
    *
    * @example
-   * ```ts
-   * const results = await this.builder()
-   *   .find({ currency_code: 'GBP' })
-   *   .getExpand('author', 'genre')
-   *   // or .getExpand(['author', 'genre'])
-   *   .execute();
-   * ```
-   *
-   * @see {@link https://github.com/dxfrontier/cds-ts-repository#getexpand | CDS-TS-Repository - getExpand}
-   * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § getExpand
+   * const results = await this.builder().find({
+   *     name: 'A company name',
+   * }).getExpand('orders', 'reviews').execute();
+   * // or
+   * //.getExpand(['orders', 'reviews']).execute();
    */
   public getExpand(...associations: Columns<T>[]): this;
 

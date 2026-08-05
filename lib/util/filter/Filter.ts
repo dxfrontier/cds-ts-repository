@@ -8,129 +8,121 @@ import type {
 } from '../../types/types';
 
 /**
- * A typed, composable where-tree for building `WHERE` predicates.
- * Accepted by most `BaseRepository` / `BaseRepositoryDraft` methods anywhere a plain keys object is
- * accepted (`find`, `countWhere`, `updateMany`, `deleteWhere`, …).
- *
- * @remarks
- * Built through three overloaded constructors: a single `{ field, operator, value… }` predicate, a
- * `new Filter('AND' | 'OR', ...filters)` combination of two or more `Filter` instances, or a
- * multidimensional `CompoundFilter` array mixing nested filters with `'AND'` / `'OR'` — each overload
- * carries its own example. An instance only ever populates the fields its own `operator` needs (e.g.
- * `value1` / `value2` for `'BETWEEN'`, the single-entry `filters` for `'EXISTS'`); every other field
- * stays `undefined`.
- *
- * @example
- * ```ts
- * const active = new Filter<Book>({ field: 'stock', operator: 'GREATER THAN', value: 0 });
- * const cheap = new Filter<Book>({ field: 'price', operator: 'LESS THAN', value: 20 });
- *
- * const results = await this.find(new Filter('AND', active, cheap));
- * ```
+ * Represents a filter to be applied on entities.
+ * @template T The type of the entity.
  */
 class Filter<T> {
-  /**
-   * The operator this filter applies (e.g. `'LIKE'`, `'BETWEEN'`, `'EXISTS'`); unset on filters built
-   * from the logical-operator or compound-array constructor overloads.
-   */
   public readonly operator?: FilterOperator;
 
-  /**
-   * The entity field (or a one-hop path expression across a to-one association, e.g. `'author.name'`)
-   * `operator` applies to; unset on filters built from the logical-operator or compound-array overloads.
-   */
   public readonly field?: FilterField<T>;
-
-  /**
-   * The `'AND'` / `'OR'` operator combining `filters`; only set when this instance was built via the
-   * `new Filter(operator, ...filters)` overload.
-   */
   public readonly logicalOperator?: LogicalOperator;
-
-  /**
-   * Child filters combined by `logicalOperator`, or — for `'EXISTS'` / `'NOT EXISTS'` — the single
-   * inner filter applied to the association, wrapped in a one-element array.
-   */
+  // Combined / compound filters and, for 'EXISTS' and 'NOT EXISTS', the single inner filter applied on the association
   public readonly filters?: Filter<T>[] | CompoundFilter<T>;
 
-  /**
-   * The comparison value for every operator except `'BETWEEN'` / `'NOT BETWEEN'` (`value1` / `value2`)
-   * and `'EXISTS'` / `'NOT EXISTS'` (`filters`); forced to `null` for `'IS NULL'` / `'IS NOT NULL'`.
-   */
+  // Like, In, Not in fields
   public readonly value?: FilterValue | string[] | number[];
 
-  /**
-   * The lower bound for `'BETWEEN'` / `'NOT BETWEEN'`; unset for every other operator.
-   */
+  // Between fields
   public readonly value1?: FilterValue;
-
-  /**
-   * The upper bound for `'BETWEEN'` / `'NOT BETWEEN'`; unset for every other operator.
-   */
   public readonly value2?: FilterValue;
 
   /**
-   * Creates a single-predicate `Filter` from a `{ field, operator, value… }` options object (or, for
-   * `'EXISTS'` / `'NOT EXISTS'`, `{ field, operator, filters? }`).
+   * Creates a `Filter` instance with filter options.
    *
-   * @remarks
-   * `options` is a discriminated union keyed by `operator`: `value` for every value-based operator
-   * (including `'IN'` / `'NOT IN'`, which take an array), `value1` / `value2` for `'BETWEEN'` /
-   * `'NOT BETWEEN'`, forced to `null` for `'IS NULL'` / `'IS NOT NULL'`. `field` also accepts a
-   * one-hop path expression across a to-one association (e.g. `'author.name'`) for every operator
-   * except `'EXISTS'` / `'NOT EXISTS'` — for those two, `field` must instead name an association of
-   * `T`, and the optional `filters` is typed on the association's target rather than on `T` (omitting
-   * it asserts bare existence, e.g. `exists books`).
+   * @param options - An object representing the filter options.
+   * @param options.field - The field of the entity to filter on, a one-hop path expression across a to-one association (e.g. `'author.name'`) or, for `'EXISTS'` and `'NOT EXISTS'`, an association of the entity.
+   * @param options.operator - The operator to apply on the field (e.g., `'LIKE'`, `'BETWEEN'`, `'EXISTS'`).
+   * @param options.value - The filter value.
+   * @param options.value1 - The first value for `'BETWEEN'` and `'NOT BETWEEN'` operators.
+   * @param options.value2 - The second value for `'BETWEEN'` and `'NOT BETWEEN'` operators.
+   * @param options.filters - The optional inner `Filter` applied on the association for `'EXISTS'` and `'NOT EXISTS'` operators.
    *
    * @example
-   * ```ts
-   * const filter = new Filter<Book>({ field: 'descr', operator: 'LIKE', value: 'Catweazle' });
-   * const results = await this.find(filter);
-   * ```
+   * const filter = new Filter<Book>({
+   *  field: 'name',
+   *  operator: 'LIKE',
+   *  value: 'Customer',
+   * });
+   *
+   * this.find(filter)
+   *
+   * @example
+   * const filterPath = new Filter<Book>({
+   *  field: 'author.name',
+   *  operator: 'EQUALS',
+   *  value: 'Edgar Allen Poe',
+   * });
+   *
+   * this.find(filterPath)
+   *
+   * @example
+   * const filterExists = new Filter<Author>({
+   *  field: 'books',
+   *  operator: 'EXISTS',
+   *  filters: new Filter<Book>({
+   *    field: 'stock',
+   *    operator: 'GREATER THAN',
+   *    value: 100,
+   *  }),
+   * });
+   *
+   * this.find(filterExists)
    */
   constructor(options: FilterOptions<T>);
 
   /**
-   * Combines two or more `Filter` instances under a single logical operator:
-   * `new Filter('AND' | 'OR', ...filters)`.
+   * Creates a new `Filter` instance with logical operators to combine multiple filters.
    *
-   * @remarks
-   * Every element of `filters` must already be a constructed `Filter<T>` instance — build each one
-   * with the options overload first. Passing a previously-combined `Filter` as one of `filters` nests
-   * AND/OR trees (e.g. `new Filter('AND', new Filter('OR', f1, f2), f3)`); for a single expression
-   * that itself mixes `'AND'` and `'OR'` at the top level, use the compound-array overload instead.
+   * @param operator - Operator used to combine the filters (e.g., 'AND', 'OR').
+   * @param filters - An array of `Filter` instances to combine.
    *
    * @example
-   * ```ts
-   * const byAuthor = new Filter<Book>({ field: 'author.name', operator: 'EQUALS', value: 'Edgar Allen Poe' });
-   * const inStock = new Filter<Book>({ field: 'stock', operator: 'GREATER THAN', value: 0 });
+   * const filter1 = new Filter<Book>({
+   *    field: 'customer_name',
+   *    operator: 'LIKE',
+   *    value: 'ABS',
+   * });
    *
-   * const results = await this.find(new Filter('AND', byAuthor, inStock));
-   * ```
+   * const filter2 = new Filter<Book>({
+   *    field: 'stock',
+   *    operator: 'BETWEEN',
+   *    value1: 11,
+   *    value2: 333,
+   * });
+   *
+   * const combinedFilters = new Filter<Book>('AND', filter1, filter2);
+   *
+   * this.find(combinedFilters)
    */
   constructor(operator: LogicalOperator, ...filters: Filter<T>[]);
 
   /**
-   * Creates a multidimensional `Filter` from a flat array mixing `Filter` instances, nested arrays,
-   * and `'AND'` / `'OR'` operators between them.
+   * Creates a new multidimensional `Filter` instance.
    *
-   * @remarks
-   * A nested array element (e.g. the `[f3, 'AND', f4]` inside `[f1, 'OR', [f3, 'AND', f4]]`) becomes
-   * a parenthesized sub-group when the query is built — this is how mixed `'AND'` / `'OR'` precedence
-   * is expressed, since the two-argument `new Filter(operator, ...filters)` overload only supports a
-   * single operator across all of its filters.
+   * @param filter - A multidimensional array of `CompoundFilter` instances combined with logical operators (`'AND'`, `'OR'`).
    *
    * @example
-   * ```ts
-   * const wellStocked = new Filter<Author>({
-   *   field: 'books',
-   *   operator: 'EXISTS',
-   *   filters: new Filter<Book>({ field: 'stock', operator: 'GREATER THAN', value: 100 }),
+   * const filter1 = new Filter<Book>({
+   *    field: 'customer_name',
+   *    operator: 'LIKE',
+   *    value: 'ABS',
    * });
-   * const bornInBoston = new Filter<Author>({ field: 'placeOfBirth', operator: 'EQUALS', value: 'Boston' });
    *
-   * const results = await this.find(new Filter<Author>([wellStocked, 'AND', bornInBoston]));
-   * ```
+   * const filter2 = new Filter<Book>({
+   *    field: 'ID',
+   *    operator: 'NOT EQUAL',
+   *    value: null,
+   * });
+   *
+   * const filter3 = new Filter<Book>({
+   *    field: 'descr',
+   *    operator: 'ENDS_WITH',
+   *    value: '1850',
+   * });
+   *
+   * const filters = new Filter<Book>([filter1, 'AND', filter2, 'OR', filter3]);
+   *
+   * this.find(filters)
    */
   constructor(filter: CompoundFilter<T>);
 
