@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.1.0] - 2026-08-06
+
+### 🚀 Features
+
+- *(filter)* Path expressions and EXISTS / NOT EXISTS operators
+- *(draft)* CreateDraft, createManyDrafts and updateOrCreateDraft
+- *(find)* Streaming terminals, having and executeAndCount
+
+### 🐛 Bug Fixes
+
+- *(types)* Harden AssociationPath against any elements and Node globals
+
+### 📚 Documentation
+
+- *(readme)* Document new features and group draft methods
+- *(roadmap)* Add feature ideas backlog
+- *(jsdoc)* Canonical agent-oriented JSDoc across the public API
+- *(claude)* Drop stale typedoc reference from TS pin note
+- *(roadmap)* Record correctness and DX findings from the JSDoc pass
+- *(jsdoc)* Scope the pass to BaseRepository and BaseRepositoryDraft
+- *(jsdoc)* Restore param, returns and throws tags in the core repositories
+- *(jsdoc)* Bring Filter to the core repositories' doc standard
+- *(jsdoc)* Complete the ExternalService decorator docs
+- *(jsdoc)* Document the exported type surface
+- *(jsdoc)* Complete the find-builder chain docs
+
+### 🧪 Testing
+
+- *(types)* Type-check the jest suites via check:types
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, CHANGELOG.md generated
+
 ## [7.0.0] - 2026-07-28
 
 ### ⚙️ Miscellaneous Tasks
