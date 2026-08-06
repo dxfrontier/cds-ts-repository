@@ -660,16 +660,7 @@ type CompoundFilter<T> = (Filter<T> | LogicalOperator | CompoundFilter<T>)[];
  * @see {@link https://github.com/dxfrontier/cds-ts-repository#columnsformatter | CDS-TS-Repository - columnsFormatter}
  */
 type NumericAggregateFunctions =
-  | 'AVG'
-  | 'MIN'
-  | 'MAX'
-  | 'SUM'
-  | 'ABS'
-  | 'CEILING'
-  | 'TOTAL'
-  | 'COUNT'
-  | 'ROUND'
-  | 'FLOOR';
+  'AVG' | 'MIN' | 'MAX' | 'SUM' | 'ABS' | 'CEILING' | 'TOTAL' | 'COUNT' | 'ROUND' | 'FLOOR';
 
 /**
  * Constrains the extraction functions applicable on a date / time column.
