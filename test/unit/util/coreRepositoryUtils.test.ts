@@ -1,4 +1,5 @@
-import { Book } from '#cds-models/CatalogService';
+import { Author, Book } from '#cds-models/CatalogService';
+import { Review } from '#cds-models/sap/capire/bookshop';
 
 import coreRepositoryUtils from '../../../lib/util/coreRepository/coreRepositoryUtils';
 import { Filter } from '../../../lib/util/filter/Filter';
@@ -131,6 +132,108 @@ describe('coreRepositoryUtils', () => {
 
       expect(filter.value).toBeUndefined();
       expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow('No operator found');
+    });
+  });
+
+  describe('.buildSingleFilter() - EXISTS / NOT EXISTS', () => {
+    it('should build a bare "exists" predicate when no inner filter is given', () => {
+      const filter = new Filter<Author>({ field: 'books', operator: 'EXISTS' });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe('exists books');
+    });
+
+    it('should build a bare "not exists" predicate when no inner filter is given', () => {
+      const filter = new Filter<Author>({ field: 'books', operator: 'NOT EXISTS' });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe('not exists books');
+    });
+
+    it('should build the inner predicate of the association between square brackets', () => {
+      const filter = new Filter<Author>({
+        field: 'books',
+        operator: 'EXISTS',
+        filters: new Filter<Book>({ field: 'stock', operator: 'GREATER THAN', value: 0 }),
+      });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("exists books[stock > '0']");
+    });
+
+    it('should build a combined (AND / OR) inner predicate', () => {
+      const filter = new Filter<Author>({
+        field: 'books',
+        operator: 'NOT EXISTS',
+        filters: new Filter<Book>(
+          'AND',
+          new Filter<Book>({ field: 'stock', operator: 'GREATER THAN', value: 0 }),
+          new Filter<Book>({ field: 'currency_code', operator: 'EQUALS', value: 'GBP' }),
+        ),
+      });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe(
+        "not exists books[(stock > '0' AND currency_code = 'GBP')]",
+      );
+    });
+
+    it('should build a nested "exists" as the inner predicate of another "exists"', () => {
+      const filter = new Filter<Author>({
+        field: 'books',
+        operator: 'EXISTS',
+        filters: new Filter<Book>({
+          field: 'reviews',
+          operator: 'EXISTS',
+          filters: new Filter<Review>({ field: 'rating', operator: 'GREATER THAN', value: 4 }),
+        }),
+      });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("exists books[exists reviews[rating > '4']]");
+    });
+  });
+
+  describe('.buildQueryKeys() - routing of EXISTS / NOT EXISTS filters', () => {
+    it('should route an EXISTS filter carrying an inner filter to the single-filter branch', () => {
+      // Regression: `filters` is also the property used to detect combined / compound filters,
+      // an EXISTS filter must not be routed to buildMultipleFilters / buildMultidimensionalFilters.
+      const filter = new Filter<Author>({
+        field: 'books',
+        operator: 'EXISTS',
+        filters: new Filter<Book>({ field: 'stock', operator: 'GREATER THAN', value: 0 }),
+      });
+
+      expect(coreRepositoryUtils.buildQueryKeys(filter)).toBe("exists books[stock > '0']");
+    });
+
+    it('should keep an EXISTS filter combined with the logical-operator overload', () => {
+      // Regression: an EXISTS filter has no value, so buildMultipleFilters would treat it as a
+      // combined filter and silently drop the `exists` predicate.
+      const filter = new Filter<Author>(
+        'AND',
+        new Filter<Author>({
+          field: 'books',
+          operator: 'EXISTS',
+          filters: new Filter<Book>({ field: 'stock', operator: 'GREATER THAN', value: 0 }),
+        }),
+        new Filter<Author>({ field: 'name', operator: 'EQUALS', value: 'Edgar Allen Poe' }),
+      );
+
+      expect(coreRepositoryUtils.buildQueryKeys(filter)).toBe(
+        "(exists books[stock > '0'] AND name = 'Edgar Allen Poe')",
+      );
+    });
+
+    it('should keep an EXISTS filter used as an element of a multidimensional filter', () => {
+      const existsFilter = new Filter<Author>({
+        field: 'books',
+        operator: 'EXISTS',
+        filters: new Filter<Book>({ field: 'stock', operator: 'GREATER THAN', value: 0 }),
+      });
+      const bareExistsFilter = new Filter<Author>({ field: 'bookEvent', operator: 'NOT EXISTS' });
+      const nameFilter = new Filter<Author>({ field: 'name', operator: 'EQUALS', value: 'Edgar Allen Poe' });
+
+      const filter = new Filter<Author>([[existsFilter, 'AND', nameFilter], 'OR', bareExistsFilter]);
+
+      expect(coreRepositoryUtils.buildQueryKeys(filter)).toBe(
+        "(exists books[stock > '0'] AND name = 'Edgar Allen Poe') OR not exists bookEvent",
+      );
     });
   });
 

@@ -68,6 +68,7 @@ describe('FEATURE - efficient count / countWhere / exists', () => {
 
     it('should equal .count() when called without arguments', async () => {
       // Act
+      // @ts-expect-error countWhere requires a filter at compile time, the no-argument runtime fallback is under test
       const countWhere = await bookRepository.countWhere();
       const count = await bookRepository.count();
 

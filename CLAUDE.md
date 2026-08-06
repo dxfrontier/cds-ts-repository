@@ -31,4 +31,4 @@ Commit messages must follow Conventional Commits (commitlint via husky; `npm run
 
 ## TypeScript pin
 
-`typescript` is intentionally pinned to `~6.0.3` — do not upgrade to TS 7 (typescript-eslint, typedoc, and tsup's dts bundler don't support it yet; decision from 2026-07). Related: `ignoreDeprecations: '6.0'` in `tsup.config.ts` works around rollup-plugin-dts forcing the deprecated `baseUrl` onto the dts build — keep it when touching that file.
+`typescript` is intentionally pinned to `~6.0.3` — do not upgrade to TS 7 (typescript-eslint and tsup's dts bundler don't support it yet; decision from 2026-07). Related: `ignoreDeprecations: '6.0'` in `tsup.config.ts` works around rollup-plugin-dts forcing the deprecated `baseUrl` onto the dts build — keep it when touching that file.

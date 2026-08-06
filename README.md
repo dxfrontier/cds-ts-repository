@@ -54,6 +54,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
         - [orderDesc](#orderdesc)
         - [paginate](#paginate-1)
         - [groupBy](#groupby)
+        - [having](#having)
         - [columns](#columns)
         - [columnsFormatter](#columnsformatter)
         - [getExpand](#getexpand)
@@ -61,6 +62,10 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
         - [forShareLock](#forsharelock)
         - [hints](#hints)
         - [execute](#execute)
+        - [executeAndCount](#executeandcount)
+        - [forEach](#foreach)
+        - [pipeline](#pipeline)
+        - [stream](#stream)
       - [.findOne](#findone-1)
         - [elements](#elements-1)
         - [columns](#columns-1)
@@ -88,6 +93,11 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [decrement](#decrement)
     - [incrementMany](#incrementmany)
     - [decrementMany](#decrementmany)
+    - [`CRUD` — `Draft entity`](#crud--draft-entity)
+      - [createDraft](#createdraft)
+      - [createManyDrafts](#createmanydrafts)
+      - [updateOrCreateDraft](#updateorcreatedraft)
+      - [Draft ↔ active twins](#draft--active-twins)
   - [`Helpers`](#helpers)
     - [Filter](#filter)
       - [Overloads](#overloads)
@@ -928,6 +938,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
   - [orderAsc()](#orderasc)
   - [orderDesc()](#orderdesc)
   - [groupBy()](#groupby)
+  - [having()](#having)
   - [columns()](#columns)
   - [columnsFormatter()](#columnsformatter)
   - [paginate()](#paginate)
@@ -935,6 +946,10 @@ export class MyRepository extends BaseRepository<MyEntity> {
   - [forUpdate()](#forupdate)
   - [forShareLock()](#forsharelock)
   - [execute()](#execute)
+  - [executeAndCount()](#executeandcount)
+  - [forEach()](#foreach)
+  - [pipeline()](#pipeline)
+  - [stream()](#stream)
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1057,6 +1072,33 @@ const results = await this.builder()
   //.groupBy(['name', 'company'])
   .execute();
 ```
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### having
+
+Filters the groups created by `groupBy()`, the `HAVING` counterpart of the `WHERE` clause.
+
+`Parameters`
+
+- `filter (Filter<T> | string)` : A raw condition string or a **[Filter\<T\>](#filter)** instance applied on the groups.
+
+`Example`
+
+```ts
+const results = await this.builder()
+  .find()
+  .columnsFormatter({ column: 'ID', aggregate: 'COUNT', renameAs: 'total' })
+  .groupBy('author_ID')
+  // raw string, mandatory for aggregate conditions such as count(*)
+  .having('count(*) >= 2')
+  // or a Filter
+  //.having(new Filter<MyEntity>({ field: 'author_ID', operator: 'EQUALS', value: 101 }))
+  .execute();
+```
+
+> [!NOTE]
+> `groupBy()` must be called before, aggregate conditions (E.g. `count(*) >= 2`) can only be expressed as a raw string as they are not columns of the entity.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1374,6 +1416,119 @@ const results = await this.builder()
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### executeAndCount
+
+Executes the query and returns the results together with the total number of rows matching it.
+
+`Return`
+
+- `Promise<{ results: T[]; count: number }>`: A promise that resolves to the query results and the total count.
+
+`Example`
+
+```ts
+const { results, count } = await this.builder()
+  .find({
+    currency_code: 'GBP',
+  })
+  .paginate({ limit: 10 })
+  .executeAndCount();
+// results : the first 10 'GBP' items, count : all 'GBP' items
+```
+
+> [!NOTE]
+> The `count` ignores the pagination : with `paginate()` it is the total of the unpaginated query, with `groupBy()` the number of groups and with `distinct` the number of distinct rows.
+
+> [!IMPORTANT]
+> Currently not supported on `External services`.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### forEach
+
+Executes the query and calls the callback for every row, without materializing the whole result set in memory. Ideal for processing large tables.
+
+`Parameters`
+
+- `callback ((row: T) => unknown | Promise<unknown>)` : The function called for every row of the result set, `async` callbacks are awaited before `forEach` resolves.
+
+`Return`
+
+- `Promise<void>`: A promise that resolves once every row was processed.
+
+`Example`
+
+```ts
+await this.builder()
+  .find({
+    currency_code: 'GBP',
+  })
+  .orderAsc('ID')
+  .forEach(async (item) => {
+    await this.archive(item);
+  });
+```
+
+> [!NOTE]
+> Runs inside a managed transaction, nesting it in an ambient transaction is safe.
+
+> [!IMPORTANT]
+> Currently not supported on `External services`.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### pipeline
+
+Executes the query and pipes the serialized results into the given writable stream, without materializing the whole result set in memory.
+
+`Parameters`
+
+- `destination (Writable)` : The writable stream the serialized results are piped into.
+
+`Return`
+
+- `Promise<void>`: A promise that resolves once every row was written.
+
+`Example`
+
+```ts
+await this.builder().find().orderAsc('ID').pipeline(req.http!.res);
+```
+
+> [!NOTE]
+> The written bytes are the `JSON` array of the results (E.g. `[{"ID":201}, ...]`) and not row objects, which makes it a direct fit for an `HTTP` response. Use `forEach()` to work on rows. Runs inside a managed transaction, nesting it in an ambient transaction is safe.
+
+> [!IMPORTANT]
+> Currently not supported on `External services`.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+###### stream
+
+Executes the query and returns a readable stream of the serialized results, without materializing the whole result set in memory.
+
+`Return`
+
+- `Readable`: A readable stream emitting the serialized results, query errors are emitted on it.
+
+`Example`
+
+```ts
+const stream = this.builder().find().orderAsc('ID').stream();
+
+// The 'error' listener is mandatory, an unhandled stream error crashes the process
+stream.on('error', (error) => req.reject(500, error.message));
+stream.pipe(req.http!.res);
+```
+
+> [!NOTE]
+> The emitted bytes are the `JSON` array of the results (E.g. `[{"ID":201}, ...]`) and not row objects, which makes it a direct fit for an `HTTP` response. Use `forEach()` to work on rows. Runs inside a managed transaction, nesting it in an ambient transaction is safe.
+
+> [!IMPORTANT]
+> Currently not supported on `External services`.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2594,6 +2749,173 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
+#### `CRUD` — `Draft entity`
+
+Methods operating directly on the `drafts persistence table` of a draft-enabled entity.
+
+#### createDraft
+
+`(method) this.createDraft(entry: Draft<T>) : Promise<InsertResult<Draft<T>>>`.
+
+The `createDraft` method allows you to insert a single draft entry directly into the drafts persistence table.
+
+`Parameters`
+
+- `entry (object)`: An object representing the draft entry to be created. The object should match the structure expected by `MyEntity`.
+
+`Return`
+
+- `Promise<InsertResult<Draft<T>>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
+
+`Example`
+
+```ts
+import { BaseRepositoryDraft } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepositoryDraft<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const createdDraft = await this.createDraft({
+      name: 'Customer 1',
+      IsActiveEntity: false,
+    });
+    // Further logic with createdDraft
+  }
+}
+```
+
+> [!NOTE]
+> This is a repository-level insert directly into the drafts table - no `DraftAdministrativeData` admin row is created and no Fiori draft-lifecycle events fire. `DraftAdministrativeData_DraftUUID` is auto-generated when omitted, `HasActiveEntity` defaults to `false` when omitted.
+
+> [!IMPORTANT]
+> Throws when an external service is attached via `@ExternalService`, the drafts table only exists on the primary database.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### createManyDrafts
+
+`(method) this.createManyDrafts(...entries: DraftEntries<T>[]) : Promise<InsertResult<Draft<T>>>`.
+
+The `createManyDrafts` method allows you to insert multiple draft entries directly into the drafts persistence table.
+
+`Parameters`
+
+- `entries (...entries: DraftEntries<T>[])`: An array of objects representing the draft entries to be created. Each object should match the structure expected by `MyEntity`.
+
+`Return`
+
+- `Promise<InsertResult<Draft<T>>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
+
+`Example`
+
+```ts
+import { BaseRepositoryDraft } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepositoryDraft<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const createdInstance = await this.createManyDrafts(
+      { name: 'Event draft 1', IsActiveEntity: false },
+      { name: 'Event draft 2', IsActiveEntity: false },
+    );
+    // Further logic with createdInstance
+  }
+}
+```
+
+> [!NOTE]
+> Same repository-level insert as `createDraft`, one per entry - no `DraftAdministrativeData` admin row is created and no Fiori draft-lifecycle events fire. `DraftAdministrativeData_DraftUUID` is auto-generated per entry when omitted, `HasActiveEntity` defaults to `false` when omitted.
+
+> [!IMPORTANT]
+> Throws when an external service is attached via `@ExternalService`, the drafts table only exists on the primary database.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### updateOrCreateDraft
+
+`updateOrCreateDraft(...entries: DraftEntries<T>[]): Promise<boolean>`
+
+The `updateOrCreateDraft` method is a database operation that will update an existing draft row if a specified value already exists in the drafts table, and insert a new draft row if the specified value doesn't already exist, similar to `UPSERT from SQL`. Has UPSERT `PATCH` semantics.
+
+`Parameters`
+
+- `entries (...entries: DraftEntries<T>[])`: An array of objects representing the draft entries to be created or updated. Each object should match the structure expected by `MyEntity`.
+
+`Return`
+
+- `Promise<boolean>`: This method returns a Promise of `true` if the update/create operation is `successful`, and `false` otherwise.
+
+`Example`
+
+```ts
+import { BaseRepositoryDraft } from '@dxfrontier/cds-ts-repository';
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+
+export class MyRepository extends BaseRepositoryDraft<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    const updatedOrCreated = await this.updateOrCreateDraft({
+      ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db',
+      IsActiveEntity: false,
+      DraftAdministrativeData_DraftUUID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19',
+      name: 'a new name',
+    });
+    // Further logic with updatedOrCreated
+  }
+}
+```
+
+> [!NOTE]
+> `DraftAdministrativeData_DraftUUID` is auto-generated per entry when omitted - pass the existing UUID on an update to preserve its linkage. `HasActiveEntity` is left untouched when omitted, so an existing draft's value (E.g. `true` after `draftEdit`) is not silently reset - on the create path of the upsert it stays `NULL` unless explicitly provided.
+
+> [!IMPORTANT]
+> Throws when an external service is attached via `@ExternalService`, the drafts table only exists on the primary database.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+##### Draft ↔ active twins
+
+All other `BaseRepositoryDraft` methods delegate to the same implementation as their active counterpart, targeting the drafts persistence table instead of the active one - each is documented by its active twin:
+
+| Draft method | Documented by the active twin |
+| ------------ | ----------------------------- |
+| `getAllDrafts` | [getAll](#getall) |
+| `getDraftsDistinctColumns` | [getDistinctColumns](#getdistinctcolumns) |
+| `paginateDrafts` | [paginate](#paginate) |
+| `findDrafts` | [find](#find) |
+| `findOneDraft` | [findOne](#findone) |
+| `findOneDraftAndUpdate` | [findOneAndUpdate](#findoneandupdate) |
+| `builderDraft` | [builder](#builder) |
+| `updateDraft` | [update](#update) |
+| `updateManyDrafts` | [updateMany](#updatemany) |
+| `deleteDraft` | [delete](#delete) |
+| `deleteManyDrafts` | [deleteMany](#deletemany) |
+| `deleteAllDrafts` | [deleteAll](#deleteall) |
+| `deleteDraftsWhere` | [deleteWhere](#deletewhere) |
+| `existsDraft` | [exists](#exists) |
+| `countDrafts` | [count](#count) |
+| `countDraftsWhere` | [countWhere](#countwhere) |
+| `findFirstDraft` | [findFirst](#findfirst) |
+| `findLastDraft` | [findLast](#findlast) |
+| `findOrCreateDraft` | [findOrCreate](#findorcreate) |
+| `incrementDraft` | [increment](#increment) |
+| `decrementDraft` | [decrement](#decrement) |
+| `incrementManyDrafts` | [incrementMany](#incrementmany) |
+| `decrementManyDrafts` | [decrementMany](#decrementmany) |
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
 ### `Helpers`
 
 #### Filter
@@ -2621,11 +2943,13 @@ Use `Filter` to create complex `WHERE QUERY` filters.
 | 1  | `new Filter<T>(options: FilterOptions<T>)` | `options`:<br />- `field`: `keyof T` (string)<br />- `operator`: `FilterOperator`<br />- `value`: `string`, `number`, `boolean`, `null`, `string[]`, `number[]` | Creates a new filter based on a field, operator, and value. <br /><br /> `FilterOperator` values: `'EQUALS'`, `'NOT EQUAL'`, `'LIKE'`, `'STARTS_WITH'`, `'ENDS_WITH'`, `'LESS THAN'`, `'LESS THAN OR EQUALS'`, `'GREATER THAN'`, `'GREATER THAN OR EQUALS'`, `'IN'`, `'NOT IN'`. |
 | 2  | `new Filter<T>(options: FilterOptions<T>)` | `options`:<br />- `field`: `keyof T` (string)<br />- `operator`: `FilterOperator`<br />- `value1`: `string`, `number`, `string[]`, `number[]`<br />- `value2`: `string`, `number`, `string[]`, `number[]` | Creates a new filter for range operations. <br /><br /> `FilterOperator` values: `'BETWEEN'`, `'NOT BETWEEN'`. |
 | 3  | `new Filter<T>(options: FilterOptions<T>)` | `options`:<br />- `field`: `keyof T` (string)<br />- `operator`: `FilterOperator` | Creates a new filter for null checks. <br /><br /> `FilterOperator` values: `'IS NULL'`, `'IS NOT NULL'`. |
+| 4  | `new Filter<T>(options: FilterOptions<T>)` | `options`:<br />- `field`: `keyof T` (string), an association of `T`<br />- `operator`: `FilterOperator`<br />- `filters?`: `Filter<AssociationTarget>` `[optional]` | Creates a new filter checking whether related rows exist on an association. <br /><br /> `FilterOperator` values: `'EXISTS'`, `'NOT EXISTS'`. <br /><br /> `filters` is optional, typed on the association target instead of `T`, and can itself use `'EXISTS'` / `'NOT EXISTS'` to nest checks. |
 
 > [!NOTE]
 >
 > - `FilterOperator` values are predefined operators for filtering.
 > - `T` should be a type generated using [CDS-Typer](#generate-cds-typed-entities).
+> - `field` can also be a one-hop path expression across a `to-one` association (e.g. `'author.name'`), usable with every operator above except `'EXISTS'` / `'NOT EXISTS'`. Path expressions are fully type-checked and autocompleted by the compiler (typing `'author.` suggests `'author.name'`, `'author.ID'`, ...).
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2762,6 +3086,83 @@ export class MyRepository extends BaseRepository<MyEntity> {
     const results = await this.builder().find(filters).execute();
     // OR
     const results2 = await this.find(filters);
+  }
+}
+```
+
+`Example 4` : One-hop path expression across a `to-one` association
+
+```ts
+import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+import { Filter, BaseRepository } from '@dxfrontier/cds-ts-repository';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    // filters on the 'name' field of the to-one 'author' association
+    const filter = new Filter<MyEntity>({
+      field: 'author.name',
+      operator: 'EQUALS',
+      value: 'Edgar Allen Poe',
+    });
+
+    // execute filter using .find
+    const results = await this.builder().find(filter).execute();
+    // OR
+    const results2 = await this.find(filter);
+  }
+}
+```
+
+`Example 5` : `EXISTS` / `NOT EXISTS`
+
+```ts
+import { MyEntity, MyChildEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
+import { Filter, BaseRepository } from '@dxfrontier/cds-ts-repository';
+
+export class MyRepository extends BaseRepository<MyEntity> {
+  constructor() {
+    super(MyEntity); // a CDS Typer entity type
+  }
+
+  public async aMethod() {
+    // bare EXISTS : entities having at least one related 'to_children'
+    const hasChildren = new Filter<MyEntity>({
+      field: 'to_children',
+      operator: 'EXISTS',
+    });
+
+    // EXISTS with an inner filter, typed on the association target ('MyChildEntity', not 'MyEntity')
+    const hasExpensiveChild = new Filter<MyEntity>({
+      field: 'to_children',
+      operator: 'EXISTS',
+      filters: new Filter<MyChildEntity>({
+        field: 'price',
+        operator: 'GREATER THAN',
+        value: 100,
+      }),
+    });
+
+    // NOT EXISTS, nested inside the inner filter : children having no 'to_notes'
+    const hasChildWithoutNotes = new Filter<MyEntity>({
+      field: 'to_children',
+      operator: 'EXISTS',
+      filters: new Filter<MyChildEntity>({
+        field: 'to_notes',
+        operator: 'NOT EXISTS',
+      }),
+    });
+
+    // combine with other filters exactly like any other Filter (see 'Combination of 2...n filters')
+    const combined = new Filter('AND', hasExpensiveChild, hasChildWithoutNotes);
+
+    // execute filter using .find
+    const results = await this.builder().find(combined).execute();
+    // OR
+    const results2 = await this.find(combined);
   }
 }
 ```
