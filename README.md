@@ -402,7 +402,9 @@ export class MyRepository extends BaseRepositoryDraft<MyEntity> {
 ```
 
 > [!IMPORTANT]
-> Entity `MyEntity` must be annotated with `@odata.draft.enabled: true` to use `BaseRepositoryDraft` methods.
+> Entity `MyEntity` must be annotated with `@odata.draft.enabled: true` to use `BaseRepositoryDraft` methods — every `*Draft` method throws when it is not, instead of silently falling back to the active table.
+>
+> The same is true when an external service is attached via [@ExternalService](#externalservice): every `*Draft` method throws instead of silently targeting the remote active entity set — a remote OData entity has no drafts table.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -410,7 +412,7 @@ export class MyRepository extends BaseRepositoryDraft<MyEntity> {
 
 #### create
 
-`(method) this.create(entry: Entry<T>) : Promise<boolean>`.
+`(method) this.create(entry: Entry<T>) : Promise<InsertResult<T>>`.
 
 The `create` method allows you to create a new entry in the table.
 
@@ -420,7 +422,7 @@ The `create` method allows you to create a new entry in the table.
 
 `Return`
 
-- `Promise<boolean>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
+- `Promise<InsertResult<T>>`: This method returns a Promise that resolves to the `InsertResult` of the insert, **not** the created row — read the written entry from `result.query.INSERT.entries`, or re-read it with `findOne` when database-generated values are needed.
 
 `Example 1`
 
@@ -476,7 +478,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 #### createMany
 
-`(method) this.createMany(...entries: Entries<T>[]) : Promise<boolean>`.
+`(method) this.createMany(...entries: Entries<T>[]) : Promise<InsertResult<T>>`.
 
 The `createMany` method allows you to add multiple entries in the table.
 
@@ -486,7 +488,7 @@ The `createMany` method allows you to add multiple entries in the table.
 
 `Return`
 
-- `Promise<boolean>`: This method returns a `Promise` that resolves when the insertion operation is completed successfully.
+- `Promise<InsertResult<T>>`: This method returns a `Promise` that resolves to the `InsertResult` of the insert, **not** the created rows — read them from `result.query.INSERT.entries`.
 
 `Example 1`
 
@@ -540,7 +542,7 @@ The `getAll` method retrieves all table entries.
 
 `Return`
 
-- `Promise<T[] | undefined>`: A Promise resolving to an array of type `T` (e.g., `MyEntity`). If no results are found, the Promise resolves to `undefined`.
+- `Promise<T[] | undefined>`: A Promise resolving to an array of type `T` (e.g., `MyEntity`). An empty table resolves to an empty array, not to `undefined`.
 
 `Example`
 
@@ -588,7 +590,7 @@ The `getDistinctColumns` method retrieves distinct values for the specified colu
 
 `Return`
 
-- `Promise<Array<Pick<T, Column>> | undefined>`: A Promise resolving to an array of objects containing the selected columns from the entity. If no results are found, the Promise resolves to `undefined`.
+- `Promise<Array<Pick<T, Column>> | undefined>`: A Promise resolving to an array of objects containing the selected columns from the entity. An empty result resolves to an empty array, not to `undefined`.
 
 `Example`
 
@@ -636,7 +638,7 @@ The `getLocaleTexts` method is designed to retrieve a list of items with localiz
 
 `Return`
 
-- `Promise<Array<Pick<T, Column> & Locale> | undefined>`: A Promise resolving to an array of objects containing the selected columns from the entity along with locale information. If no results are found, the Promise resolves to `undefined`.
+- `Promise<Array<Pick<T, Column> & Locale> | undefined>`: A Promise resolving to an array of objects containing the selected columns from the entity along with locale information. An empty result resolves to an empty array, not to `undefined`.
 
 `Example`
 
@@ -670,6 +672,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
+> [!IMPORTANT]
+> Throws when an external service is attached via [@ExternalService](#externalservice) — the `.texts` entity set does not exist remotely. Write the same texts back with [updateLocaleTexts](#updatelocaletexts).
+
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### paginate
@@ -686,7 +691,7 @@ The `paginate` method allows you to find and retrieve a list of items with optio
 
 `Return`
 
-- `Promise<T[] | undefined>`: A Promise resolving to an array of objects representing instances of type `T` (e.g., `MyEntity`). If no results are found, the Promise resolves to `undefined`.
+- `Promise<T[] | undefined>`: A Promise resolving to an array of objects representing instances of type `T` (e.g., `MyEntity`). An exhausted page resolves to an empty array, not to `undefined`.
 
 `Example 1` : Retrieve the first 10 items
 
@@ -756,13 +761,13 @@ The `find` method allows you to find and retrieve entries from the table that ma
 
 | Method                                                                     | Parameters        | Description                                                                                                                                                            |
 | :------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `this.find(): Promise<T | undefined>`                                     |                   | Get all table items.                                                                                                                                                   |
-| `this.find(keys: Entry<T>): Promise<T | undefined>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
-| `this.find(filter :`**[Filter\<T\>](#filter)**`): Promise<T | undefined>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
+| `this.find(): Promise<T[] | undefined>`                                     |                   | Get all table items.                                                                                                                                                   |
+| `this.find(keys: Entry<T>): Promise<T[] | undefined>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.find(filter :`**[Filter\<T\>](#filter)**`): Promise<T[] | undefined>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
 
 `Return`
 
-- `Promise<T[] | undefined>`: A Promise that resolves to an array of type `T` (e.g., `MyEntity`). If no results are found, the Promise resolves to `undefined`.
+- `Promise<T[] | undefined>`: A Promise that resolves to an array of type `T` (e.g., `MyEntity`). A miss resolves to an empty array, not to `undefined`.
 
 `Example 1` using object
 
@@ -871,7 +876,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 `findOneAndUpdate(keys: Entry<T>, fieldsToUpdate: Entry<T>): Promise<boolean>`
 
-The `findOneAndUpdate` method performs an atomic find-and-update operation. It first checks if an entity matching the specified keys exists, and if found, updates it with the provided fields.
+The `findOneAndUpdate` method updates a single entry matching the specified keys, but ONLY when it exists — a miss neither creates nor throws, it simply resolves to `false`.
 
 `Parameters`
 
@@ -912,8 +917,8 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
-> [!TIP]
-> The method first verifies entity existence before attempting the update, ensuring safe update operations.
+> [!IMPORTANT]
+> Against the primary database this is now ONE atomic `UPDATE` — no probe `SELECT` first, a miss simply affects `0` rows, behaviorally identical to [update](#update). Bound to an external service via [@ExternalService](#externalservice) it stays a `SELECT`-then-`UPDATE` probe — two round trips, not locked against each other.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1391,7 +1396,7 @@ Finally, to execute the constructed query and retrieve the results as an array o
 
 `Return`
 
-- `Promise<T[] | undefined>`: This method returns a Promise of `T[]` or `undefined` if nothing was found.
+- `Promise<T[] | undefined>`: This method returns a Promise of `T[]`. An empty result resolves to an empty array, not to `undefined`.
 
 `Example 1`
 
@@ -1954,7 +1959,13 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
+> Every entry must carry its full primary key — CDS decides insert vs update by it. `updateOrCreate` has UPSERT `PATCH` semantics: only the provided values are written, and generic handlers are skipped — no `@cds.on.insert` defaults, no UUID auto-generation and no audit-log fields are applied the way they are for [create](#create). Deep upserts (nested compositions) are not supported.
+
+> [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+> [!IMPORTANT]
+> Throws when an external service is attached via [@ExternalService](#externalservice) — a remote OData service has no `UPSERT`, use [update](#update) instead.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1993,6 +2004,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+> [!IMPORTANT]
+> Throws when an external service is attached via [@ExternalService](#externalservice) — the `.texts` entity set does not exist remotely, same as [getLocaleTexts](#getlocaletexts), which reads the same texts back.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2046,7 +2060,7 @@ The `deleteMany` method allows you to delete multiple entries from the table tha
 
 `Return`
 
-- `Promise<boolean>`: This method returns a Promise of `true` if all instances were successfully deleted and `false` otherwise.
+- `Promise<boolean>`: This method returns a Promise of `true` if every single delete affected exactly one row, `false` otherwise. An **empty** list of entries also resolves to `true` — a vacuous success, since there is nothing to delete.
 
 `Example 1`
 
@@ -2090,7 +2104,7 @@ The `deleteAll` method allows you to delete all entries from the table but prese
 
 `Return`
 
-- `Promise<boolean>`: This method returns a Promise of `true` if all instances were successfully deleted and `false` otherwise.
+- `Promise<boolean>`: This method returns a Promise of `true` when at least one row was deleted, `false` when the table was already empty. On an external service a `204`-style success reported without an affected count (`''`) resolves to `true` regardless, even for an already-empty table.
 
 `Example 1`
 
@@ -2753,6 +2767,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 Methods operating directly on the `drafts persistence table` of a draft-enabled entity.
 
+> [!IMPORTANT]
+> Every method below — and every other `*Draft` method of `BaseRepositoryDraft` — throws when the entity is not annotated with `@odata.draft.enabled: true`, and throws again when an external service is attached via [@ExternalService](#externalservice) (see the [Drafts](#drafts--baserepositorydraft) introduction). Neither case silently falls back to the active table anymore.
+
 #### createDraft
 
 `(method) this.createDraft(entry: Draft<T>) : Promise<InsertResult<Draft<T>>>`.
@@ -2913,6 +2930,9 @@ All other `BaseRepositoryDraft` methods delegate to the same implementation as t
 | `decrementDraft` | [decrement](#decrement) |
 | `incrementManyDrafts` | [incrementMany](#incrementmany) |
 | `decrementManyDrafts` | [decrementMany](#decrementmany) |
+
+> [!NOTE]
+> `findOrCreateDraft` now goes through the same normalization as `createDraft` on its insert path: `DraftAdministrativeData_DraftUUID` is generated when omitted and `HasActiveEntity` defaults to `false`, without overwriting a value already present in `keys` / `defaults`.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -3178,13 +3198,25 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 **@ExternalService**(`service` : `string`)
 
-The `@ExternalService` decorator is used to connect the `BaseRepository / BaseRepositoryDraft` to the class as pointing to an external service.
+The `@ExternalService` decorator marks a `BaseRepository` / `BaseRepositoryDraft` class as backed by a remote OData service instead of the primary database, connecting lazily via `cds.connect.to(service)`.
 
-This decorator connects the class to the specified external service via SAP Cloud SDK's `cds.connect.to` method.
+`cds.connect.to(service)` fires at class-decoration time and the pending connection promise is attached to the class right away, next to the service name — attachment is lazy, the connection itself is only awaited on the FIRST repository call. Construction order is therefore irrelevant: a repository instantiated before the connection settles still routes remotely, and a failed connection surfaces as a rejected first call, never as a silent fallback to the primary database. A repository entity missing from the remote service's entity set produces a descriptive error naming both the entity and the service.
 
 `Parameters`
 
 - `service` : The name / or the namespace of the external service to connect to.
+
+`Supported on External services`
+
+- Every plain `BaseRepository` CRUD method (`create`, `createMany`, `find`, `findOne`, `update`, `delete`, `exists`, `count`, ...) and the builder's `execute` reroute to `externalService.run(query)` instead of running against the primary database.
+
+`Not supported on External services` — these throw instead:
+
+- [getLocaleTexts](#getlocaletexts)
+- [updateLocaleTexts](#updatelocaletexts)
+- [updateOrCreate](#updateorcreate)
+- The `.builder()` terminals [executeAndCount](#executeandcount), [forEach](#foreach), [pipeline](#pipeline) and [stream](#stream)
+- Every `*Draft` method of `BaseRepositoryDraft` — a remote OData entity has no drafts table
 
 `Example`
 
