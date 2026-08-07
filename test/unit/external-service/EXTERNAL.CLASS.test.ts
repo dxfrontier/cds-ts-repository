@@ -82,8 +82,8 @@ describe('externalService constructor wiring', () => {
   });
 
   describe('BaseRepositoryDraft', () => {
-    it('should resolve the entity via util.findExternalServiceEntity and route queries through the external service', async () => {
-      const run = jest.fn().mockResolvedValue([{ BusinessPartner: '1' }]);
+    it('should resolve the entity via util.findExternalServiceEntity and refuse draft queries', async () => {
+      const run = jest.fn();
       const fakeService = createFakeExternalService(run, { A_BusinessPartner: mappedEntity });
 
       class ExternalDraftRepository extends BaseRepositoryDraft<{ BusinessPartner: string }> {
@@ -96,12 +96,14 @@ describe('externalService constructor wiring', () => {
 
       const repo = new ExternalDraftRepository();
 
+      // The constructor wiring is unchanged : the entity is still swapped to the service's one.
       expect(repo['entity']).toBe(mappedEntity);
 
-      const result = await repo.getAllDrafts();
-
-      expect(run).toHaveBeenCalledTimes(1);
-      expect(result).toEqual([{ BusinessPartner: '1' }]);
+      // Every *Draft method refuses the external path - the remote entity has no drafts table.
+      await expect(repo.getAllDrafts()).rejects.toThrow(
+        'getAllDrafts is currently not supported on External services !',
+      );
+      expect(run).not.toHaveBeenCalled();
     });
 
     it('should throw when calling createDraft with an external service attached', async () => {

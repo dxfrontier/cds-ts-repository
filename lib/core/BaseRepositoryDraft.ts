@@ -27,15 +27,15 @@ import util from '../util/util';
  *
  * @remarks
  * The entity MUST be draft-enabled (`@odata.draft.enabled: true`) — the drafts table is resolved from
- * `entity.drafts`, and for an entity without it EVERY method here silently falls back to the ACTIVE
- * table. Combine both layers with `Mixin(BaseRepository<T>, BaseRepositoryDraft<T>)` so that the active
- * methods (`create`, `find`, `update`, ...) sit next to their draft twins (`createDraft`, `findDrafts`,
- * `updateDraft`, ...) on one repository — see `BaseRepository` for the package-level mental model.
- * Everything here is a plain repository-level statement — NO `DraftAdministrativeData` admin row is
- * written and NO Fiori draft-lifecycle event (`NEW`, `draftEdit`, `draftActivate`, `draftDiscard`)
- * fires, drafts normally originate through the service. External services are NOT supported — a remote
- * OData entity has no drafts table, so `createDraft` / `createManyDrafts` / `updateOrCreateDraft` throw
- * and every other method would target the remote ACTIVE entity set instead.
+ * `entity.drafts`, and every method here THROWS instead of running when it is missing, guarded by the
+ * private `assertDraftCapable`. Combine both layers with `Mixin(BaseRepository<T>, BaseRepositoryDraft<T>)`
+ * so that the active methods (`create`, `find`, `update`, ...) sit next to their draft twins
+ * (`createDraft`, `findDrafts`, `updateDraft`, ...) on one repository — see `BaseRepository` for the
+ * package-level mental model. Everything here is a plain repository-level statement — NO
+ * `DraftAdministrativeData` admin row is written and NO Fiori draft-lifecycle event (`NEW`, `draftEdit`,
+ * `draftActivate`, `draftDiscard`) fires, drafts normally originate through the service. External
+ * services are NOT supported — a remote OData entity has no drafts table, so EVERY method here throws
+ * instead of silently targeting the remote ACTIVE entity set.
  *
  * @example
  * ```ts
@@ -90,22 +90,34 @@ abstract class BaseRepositoryDraft<T> {
   }
 
   /**
-   * Guards the create/upsert draft methods against an attached external service.
+   * Guards every public *Draft method against the two ways it can misbehave — called FIRST, before the
+   * method does anything else.
    *
-   * The entity is resolved on the external service's entity set when `@ExternalService` is used, and that
-   * remote entity has no `.drafts` - `findUtils.resolveEntityName` would silently fall back to the active
-   * entity name, so a create/upsert would INSERT into the remote active entity set with draft-only fields
-   * the remote does not declare. Throwing here instead matches how `CoreRepository.getLocaleTexts` guards
-   * its own external-service-unsupported path. The service NAME is enough to decide: it is on the class
-   * from decoration time on, while the connection itself may still be pending.
+   * External check FIRST: the entity is resolved on the external service's entity set when
+   * `@ExternalService` is used, and that remote entity has no `.drafts` - `findUtils.resolveEntityName`
+   * would silently fall back to the active entity name, so a write would INSERT into the remote active
+   * entity set with draft-only fields the remote does not declare. Throwing here instead matches how
+   * `CoreRepository.getLocaleTexts` guards its own external-service-unsupported path. The service NAME is
+   * enough to decide: it is on the class from decoration time on, while the connection itself may still
+   * be pending - checking `constructor.externalServiceName` is what makes this fire SYNCHRONOUSLY,
+   * without ever awaiting a connection that may never settle.
+   *
+   * Draft-enabled check SECOND, only reached once the external check passed: `this.entity.drafts` is the
+   * same field `findUtils.resolveEntityName` falls back away from, so a repository built over a plain
+   * entity throws here instead of silently reading and writing the ACTIVE table.
    * @param methodName The name of the calling method, used in the thrown error message.
-   * @throws {Error} Always, when an external service is attached via `@ExternalService`.
+   * @throws {Error} Always, when an external service is attached via `@ExternalService` or when the
+   * entity is not draft-enabled.
    */
-  private assertNoExternalService(methodName: string): void {
+  private assertDraftCapable(methodName: string): void {
     const constructor = this.constructor as BaseRepositoryConstructor;
 
     if (constructor.externalService ?? constructor.externalServiceName) {
       throw new Error(`${methodName} is currently not supported on External services !`);
+    }
+
+    if (this.entity.drafts == null) {
+      throw new Error(`${methodName} requires a draft-enabled entity, annotate it with @odata.draft.enabled !`);
     }
   }
 
@@ -167,7 +179,7 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § createDraft
    */
   public async createDraft(entry: Draft<T>): Promise<InsertResult<Draft<T>>> {
-    this.assertNoExternalService('createDraft');
+    this.assertDraftCapable('createDraft');
 
     return await this.coreRepository.create(this.normalizeDraftEntry(entry, true));
   }
@@ -204,7 +216,7 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § createManyDrafts
    */
   public async createManyDrafts(...entries: DraftEntries<ExtractSingular<T>>[]): Promise<InsertResult<Draft<T>>> {
-    this.assertNoExternalService('createManyDrafts');
+    this.assertDraftCapable('createManyDrafts');
 
     const normalizedEntries = entries.map((entry) =>
       Array.isArray(entry)
@@ -249,7 +261,7 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § updateOrCreateDraft
    */
   public async updateOrCreateDraft(...entries: DraftEntries<ExtractSingular<T>>[]): Promise<boolean> {
-    this.assertNoExternalService('updateOrCreateDraft');
+    this.assertDraftCapable('updateOrCreateDraft');
 
     const normalizedEntries = entries.map((entry) =>
       Array.isArray(entry)
@@ -287,6 +299,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § getAll
    */
   public async getAllDrafts(): Promise<Draft<T>[] | undefined> {
+    this.assertDraftCapable('getAllDrafts');
+
     return await this.coreRepository.getAll();
   }
 
@@ -321,6 +335,8 @@ abstract class BaseRepositoryDraft<T> {
   public async getDraftsDistinctColumns<ColumnKeys extends Columns<Draft<T>>>(
     ...columns: ColumnKeys[]
   ): Promise<Pick<Draft<T>, ShowOnlyColumns<Draft<T>, ColumnKeys>>[] | undefined> {
+    this.assertDraftCapable('getDraftsDistinctColumns');
+
     return await this.coreRepository.getDistinctColumns(...columns);
   }
 
@@ -351,6 +367,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § paginate
    */
   public async paginateDrafts(options: { limit: number; skip?: number | undefined }): Promise<Draft<T>[] | undefined> {
+    this.assertDraftCapable('paginateDrafts');
+
     return await this.coreRepository.paginate(options);
   }
 
@@ -407,6 +425,8 @@ abstract class BaseRepositoryDraft<T> {
    */
   public async findDrafts(filter: Filter<Draft<T>>): Promise<Draft<T>[] | undefined>;
   public async findDrafts(keys: Draft<T> | Filter<Draft<T>>): Promise<Draft<T>[] | undefined> {
+    this.assertDraftCapable('findDrafts');
+
     return await this.coreRepository.find(keys);
   }
 
@@ -443,6 +463,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § findOneAndUpdate
    */
   public async findOneDraftAndUpdate(keys: Draft<T>, fieldsToUpdate: Draft<T>): Promise<boolean> {
+    this.assertDraftCapable('findOneDraftAndUpdate');
+
     return await this.coreRepository.findOneAndUpdate(keys, fieldsToUpdate);
   }
 
@@ -472,6 +494,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § findOne
    */
   public async findOneDraft(keys: Draft<T>): Promise<Draft<T> | undefined> {
+    this.assertDraftCapable('findOneDraft');
+
     return await this.coreRepository.findOne(keys);
   }
 
@@ -503,6 +527,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § builder
    */
   public builderDraft(): FindReturn<Draft<T>> {
+    this.assertDraftCapable('builderDraft');
+
     return this.coreRepository.builder();
   }
 
@@ -536,6 +562,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § update
    */
   public async updateDraft(keys: Draft<T>, fieldsToUpdate: Draft<T>): Promise<boolean> {
+    this.assertDraftCapable('updateDraft');
+
     return await this.coreRepository.update(keys, fieldsToUpdate);
   }
 
@@ -566,6 +594,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § delete
    */
   public async deleteDraft(keys: Draft<T>): Promise<boolean> {
+    this.assertDraftCapable('deleteDraft');
+
     return await this.coreRepository.delete(keys);
   }
 
@@ -594,6 +624,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § deleteMany
    */
   public async deleteManyDrafts(entries: DraftEntries<ExtractSingular<T>>[]): Promise<boolean> {
+    this.assertDraftCapable('deleteManyDrafts');
+
     return await this.coreRepository.deleteMany(...entries);
   }
 
@@ -620,6 +652,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § deleteAll
    */
   public async deleteAllDrafts(): Promise<boolean> {
+    this.assertDraftCapable('deleteAllDrafts');
+
     return await this.coreRepository.deleteAll();
   }
 
@@ -648,6 +682,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § exists
    */
   public async existsDraft(keys: Draft<T>): Promise<boolean> {
+    this.assertDraftCapable('existsDraft');
+
     return await this.coreRepository.exists(keys);
   }
 
@@ -676,6 +712,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § count
    */
   public async countDrafts(): Promise<number> {
+    this.assertDraftCapable('countDrafts');
+
     return await this.coreRepository.count();
   }
 
@@ -703,6 +741,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § findFirst
    */
   public async findFirstDraft<ColumnKeys extends keyof Draft<T>>(column: ColumnKeys): Promise<Draft<T> | undefined> {
+    this.assertDraftCapable('findFirstDraft');
+
     return await this.coreRepository.findFirst(column);
   }
 
@@ -730,6 +770,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § findLast
    */
   public async findLastDraft<ColumnKeys extends keyof Draft<T>>(column: ColumnKeys): Promise<Draft<T> | undefined> {
+    this.assertDraftCapable('findLastDraft');
+
     return await this.coreRepository.findLast(column);
   }
 
@@ -740,9 +782,9 @@ abstract class BaseRepositoryDraft<T> {
    *
    * @remarks
    * `created` tells the two paths apart and `entry` is ALWAYS the stored row, since the inserted draft is
-   * read back. `defaults` win over `keys` on overlapping fields. The insert does NOT go through the
-   * `createDraft` normalization — `DraftAdministrativeData_DraftUUID` and `HasActiveEntity` are NOT
-   * defaulted, pass them in `defaults` when the new draft has to carry them. Read and insert are separate
+   * read back. `defaults` win over `keys` on overlapping fields. The insert now goes through the SAME
+   * `createDraft` normalization — `DraftAdministrativeData_DraftUUID` is generated and `HasActiveEntity`
+   * defaults to `false`, unless `keys` / `defaults` already carry them. Read and insert are separate
    * statements, so a concurrent insert can still make the write fail. Active counterpart: `findOrCreate`.
    *
    * @param keys - An object representing the keys to find the draft entry.
@@ -766,7 +808,19 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § findOrCreate
    */
   public async findOrCreateDraft(keys: Draft<T>, defaults: Draft<T>): Promise<{ created: boolean; entry: Draft<T> }> {
-    return await this.coreRepository.findOrCreate(keys, defaults);
+    this.assertDraftCapable('findOrCreateDraft');
+
+    const found = await this.findOneDraft(keys);
+
+    if (found) {
+      return { created: false, entry: found };
+    }
+
+    await this.createDraft({ ...keys, ...defaults });
+
+    const entry = await this.findOneDraft(keys);
+
+    return { created: true, entry: entry as Draft<T> };
   }
 
   /**
@@ -822,6 +876,8 @@ abstract class BaseRepositoryDraft<T> {
   public async countDraftsWhere(filter: Filter<Draft<T>>): Promise<number>;
 
   public async countDraftsWhere(keys?: Draft<T> | Filter<Draft<T>>): Promise<number> {
+    this.assertDraftCapable('countDraftsWhere');
+
     return await this.coreRepository.countWhere(keys);
   }
 
@@ -879,6 +935,8 @@ abstract class BaseRepositoryDraft<T> {
   public async updateManyDrafts(filter: Filter<Draft<T>>, fieldsToUpdate: Draft<T>): Promise<number>;
 
   public async updateManyDrafts(keys: Draft<T> | Filter<Draft<T>>, fieldsToUpdate: Draft<T>): Promise<number> {
+    this.assertDraftCapable('updateManyDrafts');
+
     return await this.coreRepository.updateMany(keys, fieldsToUpdate);
   }
 
@@ -934,6 +992,8 @@ abstract class BaseRepositoryDraft<T> {
   public async deleteDraftsWhere(filter: Filter<Draft<T>>): Promise<number>;
 
   public async deleteDraftsWhere(keys?: Draft<T> | Filter<Draft<T>>): Promise<number> {
+    this.assertDraftCapable('deleteDraftsWhere');
+
     return await this.coreRepository.deleteWhere(keys);
   }
 
@@ -969,6 +1029,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § increment
    */
   public async incrementDraft(keys: Draft<T>, column: NumericKeys<Draft<T>>, value = 1): Promise<boolean> {
+    this.assertDraftCapable('incrementDraft');
+
     return await this.coreRepository.increment(keys, column, value);
   }
 
@@ -999,6 +1061,8 @@ abstract class BaseRepositoryDraft<T> {
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § decrement
    */
   public async decrementDraft(keys: Draft<T>, column: NumericKeys<Draft<T>>, value = 1): Promise<boolean> {
+    this.assertDraftCapable('decrementDraft');
+
     return await this.coreRepository.decrement(keys, column, value);
   }
 
@@ -1059,6 +1123,8 @@ abstract class BaseRepositoryDraft<T> {
     keys: Draft<T> | Filter<Draft<T>>,
     fields: IncrementFields<Draft<T>>,
   ): Promise<number> {
+    this.assertDraftCapable('incrementManyDrafts');
+
     return await this.coreRepository.incrementMany(keys, fields);
   }
 
@@ -1120,6 +1186,8 @@ abstract class BaseRepositoryDraft<T> {
     keys: Draft<T> | Filter<Draft<T>>,
     fields: IncrementFields<Draft<T>>,
   ): Promise<number> {
+    this.assertDraftCapable('decrementManyDrafts');
+
     return await this.coreRepository.decrementMany(keys, fields);
   }
 }

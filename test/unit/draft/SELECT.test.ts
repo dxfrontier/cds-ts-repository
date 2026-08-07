@@ -462,6 +462,46 @@ describe('SELECT - drafts', () => {
           expect(result.entry).toBeDefined();
           expect(result.entry.ID).toBe('9b9c5591-52a3-41ea-ab85-40a5a7ae5360');
         });
+
+        it('should create a missing draft entry through the createDraft normalization, generating a DraftAdministrativeData_DraftUUID and defaulting HasActiveEntity to false', async () => {
+          // Arrange
+          const newId = 'e0000000-0000-4000-8000-000000000101';
+
+          // Act
+          const result = await bookEventDraftRepository.findOrCreateDraft(
+            { ID: newId },
+            { name: 'Brand New Draft Event', types: 'BOOK_SIGNING' },
+          );
+
+          // Assert
+          expect(result.created).toBe(true);
+          expect(result.entry).toBeDefined();
+          expect(result.entry.ID).toBe(newId);
+          expect(result.entry.name).toBe('Brand New Draft Event');
+          expect(result.entry.HasActiveEntity).toBe(false);
+          expect(result.entry.DraftAdministrativeData_DraftUUID).toBeDefined();
+          expect(typeof result.entry.DraftAdministrativeData_DraftUUID).toBe('string');
+        });
+
+        it('should preserve a caller-provided DraftAdministrativeData_DraftUUID on the create path instead of generating a new one', async () => {
+          // Arrange
+          const newId = 'e0000000-0000-4000-8000-000000000102';
+          const providedUuid = 'e0000000-0000-4000-8000-000000000103';
+
+          // Act
+          const result = await bookEventDraftRepository.findOrCreateDraft(
+            { ID: newId },
+            {
+              name: 'Draft With Explicit UUID',
+              types: 'BOOK_SIGNING',
+              DraftAdministrativeData_DraftUUID: providedUuid,
+            },
+          );
+
+          // Assert
+          expect(result.created).toBe(true);
+          expect(result.entry.DraftAdministrativeData_DraftUUID).toBe(providedUuid);
+        });
       });
 
       describe('.countDraftsWhere()', () => {
