@@ -603,6 +603,7 @@ describe('SELECT', () => {
             // Assert
             expect(LENGTH).toHaveLength(3);
             expect(LENGTH![0]).toHaveProperty('LENGTH');
+            expect(typeof LENGTH![0].LENGTH).toBe('number'); // the type layer types LENGTH as number - pin the runtime shape
 
             const CONCAT = await bookRepository
               .builder()
