@@ -13,11 +13,12 @@ import type {
   Columns,
   Entity,
   ExecuteAndCountResult,
-  ExternalServiceProps,
+  ExternalServiceBinding,
   ShowOnlyColumns,
 } from '../../types/types';
 import type { Filter } from '../filter/Filter';
 import coreRepositoryUtils from '../coreRepository/coreRepositoryUtils';
+import util from '../util';
 import { findUtils } from './findUtils';
 
 /**
@@ -53,12 +54,13 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
    * @param entity - The entity type or name to query.
    * @param keys - The keys or filters for the query.
    * @param externalService - The remote OData service (attached via `@ExternalService`) that `.execute()`
-   * runs the query against instead of the primary database; every other terminal throws when it is set.
+   * runs the query against instead of the primary database, or the descriptor of a connection still in
+   * flight; every other terminal throws when it is set.
    */
   constructor(
     protected readonly entity: Entity,
     protected readonly keys: Keys | string | undefined,
-    protected readonly externalService?: ExternalServiceProps,
+    protected readonly externalService?: ExternalServiceBinding,
   ) {
     super(entity, keys);
   }
@@ -348,6 +350,8 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
    * THE primary terminal of the chain — call it last, after every modifier (`.orderAsc`, `.columns`,
    * `.getExpand`, …). For the total row count alongside the page, use `.executeAndCount()`; for result
    * sets too large to materialize in memory, use `.forEach()`, `.pipeline()` or `.stream()` instead.
+   * On an external service whose connection is still pending, this is where it is awaited: the built
+   * query is then pointed at the entity the service declares before it is run.
    *
    * @returns A promise that resolves to the array of query results.
    *
@@ -365,7 +369,11 @@ class FindBuilder<T, Keys> extends BaseFind<T, Keys> {
    */
   public async execute(): Promise<T[] | undefined> {
     if (this.externalService) {
-      return await this.externalService.run(this.select);
+      const target = await util.resolveExternalTarget(this.entity, this.externalService);
+
+      util.retargetQuery(this.select, findUtils.resolveEntityName(target.entity));
+
+      return await target.service.run(this.select);
     }
 
     return await this.select;

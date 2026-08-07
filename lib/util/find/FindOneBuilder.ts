@@ -9,8 +9,9 @@ import type {
   Columns,
   ShowOnlyColumns,
   Entity,
-  ExternalServiceProps,
+  ExternalServiceBinding,
 } from '../../types/types';
+import util from '../util';
 import { findUtils } from './findUtils';
 
 /**
@@ -47,12 +48,13 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
    * @param entity - The entity type or name to query.
    * @param keys - The keys or filters for the query.
    * @param externalService - The remote OData service (attached via `@ExternalService`) that `.execute()`
-   * runs the query against instead of the primary database.
+   * runs the query against instead of the primary database, or the descriptor of a connection still in
+   * flight.
    */
   constructor(
     protected readonly entity: Entity,
     protected readonly keys: Keys | string | undefined,
-    protected readonly externalService?: ExternalServiceProps,
+    protected readonly externalService?: ExternalServiceBinding,
   ) {
     super(entity, keys);
 
@@ -164,7 +166,9 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
    * @remarks
    * The only terminal on this builder — there is no `.executeAndCount` / `.forEach` / `.pipeline` /
    * `.stream` counterpart, since those require more than one row; use `FindBuilder` for those. Call it
-   * last in the chain, after every modifier.
+   * last in the chain, after every modifier. On an external service whose connection is still pending,
+   * this is where it is awaited: the built query is then pointed at the entity the service declares
+   * before it is run.
    *
    * @returns A promise that resolves to the single entity result.
    *
@@ -181,7 +185,11 @@ class FindOneBuilder<T, Keys> extends BaseFind<T, Keys> {
    */
   public async execute(): Promise<T | undefined> {
     if (this.externalService) {
-      return await this.externalService.run(this.select);
+      const target = await util.resolveExternalTarget(this.entity, this.externalService);
+
+      util.retargetQuery(this.select, findUtils.resolveEntityName(target.entity));
+
+      return await target.service.run(this.select);
     }
 
     return await this.select;

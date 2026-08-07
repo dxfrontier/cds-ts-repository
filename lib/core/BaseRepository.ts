@@ -63,16 +63,29 @@ abstract class BaseRepository<T> {
   /**
    * Binds the repository to ONE cds-typer entity — call it as `super(Books)` from the subclass constructor.
    * When the subclass carries `@ExternalService('NAME')`, the entity is re-resolved from that service's entity set
-   * and every query of this repository is routed there.
+   * and every query of this repository is routed there — construction order does not matter, a connection still in
+   * flight is awaited on the first call instead.
    *
    * @param entity - The entity this repository manages.
    */
   constructor(protected readonly entity: Entity) {
     const constructor = this.constructor as BaseRepositoryConstructor;
 
+    // The connected service is already on the class : the entity is swapped right away.
     if (constructor.externalService) {
       this.entity = util.findExternalServiceEntity(this.entity, constructor.externalService);
       this.coreRepository = new CoreRepository(this.entity, constructor.externalService);
+
+      return;
+    }
+
+    // `@ExternalService` applied, connection still pending : the ORIGINAL entity is kept and re-resolved
+    // together with the service on the first repository call.
+    if (constructor.externalServiceName !== undefined && constructor.externalServicePromise !== undefined) {
+      this.coreRepository = new CoreRepository(this.entity, {
+        name: constructor.externalServiceName,
+        promise: constructor.externalServicePromise,
+      });
 
       return;
     }

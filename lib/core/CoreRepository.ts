@@ -13,6 +13,7 @@ import type {
   Columns,
   ShowOnlyColumns,
   Entity,
+  ExternalServiceBinding,
   ExternalServiceProps,
   // CreateReturnType,
   ExtractSingular,
@@ -22,6 +23,16 @@ import type {
 } from '../types/types';
 import type { Filter } from '..';
 import { findUtils } from '../util/find/findUtils';
+import util from '../util/util';
+
+/**
+ * Where a query has to be executed : the name of the entity it targets and, on the external service
+ * path, the connected service running it. `service` being absent is what selects the primary database.
+ */
+type QueryTarget = {
+  entityName: string;
+  service?: ExternalServiceProps;
+};
 
 /**
  * Core repository class providing CRUD operations for entities.
@@ -29,24 +40,68 @@ import { findUtils } from '../util/find/findUtils';
  */
 class CoreRepository<T> {
   private readonly resolvedEntity: string;
+  private readonly databaseTarget: QueryTarget;
+  private externalTarget?: Promise<QueryTarget>;
 
   /**
    * Creates an instance of CoreRepository.
    * @param entity The entity this repository manages.
+   * @param externalService The connected external service, or the descriptor of a connection still in flight.
    */
   constructor(
     protected readonly entity: Entity,
-    protected readonly externalService?: ExternalServiceProps,
+    protected readonly externalService?: ExternalServiceBinding,
   ) {
     this.resolvedEntity = findUtils.resolveEntityName(entity);
+    this.databaseTarget = { entityName: this.resolvedEntity };
+  }
+
+  /**
+   * Whether this repository is bound to an external service, answered SYNCHRONOUSLY.
+   *
+   * The binding is present from construction on, even while the connection of a lazily attached service
+   * is still pending, so the methods refusing the external path can throw without awaiting anything.
+   */
+  private get isExternal(): boolean {
+    return this.externalService !== undefined;
+  }
+
+  /**
+   * Resolves where the next query has to be executed, awaiting a pending connection ONCE.
+   *
+   * The primary database target is the entity name resolved at construction time. The external one is
+   * memoized: the connection is awaited and the entity re-resolved from the service's entity set on the
+   * first call, every later call reuses that outcome (a failed connection keeps rejecting).
+   * @returns A promise resolving to the entity name to build the query from and the service to run it on.
+   */
+  private async target(): Promise<QueryTarget> {
+    if (!this.externalService) {
+      return this.databaseTarget;
+    }
+
+    this.externalTarget ??= this.resolveExternalTarget(this.externalService);
+
+    return await this.externalTarget;
+  }
+
+  /**
+   * Connects the external service and re-resolves the entity on it.
+   * @param externalService The connected service or the descriptor of the pending connection.
+   * @returns A promise resolving to the remote entity name and the connected service.
+   */
+  private async resolveExternalTarget(externalService: ExternalServiceBinding): Promise<QueryTarget> {
+    const resolved = await util.resolveExternalTarget(this.entity, externalService);
+
+    return { entityName: findUtils.resolveEntityName(resolved.entity), service: resolved.service };
   }
 
   // Public routines
   public async create(entry: Entry<T>): Promise<InsertResult<T>> {
-    const query = INSERT.into(this.resolvedEntity).entries(entry);
+    const target = await this.target();
+    const query = INSERT.into(target.entityName).entries(entry);
 
-    if (this.externalService) {
-      const executedQuery: T = await this.externalService.run(query);
+    if (target.service) {
+      const executedQuery: T = await target.service.run(query);
 
       return {
         query: { INSERT: { entries: [executedQuery] } },
@@ -57,12 +112,14 @@ class CoreRepository<T> {
   }
 
   public async createMany(...entries: Entries<T>[]): Promise<InsertResult<T>> {
-    if (this.externalService) {
+    const target = await this.target();
+
+    if (target.service) {
       const inserted: T[] = [];
 
       for (const entry of entries) {
-        const query = INSERT.into(this.resolvedEntity).entries(entry);
-        const result = await this.externalService.run(query);
+        const query = INSERT.into(target.entityName).entries(entry);
+        const result = await target.service.run(query);
 
         inserted.push(result);
       }
@@ -76,15 +133,16 @@ class CoreRepository<T> {
       };
     }
 
-    const query: InsertResult<T> = await INSERT.into(this.resolvedEntity).entries(...entries);
+    const query: InsertResult<T> = await INSERT.into(target.entityName).entries(...entries);
     return query;
   }
 
   public async getAll(): Promise<T[] | undefined> {
-    const query = SELECT.from(this.resolvedEntity);
+    const target = await this.target();
+    const query = SELECT.from(target.entityName);
 
-    if (this.externalService) {
-      return await this.externalService.run(query);
+    if (target.service) {
+      return await target.service.run(query);
     }
 
     return await query;
@@ -94,28 +152,30 @@ class CoreRepository<T> {
     ...columns: ColumnKeys[]
   ): Promise<Pick<T, ShowOnlyColumns<T, ColumnKeys>>[] | undefined> {
     const allColumns = Array.isArray(columns[0]) ? columns[0] : columns;
+    const target = await this.target();
 
-    if (this.externalService) {
-      const query = SELECT.from(this.resolvedEntity)
+    if (target.service) {
+      const query = SELECT.from(target.entityName)
         .columns(...allColumns)
         .groupBy(...allColumns);
 
-      return await this.externalService.run(query);
+      return await target.service.run(query);
     }
 
-    const query = SELECT.distinct.from(this.resolvedEntity).columns(...allColumns);
+    const query = SELECT.distinct.from(target.entityName).columns(...allColumns);
     return await query;
   }
 
   public async paginate(options: { limit: number; skip?: number | undefined }): Promise<T[] | undefined> {
-    const query = SELECT.from(this.resolvedEntity).limit(options.limit);
+    const target = await this.target();
+    const query = SELECT.from(target.entityName).limit(options.limit);
 
     if (options.skip !== undefined) {
       query.limit(options.limit, options.skip);
     }
 
-    if (this.externalService) {
-      return await this.externalService.run(query);
+    if (target.service) {
+      return await target.service.run(query);
     }
 
     return await query;
@@ -124,56 +184,62 @@ class CoreRepository<T> {
   public async getLocaleTexts<ColumnKeys extends Columns<T>>(
     ...columns: ColumnKeys[]
   ): Promise<(Pick<T, ExtractSingular<ColumnKeys>> & Locale)[] | undefined> {
-    const items = Array.isArray(columns[0]) ? columns[0] : columns;
-    const query = SELECT.from(`${this.entity.name}.texts`).columns(...items, 'locale');
-
-    if (this.externalService) {
+    // Refused before the connection is even awaited : the `.texts` sibling exists on the primary
+    // database only.
+    if (this.isExternal) {
       throw new Error('Currently not supported on External services !');
     }
+
+    const items = Array.isArray(columns[0]) ? columns[0] : columns;
+    const query = SELECT.from(`${this.entity.name}.texts`).columns(...items, 'locale');
 
     return await query;
   }
 
   public async find(keys?: Entry<T> | Filter<T>): Promise<T[] | undefined> {
     const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
-    const query = SELECT.from(this.resolvedEntity);
+    const target = await this.target();
+    const query = SELECT.from(target.entityName);
 
     if (filterKeys) {
       query.where(filterKeys);
     }
 
-    if (this.externalService) {
-      return await this.externalService.run(query);
+    if (target.service) {
+      return await target.service.run(query);
     }
 
     return await query;
   }
 
   public async findOneAndUpdate(keys: Entry<T>, fieldsToUpdate: Entry<T>): Promise<boolean> {
+    const target = await this.target();
+
     // Case 1: External Service
-    if (this.externalService) {
-      const findOneQuery = SELECT.one.from(this.resolvedEntity).where(keys);
-      const foundEntity: T | undefined = await this.externalService.run(findOneQuery);
+    if (target.service) {
+      const findOneQuery = SELECT.one.from(target.entityName).where(keys);
+      const foundEntity: T | undefined = await target.service.run(findOneQuery);
 
       if (!foundEntity) {
         return false;
       }
 
-      const updateQuery = UPDATE.entity(this.resolvedEntity).where(keys).set(fieldsToUpdate);
-      const updated = await this.externalService.run(updateQuery);
+      const updateQuery = UPDATE.entity(target.entityName).where(keys).set(fieldsToUpdate);
+      const updated = await target.service.run(updateQuery);
       return updated === 1;
     }
 
     // Case 2: Regular Database — a single atomic UPDATE, no probe SELECT first.
-    const query = UPDATE.entity(this.resolvedEntity).where(keys).set(fieldsToUpdate);
+    const query = UPDATE.entity(target.entityName).where(keys).set(fieldsToUpdate);
     return coreRepositoryUtils.resolveAffected(await query) === 1;
   }
 
   public async findOne(keys: Entry<T>): Promise<T | undefined> {
-    const query = SELECT.one.from(this.resolvedEntity).where(keys);
+    const target = await this.target();
+    const query = SELECT.one.from(target.entityName).where(keys);
 
-    if (this.externalService) {
-      return await this.externalService.run(query);
+    if (target.service) {
+      return await target.service.run(query);
     }
 
     return await query;
@@ -195,9 +261,11 @@ class CoreRepository<T> {
   }
 
   public async update(keys: Entry<T>, fieldsToUpdate: Entry<T>): Promise<boolean> {
-    const query = UPDATE.entity(this.resolvedEntity).where(keys).set(fieldsToUpdate);
-    if (this.externalService) {
-      const updated = await this.externalService.run(query);
+    const target = await this.target();
+    const query = UPDATE.entity(target.entityName).where(keys).set(fieldsToUpdate);
+
+    if (target.service) {
+      const updated = await target.service.run(query);
       return updated === 1;
     }
 
@@ -206,32 +274,36 @@ class CoreRepository<T> {
   }
 
   public async updateOrCreate(...entries: Entries<T>[]): Promise<boolean> {
-    const query = UPSERT.into(this.resolvedEntity).entries(...entries);
-
-    if (this.externalService) {
+    // Refused before the connection is even awaited : a remote service has no UPSERT.
+    if (this.isExternal) {
       throw new Error('Currently not supported on External services, please use update instead !');
     }
+
+    const query = UPSERT.into(this.resolvedEntity).entries(...entries);
 
     const updatedOrCreated = coreRepositoryUtils.resolveAffected(await query);
     return updatedOrCreated > 0;
   }
 
   public async updateLocaleTexts(localeCodeKeys: Entry<T> & Locale, fieldsToUpdate: Entry<T>): Promise<boolean> {
-    const query = UPDATE.entity(`${this.entity.name}.texts`).with(fieldsToUpdate).where(localeCodeKeys);
-
-    if (this.externalService) {
+    // Refused before the connection is even awaited : the `.texts` sibling exists on the primary
+    // database only.
+    if (this.isExternal) {
       throw new Error('Currently not supported on External services !');
     }
+
+    const query = UPDATE.entity(`${this.entity.name}.texts`).with(fieldsToUpdate).where(localeCodeKeys);
 
     const updated = coreRepositoryUtils.resolveAffected(await query);
     return updated === 1;
   }
 
   public async delete(keys: Entry<T>): Promise<boolean> {
-    const query = DELETE.from(this.resolvedEntity).where(keys);
+    const target = await this.target();
+    const query = DELETE.from(target.entityName).where(keys);
 
-    if (this.externalService) {
-      const deleted: unknown = await this.externalService.run(query);
+    if (target.service) {
+      const deleted: unknown = await target.service.run(query);
       return coreRepositoryUtils.resolveExternalWriteSuccess(deleted, 'one');
     }
 
@@ -241,10 +313,11 @@ class CoreRepository<T> {
 
   public async deleteMany(...entries: Entries<T>[]): Promise<boolean> {
     const items = Array.isArray(entries[0]) ? entries[0] : entries;
-    const queries = items.map((instance) => DELETE.from(this.resolvedEntity).where(instance));
+    const target = await this.target();
+    const queries = items.map((instance) => DELETE.from(target.entityName).where(instance));
 
-    if (this.externalService) {
-      const deletedItems: unknown[] = await this.externalService.run(queries);
+    if (target.service) {
+      const deletedItems: unknown[] = await target.service.run(queries);
       return deletedItems.every((item) => coreRepositoryUtils.resolveExternalWriteSuccess(item, 'one'));
     }
 
@@ -253,10 +326,11 @@ class CoreRepository<T> {
   }
 
   public async deleteAll(): Promise<boolean> {
-    const query = DELETE.from(this.resolvedEntity);
+    const target = await this.target();
+    const query = DELETE.from(target.entityName);
 
-    if (this.externalService) {
-      const deleted: unknown = await this.externalService.run(query);
+    if (target.service) {
+      const deleted: unknown = await target.service.run(query);
       return coreRepositoryUtils.resolveExternalWriteSuccess(deleted, 'some');
     }
 
@@ -265,48 +339,54 @@ class CoreRepository<T> {
   }
 
   public async exists(keys: Entry<T>): Promise<boolean> {
-    if (this.externalService) {
-      const query = SELECT.from(this.resolvedEntity).where(keys);
-      const found: T[] = await this.externalService.run(query);
+    const target = await this.target();
+
+    if (target.service) {
+      const query = SELECT.from(target.entityName).where(keys);
+      const found: T[] = await target.service.run(query);
       return found.length > 0;
     }
 
     // Regular DB : resolve existence with a single `count(*)` aggregate row instead of
     // materializing every matching row and then reading `.length`.
-    const query = SELECT.one.from(this.resolvedEntity).columns('count(*) as total').where(keys);
+    const query = SELECT.one.from(target.entityName).columns('count(*) as total').where(keys);
     const result = (await query) as { total?: number } | undefined;
     return coreRepositoryUtils.resolveCount(result) > 0;
   }
 
   public async count(): Promise<number> {
-    if (this.externalService) {
-      const query = SELECT.from(this.resolvedEntity);
-      const found: T[] = await this.externalService.run(query);
+    const target = await this.target();
+
+    if (target.service) {
+      const query = SELECT.from(target.entityName);
+      const found: T[] = await target.service.run(query);
       return found.length;
     }
 
     // Regular DB : let the database compute the count via `count(*)` rather than
     // fetching all rows into memory.
-    const query = SELECT.one.from(this.resolvedEntity).columns('count(*) as total');
+    const query = SELECT.one.from(target.entityName).columns('count(*) as total');
     const result = (await query) as { total?: number } | undefined;
     return coreRepositoryUtils.resolveCount(result);
   }
 
   public async findFirst<ColumnKeys extends keyof T>(column: ColumnKeys): Promise<T | undefined> {
-    const query = SELECT.one.from(this.resolvedEntity).orderBy(`${column as string} asc`);
+    const target = await this.target();
+    const query = SELECT.one.from(target.entityName).orderBy(`${column as string} asc`);
 
-    if (this.externalService) {
-      return await this.externalService.run(query);
+    if (target.service) {
+      return await target.service.run(query);
     }
 
     return await query;
   }
 
   public async findLast<ColumnKeys extends keyof T>(column: ColumnKeys): Promise<T | undefined> {
-    const query = SELECT.one.from(this.resolvedEntity).orderBy(`${column as string} desc`);
+    const target = await this.target();
+    const query = SELECT.one.from(target.entityName).orderBy(`${column as string} desc`);
 
-    if (this.externalService) {
-      return await this.externalService.run(query);
+    if (target.service) {
+      return await target.service.run(query);
     }
 
     return await query;
@@ -329,20 +409,21 @@ class CoreRepository<T> {
 
   public async countWhere(keys?: Entry<T> | Filter<T>): Promise<number> {
     const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
+    const target = await this.target();
 
-    if (this.externalService) {
-      const query = SELECT.from(this.resolvedEntity);
+    if (target.service) {
+      const query = SELECT.from(target.entityName);
 
       if (filterKeys) {
         query.where(filterKeys);
       }
 
-      const found: T[] = await this.externalService.run(query);
+      const found: T[] = await target.service.run(query);
       return found.length;
     }
 
     // Regular DB : compute the matching count with a single `count(*)` aggregate row.
-    const query = SELECT.one.from(this.resolvedEntity).columns('count(*) as total');
+    const query = SELECT.one.from(target.entityName).columns('count(*) as total');
 
     if (filterKeys) {
       query.where(filterKeys);
@@ -354,14 +435,15 @@ class CoreRepository<T> {
 
   public async updateMany(keys: Entry<T> | Filter<T>, fieldsToUpdate: Entry<T>): Promise<number> {
     const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
-    const query = UPDATE.entity(this.resolvedEntity).set(fieldsToUpdate);
+    const target = await this.target();
+    const query = UPDATE.entity(target.entityName).set(fieldsToUpdate);
 
     if (filterKeys) {
       query.where(filterKeys);
     }
 
-    if (this.externalService) {
-      const updated: number = await this.externalService.run(query);
+    if (target.service) {
+      const updated: number = await target.service.run(query);
       return updated;
     }
 
@@ -371,14 +453,15 @@ class CoreRepository<T> {
 
   public async deleteWhere(keys?: Entry<T> | Filter<T>): Promise<number> {
     const filterKeys = coreRepositoryUtils.buildQueryKeys(keys);
-    const query = DELETE.from(this.resolvedEntity);
+    const target = await this.target();
+    const query = DELETE.from(target.entityName);
 
     if (filterKeys) {
       query.where(filterKeys);
     }
 
-    if (this.externalService) {
-      const deleted: number = await this.externalService.run(query);
+    if (target.service) {
+      const deleted: number = await target.service.run(query);
       return deleted;
     }
 
@@ -396,10 +479,11 @@ class CoreRepository<T> {
   public async increment(keys: Entry<T>, column: NumericKeys<T>, value = 1): Promise<boolean> {
     const columnName = column as string;
     const incrementExpression = { [columnName]: { '+=': value } };
-    const query = UPDATE.entity(this.resolvedEntity).where(keys).with(incrementExpression);
+    const target = await this.target();
+    const query = UPDATE.entity(target.entityName).where(keys).with(incrementExpression);
 
-    if (this.externalService) {
-      const updated = await this.externalService.run(query);
+    if (target.service) {
+      const updated = await target.service.run(query);
       return updated === 1;
     }
 
@@ -417,10 +501,11 @@ class CoreRepository<T> {
   public async decrement(keys: Entry<T>, column: NumericKeys<T>, value = 1): Promise<boolean> {
     const columnName = column as string;
     const decrementExpression = { [columnName]: { '-=': value } };
-    const query = UPDATE.entity(this.resolvedEntity).where(keys).with(decrementExpression);
+    const target = await this.target();
+    const query = UPDATE.entity(target.entityName).where(keys).with(decrementExpression);
 
-    if (this.externalService) {
-      const updated = await this.externalService.run(query);
+    if (target.service) {
+      const updated = await target.service.run(query);
       return updated === 1;
     }
 
@@ -444,14 +529,15 @@ class CoreRepository<T> {
       }
     }
 
-    const query = UPDATE.entity(this.resolvedEntity).with(incrementExpression);
+    const target = await this.target();
+    const query = UPDATE.entity(target.entityName).with(incrementExpression);
 
     if (filterKeys) {
       query.where(filterKeys);
     }
 
-    if (this.externalService) {
-      const updated: number = await this.externalService.run(query);
+    if (target.service) {
+      const updated: number = await target.service.run(query);
       return updated;
     }
 
@@ -475,14 +561,15 @@ class CoreRepository<T> {
       }
     }
 
-    const query = UPDATE.entity(this.resolvedEntity).with(decrementExpression);
+    const target = await this.target();
+    const query = UPDATE.entity(target.entityName).with(decrementExpression);
 
     if (filterKeys) {
       query.where(filterKeys);
     }
 
-    if (this.externalService) {
-      const updated: number = await this.externalService.run(query);
+    if (target.service) {
+      const updated: number = await target.service.run(query);
       return updated;
     }
 

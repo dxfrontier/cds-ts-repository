@@ -66,10 +66,22 @@ abstract class BaseRepositoryDraft<T> {
   constructor(protected entity: Entity & Draft<T>) {
     const constructor = this.constructor as BaseRepositoryConstructor;
 
+    // The connected service is already on the class : the entity is swapped right away.
     if (constructor.externalService) {
       // casting is needed as findExternalServiceEntity returns Entity and we need Entity + DraftAdministrativeFields
       this.entity = util.findExternalServiceEntity(this.entity, constructor.externalService) as Entity & Draft<T>;
       this.coreRepository = new CoreRepository(this.entity, constructor.externalService);
+
+      return;
+    }
+
+    // `@ExternalService` applied, connection still pending : the ORIGINAL entity is kept and re-resolved
+    // together with the service on the first repository call.
+    if (constructor.externalServiceName !== undefined && constructor.externalServicePromise !== undefined) {
+      this.coreRepository = new CoreRepository(this.entity, {
+        name: constructor.externalServiceName,
+        promise: constructor.externalServicePromise,
+      });
 
       return;
     }
@@ -80,18 +92,19 @@ abstract class BaseRepositoryDraft<T> {
   /**
    * Guards the create/upsert draft methods against an attached external service.
    *
-   * The constructor swaps `this.entity` for the external service's entity when `@ExternalService` is
-   * used, and that remote entity has no `.drafts` - `findUtils.resolveEntityName` would silently fall
-   * back to the active entity name, so a create/upsert would INSERT into the remote active entity set
-   * with draft-only fields the remote does not declare. Throwing here instead matches how
-   * `CoreRepository.getLocaleTexts` guards its own external-service-unsupported path.
+   * The entity is resolved on the external service's entity set when `@ExternalService` is used, and that
+   * remote entity has no `.drafts` - `findUtils.resolveEntityName` would silently fall back to the active
+   * entity name, so a create/upsert would INSERT into the remote active entity set with draft-only fields
+   * the remote does not declare. Throwing here instead matches how `CoreRepository.getLocaleTexts` guards
+   * its own external-service-unsupported path. The service NAME is enough to decide: it is on the class
+   * from decoration time on, while the connection itself may still be pending.
    * @param methodName The name of the calling method, used in the thrown error message.
    * @throws {Error} Always, when an external service is attached via `@ExternalService`.
    */
   private assertNoExternalService(methodName: string): void {
     const constructor = this.constructor as BaseRepositoryConstructor;
 
-    if (constructor.externalService) {
+    if (constructor.externalService ?? constructor.externalServiceName) {
       throw new Error(`${methodName} is currently not supported on External services !`);
     }
   }

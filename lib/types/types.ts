@@ -35,18 +35,62 @@ type ExternalServiceProps = {
 };
 
 /**
+ * Describes the remote service a repository is bound to BEFORE that service is connected : its name
+ * and the pending `cds.connect.to(name)` promise.
+ *
+ * @remarks
+ * What `@ExternalService('NAME')` stores on the decorated class SYNCHRONOUSLY, at decoration time. The
+ * promise is only awaited on the first repository call, which is what makes construction order
+ * irrelevant : a repository built before the connection settles still routes remotely. The entity is
+ * re-resolved from the connected service's entity set at that same moment, so a failed connection
+ * surfaces as a rejected repository call instead of a silent fallback to the primary database.
+ *
+ * @example
+ * ```ts
+ * /@ExternalService('API_BUSINESS_PARTNER')
+ * class BusinessPartnerRepository extends BaseRepository<A_BusinessPartner> {
+ *   constructor() {
+ *     super(A_BusinessPartner);
+ *   }
+ * }
+ * ```
+ *
+ * @see {@link https://github.com/dxfrontier/cds-ts-repository#externalservice | CDS-TS-Repository - @ExternalService}
+ */
+type ExternalServiceDescriptor = {
+  name: string;
+  promise: Promise<Service>;
+};
+
+/**
+ * Describes what a repository holds internally for a remote service : the already connected service or
+ * the descriptor of a connection still in flight.
+ *
+ * @remarks
+ * `CoreRepository`, `FindBuilder` and `FindOneBuilder` accept both forms : the presence of the binding
+ * is the SYNCHRONOUS answer to "is this repository remote", while the entity and the service itself are
+ * resolved on the first call when the binding is a descriptor. A consumer never builds it, applying
+ * `@ExternalService` is what produces it.
+ *
+ * @see {@link https://github.com/dxfrontier/cds-ts-repository#externalservice | CDS-TS-Repository - @ExternalService}
+ */
+type ExternalServiceBinding = ExternalServiceProps | ExternalServiceDescriptor;
+
+/**
  * Describes the repository class as seen from its own constructor : a constructable optionally carrying
  * the external service attached by the decorator.
  *
  * @remarks
  * `BaseRepository` and `BaseRepositoryDraft` cast `this.constructor` to it to find out whether
- * `@ExternalService` was applied. `externalService` is `undefined` on a plain database repository, and
- * that absence is what selects the primary-database execution path.
+ * `@ExternalService` was applied. The decorator attaches `externalServiceName` and
+ * `externalServicePromise` synchronously and `externalService` once the connection resolves, so a
+ * repository is remote as soon as the NAME is there — all three are `undefined` on a plain database
+ * repository, and that absence is what selects the primary-database execution path.
  *
  * @example
  * ```ts
  * const constructor = this.constructor as BaseRepositoryConstructor;
- * const isRemote = constructor.externalService !== undefined;
+ * const isRemote = (constructor.externalServiceName ?? constructor.externalService) !== undefined;
  * ```
  *
  * @see {@link https://github.com/dxfrontier/cds-ts-repository#externalservice | CDS-TS-Repository - @ExternalService}
@@ -54,6 +98,8 @@ type ExternalServiceProps = {
 type BaseRepositoryConstructor = {
   new (...args: any[]): unknown;
   externalService?: ExternalServiceProps;
+  externalServiceName?: string;
+  externalServicePromise?: Promise<Service>;
 };
 
 /**
@@ -1049,6 +1095,8 @@ type ExecuteAndCountResult<T> = {
 export type {
   // Common
   ExternalServiceProps,
+  ExternalServiceDescriptor,
+  ExternalServiceBinding,
   BaseRepositoryConstructor,
   ExtractSingular,
   Entry,
