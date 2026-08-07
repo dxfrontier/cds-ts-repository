@@ -158,13 +158,15 @@ abstract class BaseRepositoryDraft<T> {
    * flow. `DraftAdministrativeData_DraftUUID` is generated when the entry omits it and `HasActiveEntity`
    * defaults to `false`; caller-provided values are NEVER overwritten and the caller's object is never
    * mutated. `IsActiveEntity` does not have to be passed, the statement already targets the drafts
-   * table. THROWS when an external service is attached, the drafts table only lives on the primary
-   * database. Many rows at once: `createManyDrafts`. Active counterpart: `create`.
+   * table. THROWS when an external service is attached or the entity is not draft-enabled, the drafts
+   * table only lives on the primary database. Many rows at once: `createManyDrafts`. Active
+   * counterpart: `create`.
    *
    * @param entry - An object representing the draft entry to be created.
    * @returns A promise that resolves to the inserted result.
    * @throws {Error} - When an external service is attached via `@ExternalService` - the drafts table
-   * only exists on the primary database, so this is not supported the way the active `create` is.
+   * only exists on the primary database, so this is not supported the way the active `create` is - or
+   * when the entity is not draft-enabled (`@odata.draft.enabled`), so no drafts table exists for it.
    *
    * @example
    * ```ts
@@ -193,12 +195,14 @@ abstract class BaseRepositoryDraft<T> {
    * row and NO Fiori draft-lifecycle event. Entries are passed as varargs OR as a single array, both
    * forms behave identically. EVERY entry gets its own generated `DraftAdministrativeData_DraftUUID`
    * when it omits one (the rows are never linked to each other) and `HasActiveEntity` defaults to
-   * `false`. THROWS when an external service is attached. Active counterpart: `createMany`.
+   * `false`. THROWS when an external service is attached or the entity is not draft-enabled. Active
+   * counterpart: `createMany`.
    *
    * @param entries - The draft entries to be created, passed as varargs or as a single array.
    * @returns A promise that resolves to the insert result.
    * @throws {Error} - When an external service is attached via `@ExternalService` - the drafts table
-   * only exists on the primary database, so this is not supported the way the active `createMany` is.
+   * only exists on the primary database, so this is not supported the way the active `createMany` is -
+   * or when the entity is not draft-enabled (`@odata.draft.enabled`), so no drafts table exists for it.
    *
    * @example
    * ```ts
@@ -238,13 +242,14 @@ abstract class BaseRepositoryDraft<T> {
    * Unlike `createDraft`, `HasActiveEntity` is NEVER defaulted here — on an update the existing value
    * survives (a draft opened through `draftEdit` keeps its `true`), on the insert path the column stays
    * `NULL` unless provided. Entries are passed as varargs or as a single array. THROWS when an external
-   * service is attached. Active counterpart: `updateOrCreate`.
+   * service is attached or the entity is not draft-enabled. Active counterpart: `updateOrCreate`.
    *
    * @param entries - The draft entries to be created or updated, passed as varargs or as a single array.
    * @returns A promise that resolves to `true` when at least one row was written, `false` when the
    * statement affected nothing.
    * @throws {Error} - When an external service is attached via `@ExternalService` - the drafts table
-   * only exists on the primary database, so this is not supported the way the active `updateOrCreate` is.
+   * only exists on the primary database, so this is not supported the way the active `updateOrCreate` is
+   * - or when the entity is not draft-enabled (`@odata.draft.enabled`), so no drafts table exists for it.
    *
    * @example
    * ```ts
