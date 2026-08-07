@@ -345,7 +345,8 @@ type FindReturn<T> = {
    *
    * @remarks
    * Covers every operator `Filter` supports, including the combined, compound and association
-   * (`'EXISTS'`) forms. The result rows are typed from the `Filter`'s own entity type.
+   * (`'EXISTS'`) forms. The `Filter` is typed on the repository's own entity, so the rows keep that
+   * type instead of the `Filter`'s : one built on an entity incompatible with it is a compile error.
    *
    * @param filter - A `Filter` instance describing the where clause.
    * @returns A `FindBuilder` over the matching entries.
@@ -356,7 +357,7 @@ type FindReturn<T> = {
    * const results = await this.builder().find(filter).execute();
    * ```
    */
-  find<T>(filter: Filter<T>): FindBuilder<T, string>;
+  find(filter: Filter<T>): FindBuilder<T, string>;
 
   /**
    * Starts a query for a single entry filtered by the provided keys.
@@ -379,8 +380,9 @@ type FindReturn<T> = {
    * Starts a query for a single entry filtered by a `Filter` instance.
    *
    * @remarks
-   * The first row matching the filter is returned, `undefined` when none does. The result row is typed
-   * from the `Filter`'s own entity type.
+   * The first row matching the filter is returned, `undefined` when none does. The `Filter` is typed on
+   * the repository's own entity, so the row keeps that type instead of the `Filter`'s : one built on an
+   * entity incompatible with it is a compile error.
    *
    * @param filter - A `Filter` instance describing the where clause.
    * @returns A `FindOneBuilder` over the first matching entry.
@@ -391,7 +393,7 @@ type FindReturn<T> = {
    * const result = await this.builder().findOne(filter).execute();
    * ```
    */
-  findOne<T>(filter: Filter<T>): FindOneBuilder<T, string>;
+  findOne(filter: Filter<T>): FindOneBuilder<T, string>;
 };
 
 // Start Filter types
@@ -680,12 +682,18 @@ type NumericAggregateFunctions =
  */
 type DateAggregateFunctions = 'DAY' | 'MONTH' | 'YEAR' | 'HOUR' | 'MINUTE' | 'SECOND';
 
+// The single string column functions, split by the type the database returns for them
+type StringReturningStringFunctions = 'LOWER' | 'UPPER' | 'TRIM';
+
+type NumberReturningStringFunctions = 'LENGTH';
+
 /**
  * Constrains the functions applicable on a single string column.
  *
  * @remarks
- * Offered on both `.find()` and `.findOne()`. The formatted column is always typed as `string`,
- * `'LENGTH'` included, although the database returns a number for it.
+ * Offered on both `.find()` and `.findOne()`. The formatted column is typed out of the function applied
+ * on it : `'LOWER'`, `'UPPER'` and `'TRIM'` produce a `string`, while `'LENGTH'` produces the `number`
+ * of characters the database returns.
  *
  * @example
  * ```ts
@@ -696,7 +704,7 @@ type DateAggregateFunctions = 'DAY' | 'MONTH' | 'YEAR' | 'HOUR' | 'MINUTE' | 'SE
  *
  * @see {@link https://github.com/dxfrontier/cds-ts-repository#columnsformatter | CDS-TS-Repository - columnsFormatter}
  */
-type StringAggregateFunctions = 'LOWER' | 'UPPER' | 'LENGTH' | 'TRIM';
+type StringAggregateFunctions = StringReturningStringFunctions | NumberReturningStringFunctions;
 
 /**
  * Constrains the string functions taking two columns, currently only `'CONCAT'`.
@@ -784,9 +792,9 @@ type AggregateFields<T, K = BuilderTypes> =
  * Resolves the type of every formatted column out of the aggregate function applied on it.
  *
  * @remarks
- * Keyed by `renameAs` : the numeric, date and temporal functions produce a `number`, the string
- * functions produce a `string` and a plain rename falls back to `string` as well — renaming a numeric
- * column therefore LOSES its original type. The first generic parameter is the list of formatters, the
+ * Keyed by `renameAs` : the numeric, date and temporal functions produce a `number`, `'LENGTH'` a
+ * `number` as well, the remaining string functions produce a `string` and a plain rename KEEPS the type
+ * the renamed column has on the entity. The first generic parameter is the list of formatters, the
  * second the entity they are applied on.
  *
  * @example
@@ -796,14 +804,26 @@ type AggregateFields<T, K = BuilderTypes> =
  * ```
  */
 type DynamicColumnTypes<T extends AggregateFields<K>[], K> = {
-  [K in T[number]['renameAs']]: K extends Extract<
+  [Renamed in T[number]['renameAs']]: Renamed extends Extract<
     T[number],
-    { aggregate: NumericAggregateFunctions | DateAggregateFunctions | TemporalTwoColumnsFunctions }
+    {
+      aggregate:
+        | NumericAggregateFunctions
+        | DateAggregateFunctions
+        | TemporalTwoColumnsFunctions
+        | NumberReturningStringFunctions;
+    }
   >['renameAs']
     ? number
-    : K extends Extract<T[number], { aggregate: StringAggregateFunctions }>['renameAs']
+    : Renamed extends Extract<
+          T[number],
+          { aggregate: StringReturningStringFunctions | StringAggregateTwoColumnsFunctions }
+        >['renameAs']
       ? string
-      : string; // Just renaming will get by default string
+      : // Just renaming keeps the type the column has on the entity `K`
+        Extract<T[number], { renameAs: Renamed }> extends { column: infer Column extends keyof K }
+        ? K[Column]
+        : string;
 };
 
 /**
@@ -862,9 +882,10 @@ type GetColumnNames<T, K extends ColumnFormatter<T>> = K[number][];
  * Describes the entity type `.columnsFormatter()` returns : `T` plus its formatted columns.
  *
  * @remarks
- * The formatted columns are OPTIONAL and typed out of their aggregate (`number` for the numeric, date
- * and temporal functions, `string` otherwise), while every original element of `T` is kept — narrowing
- * the result down to the formatted columns only is the job of `.columns()`.
+ * The formatted columns are OPTIONAL and typed out of their aggregate (`number` for the numeric, date,
+ * temporal and `'LENGTH'` functions, `string` for the remaining string ones and the original column type
+ * for a plain rename), while every original element of `T` is kept — narrowing the result down to the
+ * formatted columns only is the job of `.columns()`.
  *
  * @example
  * ```ts
