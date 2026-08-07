@@ -91,34 +91,34 @@ await repo.builder().find().similarity('embedding', vec, 'COSINE').topK(10).exec
 ## Ecosystem & compatibility items
 
 - **Plugin compatibility proof** — integration tests + README section showing repository writes are captured by `@cap-js/change-tracking` and `@cap-js/audit-logging` (both intercept at DB/service level, so it should just work — prove it). `status: idea`
-- **`updateOrCreate` docs warning** — native UPSERT (CDS 9 default) has *PATCH semantics* and **skips generic handlers**: no `@cds.on.insert`, no default values/UUID generation, no audit logging. Legacy `replace` strategy is deprecated. Document this on `updateOrCreate`. `status: idea`
+- **`updateOrCreate` docs warning** — native UPSERT (CDS 9 default) has *PATCH semantics* and **skips generic handlers**: no `@cds.on.insert`, no default values/UUID generation, no audit logging. Legacy `replace` strategy is deprecated. Document this on `updateOrCreate`. `status: shipped` (2026-08-07; documented in the README `updateOrCreate` section — PATCH semantics, skipped generic handlers, no deep upserts — folded into the README-accuracy pass)
 - **CDS 10 `node:sqlite` driver** — CDS 10 (Apr 2026) moves default SQLite driver from `better-sqlite3` to native `node:sqlite` (Node 22.5+, beta). Watch for test-fixture impact. `status: watch` — **confirmed impact 2026-07-31**: `node:sqlite` on Node 22 breaks cds-ql streaming (`stmt.setReturnArrays is not a function`); the streaming test suite forces `better-sqlite3` (devDependency) via `cds_requires_db_driver`. Re-check when Node floor moves past 22.
 
 ---
 
 ## Correctness & DX debt — JSDoc pass findings (2026-08-05)
 
-Surfaced while writing the agentic-dx JSDoc pass (`docs(jsdoc)` f3e3378): the new docs state what the code *does*; these are the spots where that behavior looks unintended. Each fix is a behavior change → needs its own tests + README update.
+Surfaced while writing the agentic-dx JSDoc pass (`docs(jsdoc)` f3e3378): the new docs state what the code *does*; these are the spots where that behavior looks unintended. Each fix is a behavior change → needs its own tests + README update. **All items below shipped 2026-08-07 on `fix/correctness-dx-debt`** (each code fix opus/sonnet-implemented, blind-reviewed, with tests; README aligned in the same branch). Open follow-up: decide at merge whether the behavior flips (`updateLocaleTexts` external throw, `deleteMany([])` → `true`, draft-method guards, `Filter` type tightening) warrant a major-version PR label — they ship as `fix:` commits otherwise.
 
 **Code:**
 
-- **`@ExternalService` attaches fire-and-forget** — `cds.connect.to().then()` is not awaited (`lib/decorators/class.ts`); a repository instantiated before it resolves silently targets the primary database. Candidate: awaitable/lazy attachment. `status: idea`
-- **`findOneAndUpdate` is not atomic** — `SELECT.one` then separate `UPDATE`, no lock (`lib/core/CoreRepository.ts:152-176`); README calls it "atomic". `status: idea`
-- **`updateLocaleTexts` external asymmetry** — routes `<Entity>.texts` UPDATE through `externalService.run` while `getLocaleTexts` throws on the external path (`CoreRepository.ts:225-231`). Align (probably both throw). `status: idea`
-- **`delete` external success check is `deleted === ''`** (`CoreRepository.ts:242-243`) — a remote service answering with an affected count yields `false`. `status: idea`
-- **`findOrCreateDraft` bypasses draft normalization** — create path goes through `CoreRepository.findOrCreate` → `create`, not `createDraft`, so `DraftAdministrativeData_DraftUUID` / `HasActiveEntity` are not defaulted. `status: idea`
-- **Draft methods beyond the create/upsert trio run remotely against the ACTIVE entity set** when `@ExternalService` is attached, and a non-draft-enabled entity silently falls back to the active table (`findUtils.resolveEntityName`). Candidate: guard or warn. `status: idea`
-- **`deleteManyDrafts([])` resolves `false`** — `isAllSuccess` returns `false` for an empty array (`coreRepositoryUtils.ts:10-17`). `status: idea`
-- **`countWhere()` / `deleteWhere()` no-arg forms unreachable** — implementations accept `undefined` but both public overloads require a parameter. Decide: expose or drop. `status: idea`
-- **`FindReturn` generic shadowing** — `find(filter: Filter<T>)` / `findOne(filter: Filter<T>)` declare their own `T` (`lib/types/types.ts`), so `new Filter<Author>(…)` is accepted on a `Book` repository and re-types the rows. `status: idea`
-- **Aggregate typing gaps** — `LENGTH` result typed `string` (SQL returns a number); a plain `{ column, renameAs }` rename loses a numeric column's type (`DynamicColumnTypes`). `status: idea`
+- **`@ExternalService` attaches fire-and-forget** — `cds.connect.to().then()` is not awaited (`lib/decorators/class.ts`); a repository instantiated before it resolves silently targets the primary database. Candidate: awaitable/lazy attachment. `status: shipped` (2026-08-07; lazy await-on-first-use — decorator stores name + pending promise synchronously, CoreRepository/builders resolve on first call, missing remote entity now throws descriptively)
+- **`findOneAndUpdate` is not atomic** — `SELECT.one` then separate `UPDATE`, no lock (`lib/core/CoreRepository.ts:152-176`); README calls it "atomic". `status: shipped` (2026-08-07; local path = one atomic UPDATE, no probe — now behaviorally identical to `update`; external keeps the probe against remote 404s)
+- **`updateLocaleTexts` external asymmetry** — routes `<Entity>.texts` UPDATE through `externalService.run` while `getLocaleTexts` throws on the external path (`CoreRepository.ts:225-231`). Align (probably both throw). `status: shipped` (2026-08-07; both throw)
+- **`delete` external success check is `deleted === ''`** (`CoreRepository.ts:242-243`) — a remote service answering with an affected count yields `false`. `status: shipped` (2026-08-07; `resolveExternalWriteSuccess` normalizer — `''`/`undefined`/`null` 204-style success, number/`{ affected }` counted, unified across delete/deleteMany/deleteAll)
+- **`findOrCreateDraft` bypasses draft normalization** — create path goes through `CoreRepository.findOrCreate` → `create`, not `createDraft`, so `DraftAdministrativeData_DraftUUID` / `HasActiveEntity` are not defaulted. `status: shipped` (2026-08-07; reimplemented via `findOneDraft` → `createDraft` → re-read)
+- **Draft methods beyond the create/upsert trio run remotely against the ACTIVE entity set** when `@ExternalService` is attached, and a non-draft-enabled entity silently falls back to the active table (`findUtils.resolveEntityName`). Candidate: guard or warn. `status: shipped` (2026-08-07; `assertDraftCapable` throws on all 26 public `*Draft` methods for both cases — external first, so it fires even while a lazy connection is pending)
+- **`deleteManyDrafts([])` resolves `false`** — `isAllSuccess` returns `false` for an empty array (`coreRepositoryUtils.ts:10-17`). `status: shipped` (2026-08-07; vacuous `true`, active `deleteMany([])` too — the helper's own doc comment already promised it)
+- **`countWhere()` / `deleteWhere()` no-arg forms unreachable** — implementations accept `undefined` but both public overloads require a parameter. Decide: expose or drop. `status: shipped` (2026-08-07; decision: stays unexposed — public overloads keep requiring a predicate, the anomalous cast-based runtime test was removed)
+- **`FindReturn` generic shadowing** — `find(filter: Filter<T>)` / `findOne(filter: Filter<T>)` declare their own `T` (`lib/types/types.ts`), so `new Filter<Author>(…)` is accepted on a `Book` repository and re-types the rows. `status: shipped` (2026-08-07; overloads bind the repository `T`. Known limit: mutually-assignable cds-typer entities — all-optional elements — still pass the parameter, but rows are never re-typed; genuinely incompatible entities are rejected. Source-breaking for `Filter<Books>`-plural builder call sites)
+- **Aggregate typing gaps** — `LENGTH` result typed `string` (SQL returns a number); a plain `{ column, renameAs }` rename loses a numeric column's type (`DynamicColumnTypes`). `status: shipped` (2026-08-07; `LENGTH` → `number`, plain rename resolves the entity's column type; pinned by the new compile-only lane `test/types/find-builder.types.ts` + a runtime shape assertion)
 
 **README debt** (docs only, no behavior change):
 
 - `create` documented as `Promise<boolean>` — real return is `Promise<InsertResult<T>>` (README.md:413).
 - Empty array-reads documented as `undefined` — runtime resolves `[]` (README.md:543, :591, :639, :689, :765; proof: `test/unit/active-entity/DELETE.test.ts:96-99`).
 - `findOneAndUpdate` "atomic find-and-update" claim (README.md:874).
-- `status: idea` — one README-accuracy pass covering all three, aligning README with the shipped JSDoc.
+- `status: shipped` (2026-08-07) — one README-accuracy pass covering all three plus the sweep catches (find overloads table typed `T` not `T[]`, builder `execute()` `undefined` claim, SAP Cloud SDK misattribution), external-throw warnings added for `getLocaleTexts` / `updateOrCreate` / `updateLocaleTexts`, `@ExternalService` section rewritten for lazy attachment with a supported/unsupported list.
 
 ---
 
