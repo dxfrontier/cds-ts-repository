@@ -133,6 +133,58 @@ describe('@ExternalService - lazy attachment', () => {
     expect(result).toEqual([{ BusinessPartner: '3' }]);
   });
 
+  it('should retarget the query of a findOne builder chain at the entity the service declares', async () => {
+    // Arrange
+    const deferred = mockPendingConnection();
+    const run = jest.fn().mockResolvedValue({ BusinessPartner: '5' });
+
+    @ExternalService(SERVICE_NAME)
+    class LazyBusinessPartnerRepository extends BaseRepository<BusinessPartner> {
+      constructor() {
+        super(localEntity);
+      }
+    }
+
+    const repository = new LazyBusinessPartnerRepository();
+
+    deferred.resolve(createFakeExternalService(run, { A_BusinessPartner: remoteEntity }));
+
+    // Act : the chain is built against the LOCAL entity, `.execute()` points it at the remote one
+    const result = await repository.builder().findOne({ BusinessPartner: '5' }).execute();
+
+    // Assert
+    expect(run).toHaveBeenCalledTimes(1);
+    expect(run.mock.calls[0][0].SELECT.from.ref).toEqual([remoteEntity.name]);
+    expect(run.mock.calls[0][0].SELECT.one).toBeTruthy();
+    expect(result).toEqual({ BusinessPartner: '5' });
+  });
+
+  it('should refuse the unsupported methods without awaiting a connection that never settles', async () => {
+    // Arrange : the deferred is NEVER settled - a jest timeout here means the guard awaited the
+    // connection instead of throwing synchronously off the decorator's presence.
+    mockPendingConnection();
+
+    @ExternalService(SERVICE_NAME)
+    class LazyBusinessPartnerRepository extends BaseRepository<BusinessPartner> {
+      constructor() {
+        super(localEntity);
+      }
+    }
+
+    const repository = new LazyBusinessPartnerRepository();
+
+    // Act + Assert
+    await expect(repository.updateOrCreate({ BusinessPartner: '1' })).rejects.toThrow(
+      'Currently not supported on External services, please use update instead !',
+    );
+    await expect(repository.getLocaleTexts(['BusinessPartner'])).rejects.toThrow(
+      'Currently not supported on External services !',
+    );
+    await expect(
+      repository.updateLocaleTexts({ BusinessPartner: '1', locale: 'en' }, { BusinessPartner: '2' }),
+    ).rejects.toThrow('Currently not supported on External services !');
+  });
+
   it('should surface a failed connection on the first repository call, without an unhandled rejection at decoration time', async () => {
     // Arrange
     const deferred = mockPendingConnection();

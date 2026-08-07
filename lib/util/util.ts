@@ -71,6 +71,11 @@ export const util = {
    */
   retargetQuery(query: SELECT<any>, entityName: string): void {
     query.SELECT.from = { ref: [entityName] };
+
+    // `cds.infer` caches the resolved target on the query itself (`_target`) as soon as `.elements` is
+    // read off the builder ; a pinned target would override the rewritten `from` when the remote service
+    // resolves the query, so the cache is dropped and recomputed from the mutated `from`.
+    Reflect.deleteProperty(query, '_target');
   },
 
   /**
