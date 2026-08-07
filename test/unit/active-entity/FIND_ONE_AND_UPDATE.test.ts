@@ -109,6 +109,20 @@ describe('FIND_ONE_AND_UPDATE', () => {
       expect(originalBook?.stock).not.toBe(updatedBook?.stock);
     });
 
+    it('should return false when the keys match several rows, even though they were written', async () => {
+      // Arrange
+      const matchingBefore = await bookRepository.find({ currency_code: 'GBP' });
+      expect(matchingBefore!.length).toBeGreaterThan(1);
+
+      // Act
+      const wasUpdated = await bookRepository.findOneAndUpdate({ currency_code: 'GBP' }, { stock: 777 });
+      const matchingAfter = await bookRepository.find({ currency_code: 'GBP' });
+
+      // Assert
+      expect(wasUpdated).toBe(false);
+      matchingAfter!.forEach((book) => expect(book.stock).toBe(777)); // the rows WERE written
+    });
+
     it('should handle updating with null values', async () => {
       // Arrange
       const bookId = 252;

@@ -25,6 +25,43 @@ describe('coreRepositoryUtils', () => {
     });
   });
 
+  describe('.resolveExternalWriteSuccess()', () => {
+    it("should treat '' as a 204-style success for both expectations", () => {
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess('', 'one')).toBe(true);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess('', 'some')).toBe(true);
+    });
+
+    it('should treat undefined and null as a 204-style success', () => {
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess(undefined, 'one')).toBe(true);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess(null, 'one')).toBe(true);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess(undefined, 'some')).toBe(true);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess(null, 'some')).toBe(true);
+    });
+
+    it("should require exactly one affected row for 'one'", () => {
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess(1, 'one')).toBe(true);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess({ affected: 1 }, 'one')).toBe(true);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess(0, 'one')).toBe(false);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess(2, 'one')).toBe(false);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess({ affected: 0 }, 'one')).toBe(false);
+    });
+
+    it("should require at least one affected row for 'some'", () => {
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess(3, 'some')).toBe(true);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess({ affected: 3 }, 'some')).toBe(true);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess(0, 'some')).toBe(false);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess({ affected: 0 }, 'some')).toBe(false);
+    });
+
+    it('should treat unrecognized shapes as a failure', () => {
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess('error', 'one')).toBe(false);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess('2', 'one')).toBe(false);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess({ rows: [] }, 'some')).toBe(false);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess(-1, 'one')).toBe(false);
+      expect(coreRepositoryUtils.resolveExternalWriteSuccess({ affected: undefined }, 'some')).toBe(false);
+    });
+  });
+
   describe('.resolveAffected()', () => {
     it('should return the number as-is when the result is already a number', () => {
       expect(coreRepositoryUtils.resolveAffected(4)).toBe(4);
