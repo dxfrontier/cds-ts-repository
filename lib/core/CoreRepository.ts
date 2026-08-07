@@ -150,10 +150,9 @@ class CoreRepository<T> {
   }
 
   public async findOneAndUpdate(keys: Entry<T>, fieldsToUpdate: Entry<T>): Promise<boolean> {
-    const findOneQuery = SELECT.one.from(this.resolvedEntity).where(keys);
-
     // Case 1: External Service
     if (this.externalService) {
+      const findOneQuery = SELECT.one.from(this.resolvedEntity).where(keys);
       const foundEntity: T | undefined = await this.externalService.run(findOneQuery);
 
       if (!foundEntity) {
@@ -165,14 +164,9 @@ class CoreRepository<T> {
       return updated === 1;
     }
 
-    // Case 2: Regular Database
-    const foundOne: T | undefined = await findOneQuery;
-
-    if (!foundOne) {
-      return false;
-    }
-
-    return this.update(keys, fieldsToUpdate);
+    // Case 2: Regular Database — a single atomic UPDATE, no probe SELECT first.
+    const query = UPDATE.entity(this.resolvedEntity).where(keys).set(fieldsToUpdate);
+    return coreRepositoryUtils.resolveAffected(await query) === 1;
   }
 
   public async findOne(keys: Entry<T>): Promise<T | undefined> {
@@ -226,8 +220,7 @@ class CoreRepository<T> {
     const query = UPDATE.entity(`${this.entity.name}.texts`).with(fieldsToUpdate).where(localeCodeKeys);
 
     if (this.externalService) {
-      const updated: number = await this.externalService.run(query);
-      return updated === 1;
+      throw new Error('Currently not supported on External services !');
     }
 
     const updated = coreRepositoryUtils.resolveAffected(await query);
@@ -238,9 +231,8 @@ class CoreRepository<T> {
     const query = DELETE.from(this.resolvedEntity).where(keys);
 
     if (this.externalService) {
-      // external returns '' on the other side the normal SAP CAP delete returns number
-      const deleted: string = await this.externalService.run(query);
-      return deleted === '';
+      const deleted: unknown = await this.externalService.run(query);
+      return coreRepositoryUtils.resolveExternalWriteSuccess(deleted, 'one');
     }
 
     const deleted = coreRepositoryUtils.resolveAffected(await query);
@@ -252,8 +244,8 @@ class CoreRepository<T> {
     const queries = items.map((instance) => DELETE.from(this.resolvedEntity).where(instance));
 
     if (this.externalService) {
-      const deletedItems: string[] = await this.externalService.run(queries);
-      return coreRepositoryUtils.isAllSuccess(deletedItems);
+      const deletedItems: unknown[] = await this.externalService.run(queries);
+      return deletedItems.every((item) => coreRepositoryUtils.resolveExternalWriteSuccess(item, 'one'));
     }
 
     const deletedItems = (await Promise.all(queries)).map((result) => coreRepositoryUtils.resolveAffected(result));
@@ -264,8 +256,8 @@ class CoreRepository<T> {
     const query = DELETE.from(this.resolvedEntity);
 
     if (this.externalService) {
-      const deleted: number = await this.externalService.run(query);
-      return deleted > 0;
+      const deleted: unknown = await this.externalService.run(query);
+      return coreRepositoryUtils.resolveExternalWriteSuccess(deleted, 'some');
     }
 
     const deleted = coreRepositoryUtils.resolveAffected(await query);

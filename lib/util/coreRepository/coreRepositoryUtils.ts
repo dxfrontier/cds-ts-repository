@@ -8,7 +8,7 @@ const coreRepositoryUtils = {
    * @returns Returns true if all items are non-zero or empty, false otherwise.
    */
   isAllSuccess(items: (number | string)[]): boolean {
-    if (items.length === 0) return false;
+    if (items.length === 0) return true;
 
     const isString = typeof items[0] === 'string';
     const isNumber = typeof items[0] === 'number';
@@ -35,6 +35,27 @@ const coreRepositoryUtils = {
     }
 
     return 0;
+  },
+
+  /**
+   * Normalizes the resolved result of an external-service CDS write query (`UPDATE` / `DELETE`) into a success
+   * boolean. Remote OData writes are less consistent than the primary database: some stacks resolve a plain `''`
+   * (or `undefined` / `null`) with no count information at all - a 204-style success - while others resolve a
+   * `number` or a consolidated `{ affected, rows }` object carrying the actual affected-row count (delegated to
+   * `resolveAffected`). Anything else (a non-empty string, an object without a recognizable `affected` count) is
+   * treated as a failure.
+   * @param result - The resolved value of an awaited external-service write query.
+   * @param expectation - `'one'` requires exactly one affected row (single-key writes, e.g. `delete`), `'some'`
+   * requires at least one (unscoped bulk writes, e.g. `deleteAll`).
+   * @returns `true` when the result satisfies the expectation, `false` otherwise.
+   */
+  resolveExternalWriteSuccess(result: unknown, expectation: 'one' | 'some'): boolean {
+    if (result === '' || result === undefined || result === null) {
+      return true;
+    }
+
+    const affected = this.resolveAffected(result);
+    return expectation === 'one' ? affected === 1 : affected > 0;
   },
 
   /**

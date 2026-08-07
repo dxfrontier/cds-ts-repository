@@ -42,6 +42,15 @@ describe('DELETE', () => {
       expect(deleteAllOperation).toBe(true);
       expect(getAll!.length).toBeGreaterThan(getAllAfter!.length);
     });
+
+    it('should return true when called with an empty array (vacuous success)', async () => {
+      const getAll = await bookRepository.getAll();
+      const deleteAllOperation = await bookRepository.deleteMany([]);
+      const getAllAfter = await bookRepository.getAll();
+
+      expect(deleteAllOperation).toBe(true);
+      expect(getAll!.length).toBe(getAllAfter!.length);
+    });
   });
 
   describe('.deleteWhere()', () => {

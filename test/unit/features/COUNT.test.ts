@@ -65,16 +65,6 @@ describe('FEATURE - efficient count / countWhere / exists', () => {
       // Assert
       expect(count).toBe(0);
     });
-
-    it('should equal .count() when called without arguments', async () => {
-      // Act
-      // @ts-expect-error countWhere requires a filter at compile time, the no-argument runtime fallback is under test
-      const countWhere = await bookRepository.countWhere();
-      const count = await bookRepository.count();
-
-      // Assert
-      expect(countWhere).toBe(count);
-    });
   });
 
   describe('.exists()', () => {

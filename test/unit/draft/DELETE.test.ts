@@ -67,6 +67,19 @@ describe('DELETE - drafts', () => {
         expect(draftsAfterDelete).not.toContainEqual(expect.objectContaining({ ID: id })); // Ensure each draft is no longer present
       });
     });
+
+    it('should return true when called with an empty array (vacuous success)', async () => {
+      // Arrange
+      const initialDrafts = await bookEventDraftRepository.getAllDrafts();
+
+      // Act
+      const deleteOperation = await bookEventDraftRepository.deleteManyDrafts([]);
+      const draftsAfterDelete = await bookEventDraftRepository.getAllDrafts();
+
+      // Assert
+      expect(deleteOperation).toBe(true);
+      expect(draftsAfterDelete?.length).toBe(initialDrafts!.length); // Nothing was removed
+    });
   });
 
   describe('.deleteDraftsWhere()', () => {

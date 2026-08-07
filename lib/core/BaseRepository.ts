@@ -374,14 +374,16 @@ abstract class BaseRepository<T> {
 
   /**
    * Updates a single entry ONLY when it exists.
-   * Executes `SELECT.one.from(<Entity>).where(keys)` and, on a hit,
-   * `UPDATE.entity(<Entity>).where(keys).set(fieldsToUpdate)`.
+   * Executes `UPDATE.entity(<Entity>).where(keys).set(fieldsToUpdate)` — on an external service, a
+   * `SELECT.one.from(<Entity>).where(keys)` probe first.
    *
    * @remarks
    * Resolves to `false` when no row matched the keys, and to `true` ONLY when exactly one row was updated — that is
-   * the difference to `update`, which fires the `UPDATE` unconditionally. The existence check and the write are two
-   * separate round trips and are NOT locked against each other, so wrap the call in a CDS transaction when a
-   * concurrent write would be harmful. `fieldsToUpdate` is a partial patch: omitted columns keep their value. Use
+   * the difference to `update`, which fires the `UPDATE` unconditionally. Against the primary database this is now
+   * ONE atomic `UPDATE`: no probe first, a miss simply affects 0 rows. Bound to an external service via
+   * `@ExternalService` it stays a SELECT-then-UPDATE probe — two round trips, NOT locked against each other, because
+   * a remote by-key `UPDATE` throws on a miss instead of affecting 0 rows — wrap that call in a CDS transaction when
+   * a concurrent write would be harmful. `fieldsToUpdate` is a partial patch: omitted columns keep their value. Use
    * `updateMany` to patch every matching row. Draft counterpart: `findOneDraftAndUpdate`.
    *
    * @param keys - The keys to find the entity.
@@ -501,12 +503,14 @@ abstract class BaseRepository<T> {
    * The `locale` code (`'de'`, `'fr'`, …) is part of the key: next to the entity keys it selects WHICH language row
    * of `.texts` is patched. Resolves to `true` ONLY when exactly one row was affected, and a language that has no
    * row in `.texts` yet is NOT created — an `UPDATE` never inserts. The active table stays untouched: patch the
-   * default-language values with `update`. Read the same texts back with `getLocaleTexts` — which, unlike this
-   * method, is NOT available on an external service.
+   * default-language values with `update`. Throws an `Error` when the repository is bound to an external service via
+   * `@ExternalService`, same as `getLocaleTexts` — which reads the same texts back.
    *
    * @param localeCodeKeys - An object representing the language code and the keys to filter the entries.
    * @param fieldsToUpdate - An object representing the fields and their updated values for the matching entries.
    * @returns A promise that resolves to `true` when exactly one row was affected, `false` otherwise.
+   * @throws {Error} - When an external service is attached via `@ExternalService` - the `.texts` entity set does not
+   * exist remotely, so this is not supported the way the active `update` is.
    *
    * @example
    * ```ts
@@ -555,8 +559,9 @@ abstract class BaseRepository<T> {
    * @remarks
    * Accepts a spread of key objects (`deleteMany(a, b)`) or a single array (`deleteMany([a, b])`). Resolves to `true`
    * ONLY when EVERY single delete affected exactly one row — one key matching nothing turns the whole call `false`
-   * even though the other deletes have already been executed. Use `deleteWhere` to remove a whole matching set with
-   * one statement and get the count back. Draft counterpart: `deleteManyDrafts`.
+   * even though the other deletes have already been executed. An EMPTY list of entries resolves to `true` too (a
+   * vacuous success — there is nothing to delete). Use `deleteWhere` to remove a whole matching set with one
+   * statement and get the count back. Draft counterpart: `deleteManyDrafts`.
    *
    * @param entries - The key objects of the entries to be deleted, passed as a spread or as a single array.
    * @returns A promise that resolves to `true` when every single delete affected exactly one row, `false` otherwise.

@@ -8,8 +8,8 @@ import { Filter } from '../../../lib/util/filter/Filter';
 
 describe('coreRepositoryUtils', () => {
   describe('.isAllSuccess()', () => {
-    it('should return false for an empty array', () => {
-      expect(coreRepositoryUtils.isAllSuccess([])).toBe(false);
+    it('should return true for an empty array (vacuous success)', () => {
+      expect(coreRepositoryUtils.isAllSuccess([])).toBe(true);
     });
 
     it('should return true when every item is an empty string', () => {

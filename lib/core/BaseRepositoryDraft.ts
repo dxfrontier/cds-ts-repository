@@ -398,16 +398,17 @@ abstract class BaseRepositoryDraft<T> {
   }
 
   /**
-   * Reads a single draft row by keys and, ONLY when it exists, writes the given fields to it.
-   * Executes `SELECT.one.from(<Entity>.drafts).where(keys)` and then
-   * `UPDATE.entity(<Entity>.drafts).where(keys).set(fieldsToUpdate)`.
+   * Writes the given fields to a single draft row ONLY when it exists.
+   * Executes `UPDATE.entity(<Entity>.drafts).where(keys).set(fieldsToUpdate)` — on an external
+   * service, a `SELECT.one` probe first.
    *
    * @remarks
-   * Skips the UPDATE entirely and resolves `false` when no draft row matches, where `updateDraft` would
-   * fire a statement that hits nothing. Also resolves `false` when the UPDATE did not affect EXACTLY one
-   * row, so a keys object matching several drafts reports `false` although the rows WERE written - use
-   * `updateManyDrafts` there. The read and the write are two statements in the ambient CDS transaction,
-   * NOT an atomic compare-and-set. Active counterpart: `findOneAndUpdate`.
+   * Resolves `false` when no draft row matches the keys, and `true` ONLY when the UPDATE affected EXACTLY
+   * one row, so a keys object matching several drafts reports `false` although the rows WERE written -
+   * use `updateManyDrafts` there. Against the primary database this is now ONE atomic `UPDATE`: no probe
+   * first, a miss simply affects 0 rows. Bound to an external service via `@ExternalService` it targets
+   * the remote ACTIVE entity set and stays a SELECT-then-UPDATE probe - two statements, NOT an atomic
+   * compare-and-set. Active counterpart: `findOneAndUpdate`.
    *
    * @param keys - The keys to identify the draft entity to find and update.
    * @param fieldsToUpdate - The fields and their new values to update on the found draft entity.
@@ -560,10 +561,10 @@ abstract class BaseRepositoryDraft<T> {
    *
    * @remarks
    * Takes ONE array argument - NOT varargs, unlike `createManyDrafts` / `updateOrCreateDraft`. Resolves
-   * `true` only when EVERY statement removed exactly one row, and `false` for an EMPTY array since
-   * nothing was deleted. The statements are independent — a partial failure still leaves the successful
-   * deletes applied, up to the ambient CDS transaction. Prefer `deleteDraftsWhere` when a single
-   * predicate covers all rows. Active counterpart: `deleteMany`.
+   * `true` only when EVERY statement removed exactly one row, and `true` for an EMPTY array too (a
+   * vacuous success - there is nothing to delete). The statements are independent — a partial failure
+   * still leaves the successful deletes applied, up to the ambient CDS transaction. Prefer
+   * `deleteDraftsWhere` when a single predicate covers all rows. Active counterpart: `deleteMany`.
    *
    * @param entries - An array of objects representing the keys to filter the entries.
    * @returns A promise that resolves to `true` when every statement removed exactly one draft row,

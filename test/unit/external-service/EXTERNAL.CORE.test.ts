@@ -189,22 +189,12 @@ describe('CoreRepository - externalService', () => {
   });
 
   describe('.updateLocaleTexts()', () => {
-    it('should return true when the external service reports 1 updated row', async () => {
-      const run = jest.fn().mockResolvedValue(1);
-      const repo = new CoreRepository<FakeEntity>(entity, createFakeExternalService(run));
+    it('should throw (not supported on external services)', async () => {
+      const repo = new CoreRepository<FakeEntity>(entity, createFakeExternalService());
 
-      const result = await repo.updateLocaleTexts({ ID: 1, locale: 'en' }, { name: 'New' });
-
-      expect(result).toBe(true);
-    });
-
-    it('should return false when the external service does not report exactly 1 updated row', async () => {
-      const run = jest.fn().mockResolvedValue(0);
-      const repo = new CoreRepository<FakeEntity>(entity, createFakeExternalService(run));
-
-      const result = await repo.updateLocaleTexts({ ID: 1, locale: 'en' }, { name: 'New' });
-
-      expect(result).toBe(false);
+      await expect(repo.updateLocaleTexts({ ID: 1, locale: 'en' }, { name: 'New' })).rejects.toThrow(
+        'Currently not supported on External services !',
+      );
     });
   });
 
@@ -220,6 +210,42 @@ describe('CoreRepository - externalService', () => {
 
     it("should return false when the external service does not report ''", async () => {
       const run = jest.fn().mockResolvedValue('error');
+      const repo = new CoreRepository<FakeEntity>(entity, createFakeExternalService(run));
+
+      const result = await repo.delete({ ID: 1 });
+
+      expect(result).toBe(false);
+    });
+
+    it('should return true when the external service reports a numeric 1 (affected-count convention)', async () => {
+      const run = jest.fn().mockResolvedValue(1);
+      const repo = new CoreRepository<FakeEntity>(entity, createFakeExternalService(run));
+
+      const result = await repo.delete({ ID: 1 });
+
+      expect(result).toBe(true);
+    });
+
+    it('should return true when the external service reports { affected: 1 }', async () => {
+      const run = jest.fn().mockResolvedValue({ affected: 1 });
+      const repo = new CoreRepository<FakeEntity>(entity, createFakeExternalService(run));
+
+      const result = await repo.delete({ ID: 1 });
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false when the external service reports { affected: 0 }', async () => {
+      const run = jest.fn().mockResolvedValue({ affected: 0 });
+      const repo = new CoreRepository<FakeEntity>(entity, createFakeExternalService(run));
+
+      const result = await repo.delete({ ID: 1 });
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when the external service reports a numeric 0', async () => {
+      const run = jest.fn().mockResolvedValue(0);
       const repo = new CoreRepository<FakeEntity>(entity, createFakeExternalService(run));
 
       const result = await repo.delete({ ID: 1 });
@@ -249,13 +275,13 @@ describe('CoreRepository - externalService', () => {
       expect(result).toBe(false);
     });
 
-    it('should return false when called with no entries at all', async () => {
+    it('should return true when called with no entries at all (vacuous success)', async () => {
       const run = jest.fn().mockResolvedValue([]);
       const repo = new CoreRepository<FakeEntity>(entity, createFakeExternalService(run));
 
       const result = await repo.deleteMany();
 
-      expect(result).toBe(false);
+      expect(result).toBe(true);
       expect(run).toHaveBeenCalledWith([]);
     });
   });
@@ -277,6 +303,15 @@ describe('CoreRepository - externalService', () => {
       const result = await repo.deleteAll();
 
       expect(result).toBe(false);
+    });
+
+    it('should return true when the external service reports { affected: 3 }', async () => {
+      const run = jest.fn().mockResolvedValue({ affected: 3 });
+      const repo = new CoreRepository<FakeEntity>(entity, createFakeExternalService(run));
+
+      const result = await repo.deleteAll();
+
+      expect(result).toBe(true);
     });
   });
 
