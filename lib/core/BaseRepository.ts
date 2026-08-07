@@ -378,9 +378,9 @@ abstract class BaseRepository<T> {
    * `SELECT.one.from(<Entity>).where(keys)` probe first.
    *
    * @remarks
-   * Resolves to `false` when no row matched the keys, and to `true` ONLY when exactly one row was updated — that is
-   * the difference to `update`, which fires the `UPDATE` unconditionally. Against the primary database this is now
-   * ONE atomic `UPDATE`: no probe first, a miss simply affects 0 rows. Bound to an external service via
+   * Resolves to `false` when no row matched the keys, and to `true` ONLY when exactly one row was updated. Against
+   * the primary database this is ONE atomic `UPDATE`: no probe first, a miss simply affects 0 rows — behaviorally
+   * identical to `update`, the method earns its name on an external service. Bound to an external service via
    * `@ExternalService` it stays a SELECT-then-UPDATE probe — two round trips, NOT locked against each other, because
    * a remote by-key `UPDATE` throws on a miss instead of affecting 0 rows — wrap that call in a CDS transaction when
    * a concurrent write would be harmful. `fieldsToUpdate` is a partial patch: omitted columns keep their value. Use
@@ -446,8 +446,9 @@ abstract class BaseRepository<T> {
    * @remarks
    * Resolves to `true` ONLY when exactly one row was affected: keys matching several rows update them all and STILL
    * resolve to `false` — use `updateMany`, which returns the affected-row count. Nothing is read first, so keys
-   * matching no row resolve to `false` without an error; gate the write on existence with `findOneAndUpdate`, or
-   * insert the missing row with `updateOrCreate`. `fieldsToUpdate` is a partial patch: omitted columns keep their
+   * matching no row resolve to `false` without an error — `findOneAndUpdate` behaves identically on the primary
+   * database and only probes existence first on an external service; insert the missing row with `updateOrCreate`
+   * instead. `fieldsToUpdate` is a partial patch: omitted columns keep their
    * value. Draft counterpart: `updateDraft`.
    *
    * @param keys - An object representing the keys to filter the entries.
@@ -584,9 +585,10 @@ abstract class BaseRepository<T> {
    * Executes `DELETE.from(<Entity>)` without a `where` clause.
    *
    * @remarks
-   * Resolves to `true` when at least one row was deleted, so emptying an ALREADY empty table resolves to `false`.
-   * There is no filter and no confirmation step — scope the deletion with `deleteWhere` or `deleteMany` whenever
-   * only a subset must go. Draft counterpart: `deleteAllDrafts`.
+   * Resolves to `true` when at least one row was deleted, so emptying an ALREADY empty table resolves to `false` —
+   * except on an external service answering a 204-style success without an affected count (`''`), which resolves to
+   * `true` regardless. There is no filter and no confirmation step — scope the deletion with `deleteWhere` or
+   * `deleteMany` whenever only a subset must go. Draft counterpart: `deleteAllDrafts`.
    *
    * @returns A promise that resolves to `true` when at least one row was deleted, `false` otherwise.
    *

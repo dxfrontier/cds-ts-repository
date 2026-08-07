@@ -500,8 +500,9 @@ abstract class BaseRepositoryDraft<T> {
    * @remarks
    * Resolves `true` ONLY when EXACTLY one draft row was affected — `false` both when nothing matched and
    * when several rows matched, even though those rows were written. Use `updateManyDrafts` when more than
-   * one row is expected (it resolves the affected count) and `findOneDraftAndUpdate` to avoid firing the
-   * statement at all when the row does not exist. Draft administrative fields are only touched when they
+   * one row is expected (it resolves the affected count); `findOneDraftAndUpdate` behaves identically
+   * against the primary database and only probes existence first on an external service. Draft
+   * administrative fields are only touched when they
    * are part of `fieldsToUpdate`, and no Fiori draft-lifecycle event fires. Active counterpart: `update`.
    *
    * @param keys - An object representing the keys to filter the entries.
