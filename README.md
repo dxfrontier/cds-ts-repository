@@ -2952,6 +2952,7 @@ Use `Filter` to create complex `WHERE QUERY` filters.
 > [!NOTE]
 >
 > - `T` should be a type generated using [CDS-Typer](#generate-cds-typed-entities).
+> - `T` can be the singular or the plural type : `Filter<Book>` and `Filter<Books>` are equivalent, the plural type is normalized to its singular, and both are accepted wherever a `Filter` is.
 > - `LogicalOperator` values are `'AND'` and `'OR'`, used to combine multiple filters.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>

@@ -1,5 +1,6 @@
 import type {
   CompoundFilter,
+  ExtractSingular,
   FilterField,
   FilterOperator,
   FilterOptions,
@@ -11,8 +12,11 @@ import type {
  * A typed, composable where-tree for building `WHERE` predicates.
  * Accepted by most `BaseRepository` / `BaseRepositoryDraft` methods anywhere a plain keys object is
  * accepted (`find`, `countWhere`, `updateMany`, `deleteWhere`, …).
+ * `T` is a cds-typer entity type — plural types (`Books`) are accepted and narrowed to their singular
+ * by `ExtractSingular`, so `Filter<Books>` and `Filter<Book>` are the same filter and are accepted
+ * interchangeably wherever one of them is.
  *
- * @template T - The type of the entity.
+ * @template T - The type of the entity, a cds-typer singular or plural type.
  *
  * @remarks
  * Built through three overloaded constructors: a single `{ field, operator, value… }` predicate, a
@@ -44,7 +48,7 @@ class Filter<T> {
    * The entity field (or a one-hop path expression across a to-one association, e.g. `'author.name'`)
    * `operator` applies to; unset on filters built from the logical-operator or compound-array overloads.
    */
-  public readonly field?: FilterField<T>;
+  public readonly field?: FilterField<ExtractSingular<T>>;
 
   /**
    * The `'AND'` / `'OR'` operator combining `filters`; only set when this instance was built via the
@@ -56,7 +60,7 @@ class Filter<T> {
    * Child filters combined by `logicalOperator`, or — for `'EXISTS'` / `'NOT EXISTS'` — the single
    * inner filter applied to the association, wrapped in a one-element array.
    */
-  public readonly filters?: Filter<T>[] | CompoundFilter<T>;
+  public readonly filters?: Filter<ExtractSingular<T>>[] | CompoundFilter<ExtractSingular<T>>;
 
   /**
    * The comparison value for every operator except `'BETWEEN'` / `'NOT BETWEEN'` (`value1` / `value2`)
@@ -85,7 +89,8 @@ class Filter<T> {
    * one-hop path expression across a to-one association (e.g. `'author.name'`) for every operator
    * except `'EXISTS'` / `'NOT EXISTS'` — for those two, `field` must instead name an association of
    * `T`, and the optional `filters` is typed on the association's target rather than on `T` (omitting
-   * it asserts bare existence, e.g. `exists books`).
+   * it asserts bare existence, e.g. `exists books`). A plural `T` (e.g. `Filter<Books>`) is normalized
+   * to its singular, so `field` is constrained to the elements of the single entity either way.
    *
    * @param options - An object representing the filter options.
    * @param options.field - The field to filter on, or a one-hop path across a to-one association, e.g. `'author.name'`.
@@ -104,7 +109,7 @@ class Filter<T> {
    * @see {@link https://github.com/dxfrontier/cds-ts-repository#filter | CDS-TS-Repository - Filter}
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § Filter
    */
-  constructor(options: FilterOptions<T>);
+  constructor(options: FilterOptions<ExtractSingular<T>>);
 
   /**
    * Combines two or more `Filter` instances under a single logical operator:
@@ -115,6 +120,7 @@ class Filter<T> {
    * with the options overload first. Passing a previously-combined `Filter` as one of `filters` nests
    * AND/OR trees (e.g. `new Filter('AND', new Filter('OR', f1, f2), f3)`); for a single expression
    * that itself mixes `'AND'` and `'OR'` at the top level, use the compound-array overload instead.
+   * The singular and the plural spelling of the same entity mix freely, both are the same `Filter`.
    *
    * @param operator - Operator used to combine the filters (e.g. `'AND'`, `'OR'`).
    * @param filters - An array of `Filter` instances to combine.
@@ -130,7 +136,7 @@ class Filter<T> {
    * @see {@link https://github.com/dxfrontier/cds-ts-repository#filter | CDS-TS-Repository - Filter}
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § Filter
    */
-  constructor(operator: LogicalOperator, ...filters: Filter<T>[]);
+  constructor(operator: LogicalOperator, ...filters: Filter<ExtractSingular<T>>[]);
 
   /**
    * Creates a multidimensional `Filter` from a flat array mixing `Filter` instances, nested arrays,
@@ -140,7 +146,8 @@ class Filter<T> {
    * A nested array element (e.g. the `[f3, 'AND', f4]` inside `[f1, 'OR', [f3, 'AND', f4]]`) becomes
    * a parenthesized sub-group when the query is built — this is how mixed `'AND'` / `'OR'` precedence
    * is expressed, since the two-argument `new Filter(operator, ...filters)` overload only supports a
-   * single operator across all of its filters.
+   * single operator across all of its filters. The singular and the plural spelling of the same entity
+   * mix freely here as well, both are the same `Filter`.
    *
    * @param filter - A multidimensional array of `CompoundFilter` instances combined with `'AND'` / `'OR'`.
    *
@@ -159,9 +166,12 @@ class Filter<T> {
    * @see {@link https://github.com/dxfrontier/cds-ts-repository#filter | CDS-TS-Repository - Filter}
    * Full docs ship with this package: node_modules/@dxfrontier/cds-ts-repository/README.md § Filter
    */
-  constructor(filter: CompoundFilter<T>);
+  constructor(filter: CompoundFilter<ExtractSingular<T>>);
 
-  constructor(filter: FilterOptions<T> | LogicalOperator | CompoundFilter<T>, ...filters: Filter<T>[]) {
+  constructor(
+    filter: FilterOptions<ExtractSingular<T>> | LogicalOperator | CompoundFilter<ExtractSingular<T>>,
+    ...filters: Filter<ExtractSingular<T>>[]
+  ) {
     // Overload 1 => constructor(options: FilterOptions<T>);
     if (typeof filter === 'object' && !Array.isArray(filter)) {
       this.field = filter.field;
@@ -170,7 +180,7 @@ class Filter<T> {
       if (filter.operator === 'EXISTS' || filter.operator === 'NOT EXISTS') {
         // The inner filter targets the association and not `T`, it is kept as the single entry of `filters`
         if (filter.filters !== undefined) {
-          this.filters = [filter.filters] as unknown as Filter<T>[];
+          this.filters = [filter.filters] as unknown as Filter<ExtractSingular<T>>[];
         }
 
         return;
