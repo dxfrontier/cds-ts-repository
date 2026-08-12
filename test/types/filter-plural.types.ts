@@ -44,11 +44,10 @@ new Filter<Books>({ field: 'reviews.rating', operator: 'EQUALS', value: 4 });
 // The plural and the singular spelling are interchangeable
 // ********************************************************************************************
 
+// The guarantee is MUTUAL ASSIGNABILITY, not type identity - these two annotated assignments are the
+// assertions themselves (`Equal<Filter<Books>, Filter<Book>>` is false, so no Expect/Equal form exists).
 const pluralAsSingular: Filter<Book> = pluralFilter;
 const singularAsPlural: Filter<Books> = singularFilter;
-
-type _APluralFilterIsASingularFilter = Expect<Equal<typeof pluralAsSingular, Filter<Book>>>;
-type _ASingularFilterIsAPluralFilter = Expect<Equal<typeof singularAsPlural, Filter<Books>>>;
 
 // ********************************************************************************************
 // .builder() takes a plural Filter and keeps typing the rows on the repository's entity
@@ -69,6 +68,7 @@ type _PluralFilterRowIsABook = Expect<Equal<FoundBook, Book | undefined>>;
 
 pluralBookRepository.find(pluralFilter);
 pluralBookRepository.countWhere(pluralFilter);
+bookRepository.builder().find().groupBy('currency_code').having(pluralFilter);
 pluralBookRepository.updateMany(pluralFilter, { stock: 100 });
 pluralBookRepository.deleteWhere(pluralFilter);
 pluralBookRepository.incrementMany(pluralFilter, { stock: 1 });
@@ -115,3 +115,5 @@ bookRepository.builder().find(pluralBookEventFilter);
 bookRepository.builder().findOne(pluralBookEventFilter);
 // @ts-expect-error a Filter on another entity, the query still runs on Book
 pluralBookRepository.find(pluralBookEventFilter);
+// @ts-expect-error the EXISTS inner filter must be typed on the association's target, not on another entity
+new Filter<Authors>({ field: 'books', operator: 'EXISTS', filters: pluralBookEventFilter });
