@@ -18,7 +18,7 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/dxfrontier/cds-ts-repository?logo=git)
 ![GitHub Repo stars](https://img.shields.io/github/stars/dxfrontier/cds-ts-repository?style=flat&logo=git)
 
-The goal of **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistance entities by providing out of the box actions on the `database`.
+The goal of **BaseRepository** is to significantly reduce the boilerplate code required to implement data access layers for persistence entities by providing out of the box actions on the `database`.
 
 ## Table of Contents
 
@@ -185,7 +185,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
     super(MyEntity)
   }
 
-  public aMethod(req: Request<MyEntity>) {
+  public async aMethod(req: Request<MyEntity>) {
     const result1 = await this.create(...)
     const result2 = await this.createMany(...)
     const result5 = await this.getAll()
@@ -232,6 +232,9 @@ this.after('READ', MyEntity, (results, req) => this.myRepository.anotherMethod(r
 `Example`
 
 ```ts
+import cds from '@sap/cds';
+
+import { MyRepository } from './MyRepository';
 import { MyEntity } from 'LOCATION_OF_YOUR_ENTITY_TYPE';
 
 export class MainService extends cds.ApplicationService {
@@ -247,7 +250,7 @@ export class MainService extends cds.ApplicationService {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -299,7 +302,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
     super(MyEntity) // CDS-Typer entity
   }
 
-  aMethod() {
+  async aMethod() {
     const result1 = await this.create(...)
     const result2 = await this.createMany(...)
     const result5 = await this.getAll()
@@ -336,7 +339,7 @@ class MyEntityHandler {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -448,7 +451,8 @@ export class MyRepository extends BaseRepository<MyEntity> {
   }
 }
 ```
-`Example 2` 
+
+`Example 2`
 
 The method is also able to create deep entities like
 
@@ -462,7 +466,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
-    const createdInstance = > await this.create({
+    const createdInstance = await this.create({
       name: 'Customer 1',
       description: 'Customer 1 description',
       to_children: [{
@@ -476,7 +480,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -506,35 +510,37 @@ export class MyRepository extends BaseRepository<MyEntity> {
   }
 
   public async aMethod() {
+    const entries: MyEntity[] = [
+      {
+        name: 'Customer 1',
+        description: 'Customer 1 description',
+      },
+      {
+        name: 'Customer 2',
+        description: 'Customer 2 description',
+      },
+    ];
 
-    const create: MyEntity = {
-      name: 'Customer 1',
-      description: 'Customer 1 description',
-    },
-    {
-      name: 'Customer 2',
-      description: 'Customer 2 description',
-    };
+    // example 1 : as an array
+    const createdInstances = await this.createMany(entries);
 
-    // example 1
-    const createdInstance = await this.createMany([create]);
-
-    // example 2
-    const createdInstance2 = await this.createMany({
-      name: 'Customer 1',
-      description: 'Customer 1 description',
-    },
-    {
-      name: 'Customer 2',
-      description: 'Customer 2 description',
-    });
-
-}
+    // example 2 : as a spread of objects
+    const createdInstances2 = await this.createMany(
+      {
+        name: 'Customer 1',
+        description: 'Customer 1 description',
+      },
+      {
+        name: 'Customer 2',
+        description: 'Customer 2 description',
+      },
+    );
+  }
 }
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -576,13 +582,13 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### getDistinctColumns
 
-`(method) this.getDistinctColumns<Column extends keyof T>(columns: Column[]>): Promise<Array<Pick<T, Column>> | undefined>`
+`(method) this.getDistinctColumns<Column extends keyof T>(...columns: Column[]): Promise<Array<Pick<T, Column>> | undefined>`
 
 The `getDistinctColumns` method retrieves distinct values for the specified columns from the table.
 
@@ -626,13 +632,13 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### getLocaleTexts
 
-`(method) this.getLocaleTexts<Column extends keyof T>(columns: Column[]): Promise<Array<Pick<T, Column> & Locale> | undefined>`
+`(method) this.getLocaleTexts<Column extends keyof T>(...columns: Column[]): Promise<Array<Pick<T, Column> & Locale> | undefined>`
 
 The `getLocaleTexts` method is designed to retrieve a list of items with localized text.
 
@@ -657,8 +663,8 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
   public async aMethod() {
     const results = await this.getLocaleTexts(['descr', 'ID']);
-    // or
-    const results = await this.getLocaleTexts('descr', 'ID');
+    // or as a spread
+    const results2 = await this.getLocaleTexts('descr', 'ID');
 
     // Variant 1
     if (results) {
@@ -674,7 +680,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 > [!IMPORTANT]
 > Throws when an external service is attached via [@ExternalService](#externalservice) — the `.texts` entity set does not exist remotely. Write the same texts back with [updateLocaleTexts](#updatelocaletexts).
@@ -753,7 +759,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -765,9 +771,9 @@ The `find` method allows you to find and retrieve entries from the table that ma
 
 | Method                                                                     | Parameters        | Description                                                                                                                                                            |
 | :------------------------------------------------------------------------- | :---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `this.find(): Promise<T[] | undefined>`                                     |                   | Get all table items.                                                                                                                                                   |
-| `this.find(keys: Entry<T>): Promise<T[] | undefined>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
-| `this.find(filter :`**[Filter\<T\>](#filter)**`): Promise<T[] | undefined>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
+| `this.find(): Promise<T[] \| undefined>`                                     |                   | Get all table items.                                                                                                                                                   |
+| `this.find(keys: Entry<T>): Promise<T[] \| undefined>`                       | `keys (object)`   | An object representing the keys to filter the entries. <br /> Each key should correspond to a property in `MyEntity`, and the values should match the filter criteria. |
+| `this.find(filter :`**[Filter\<T\>](#filter)**`): Promise<T[] \| undefined>` | `filter (Filter)` | An instance of **[Filter\<T\>](#filter)**                                                                                                                              |
 
 `Return`
 
@@ -801,7 +807,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 `Example 2` using [Filter](#filter)
 
@@ -831,7 +837,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > See [Filter](#filter) for more complex QUERY filters
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -840,6 +846,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 `findOne(keys: Entry<T>): Promise<T | undefined>`
 
 The `findOne` method allows you to find and retrieve a single entry from the table that matches the specified keys.
+
 `Parameters`
 
 - `keys (object)`: An object representing the keys to filter the entries. Each key should correspond to a property in the `MyEntity`, and the values should match the filter criteria.
@@ -872,7 +879,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -918,6 +925,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
   }
 }
 ```
+
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
@@ -946,14 +954,15 @@ export class MyRepository extends BaseRepository<MyEntity> {
   - [distinct](#distinct)
   - [orderAsc()](#orderasc)
   - [orderDesc()](#orderdesc)
+  - [paginate()](#paginate-1)
   - [groupBy()](#groupby)
   - [having()](#having)
   - [columns()](#columns)
   - [columnsFormatter()](#columnsformatter)
-  - [paginate()](#paginate)
   - [getExpand()](#getexpand)
   - [forUpdate()](#forupdate)
   - [forShareLock()](#forsharelock)
+  - [hints()](#hints)
   - [execute()](#execute)
   - [executeAndCount()](#executeandcount)
   - [forEach()](#foreach)
@@ -1040,7 +1049,7 @@ const results = await this.builder()
 
 ###### paginate
 
-This method allows retrieve a list of items with optional pagination similar to `limit` from SQL.
+This method allows you to retrieve a list of items with optional pagination similar to `limit` from SQL.
 
 `Parameters`
 
@@ -1225,7 +1234,6 @@ Use `getExpand` to specify which columns you want to expand from the table.
   - `child` - (association) - expanded
     - `child` (association) - expanded
     - ...
-    -
 
 ```ts
 const results = await this.builder()
@@ -1350,7 +1358,6 @@ If a queried record is already exclusively locked by another transaction, the .f
 `Example`
 
 ```ts
-// Expand only 'orders' association
 const results = await this.builder()
   .find({
     name: 'A company name',
@@ -1361,7 +1368,7 @@ const results = await this.builder()
 ```
 
 > [!TIP]
-> More info can be found on the official SAP CAP [forShareLock](https://cap.cloud.sap/docs/node.js/cds-ql#forsharelock) documentation. documentation.
+> More info can be found on the official SAP CAP [forShareLock](https://cap.cloud.sap/docs/node.js/cds-ql#forsharelock) documentation.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1373,7 +1380,7 @@ The SQL Optimizer usually determines the access path (for example, index search 
 
 `Parameters`
 
-- `...hints` `(string[])`: Query optimizer hings
+- `...hints` `(string[])`: Query optimizer hints
 
 `Example`
 
@@ -1390,7 +1397,7 @@ const results = await this.builder()
 > This works only for `HANA DB`.
 
 > [!TIP]
-> More info can be found on the official SAP CAP [hints](https://cap.cloud.sap/docs/node.js/cds-ql#hints) documentation. documentation.
+> More info can be found on the official SAP CAP [hints](https://cap.cloud.sap/docs/node.js/cds-ql#hints) documentation.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1424,7 +1431,7 @@ const results = await this.builder()
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1560,6 +1567,7 @@ stream.pipe(req.http!.res);
   - [getExpand](#getexpand-1)
   - [forUpdate](#forupdate-1)
   - [forShareLock](#forsharelock-1)
+  - [hints](#hints-1)
   - [execute](#execute-1)
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
@@ -1680,7 +1688,6 @@ Use `getExpand` to specify which columns you want to expand from the table.
   - `child` - (association) - expanded
     - `child` (association) - expanded
     - ...
-    -
 
 ```ts
 const oneResult = await this.builder()
@@ -1806,7 +1813,6 @@ If a queried record is already exclusively locked by another transaction, the .f
 `Example`
 
 ```ts
-// Expand only 'orders' association
 const oneResult = await this.builder()
   .findOne({
     name: 'A company name',
@@ -1816,10 +1822,9 @@ const oneResult = await this.builder()
 ```
 
 > [!TIP]
-> More info can be found on the official SAP CAP [forShareLock](https://cap.cloud.sap/docs/node.js/cds-ql#forsharelock) documentation. documentation.
+> More info can be found on the official SAP CAP [forShareLock](https://cap.cloud.sap/docs/node.js/cds-ql#forsharelock) documentation.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
-
 
 ###### hints
 
@@ -1829,23 +1834,24 @@ The SQL Optimizer usually determines the access path (for example, index search 
 
 `Parameters`
 
-- `...hints` `(string[])`: Query optimizer hings
+- `...hints` `(string[])`: Query optimizer hints
 
 `Example`
 
 ```ts
-const results = await this.builder()
-  .find({
+const oneResult = await this.builder()
+  .findOne({
     name: 'A company name',
   })
   .hints('IGNORE_PLAN_CACHE', 'MAX_CONCURRENCY(1)')
   .execute();
 ```
+
 > [!IMPORTANT]
-> This works only for `HANA DB`
+> This works only for `HANA DB`.
 
 > [!TIP]
-> More info can be found on the official SAP CAP [hints](https://cap.cloud.sap/docs/node.js/cds-ql#hints) documentation. documentation.
+> More info can be found on the official SAP CAP [hints](https://cap.cloud.sap/docs/node.js/cds-ql#hints) documentation.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1874,7 +1880,7 @@ const oneResult = await this.builder().findOne({ name: 'A company name' }).getEx
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1915,7 +1921,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1966,7 +1972,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > Every entry must carry its full primary key — CDS decides insert vs update by it. `updateOrCreate` has UPSERT `PATCH` semantics: only the provided values are written, and generic handlers are skipped — no `@cds.on.insert` defaults, no UUID auto-generation and no audit-log fields are applied the way they are for [create](#create). Deep upserts (nested compositions) are not supported.
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 > [!IMPORTANT]
 > Throws when an external service is attached via [@ExternalService](#externalservice) — a remote OData service has no `UPSERT`, use [update](#update) instead.
@@ -2007,7 +2013,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 > [!IMPORTANT]
 > Throws when an external service is attached via [@ExternalService](#externalservice) — the `.texts` entity set does not exist remotely, same as [getLocaleTexts](#getlocaletexts), which reads the same texts back.
@@ -2048,7 +2054,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2084,7 +2090,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
       { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
     ]);
 
-    // as an spread of objects
+    // as a spread of objects
     const deleted2 = await this.deleteMany(
       { ID: '2f12d711-b09e-4b57-b035-2cbd0a02ba19' },
       { ID: 'a51ab5c8-f366-460f-8f28-0eda2e41d6db' },
@@ -2096,7 +2102,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2129,7 +2135,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2145,7 +2151,7 @@ The `exists` method allows you to check whether entries exist in the table that 
 
 `Return`
 
-- `Promise<boolean>`: This method returns a Promise of `true` if the item exists in the databse and `false` otherwise.
+- `Promise<boolean>`: This method returns a Promise of `true` if the item exists in the database and `false` otherwise.
 
 `Example`
 
@@ -2166,7 +2172,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2199,7 +2205,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2243,7 +2249,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2287,7 +2293,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2335,7 +2341,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2400,7 +2406,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > See [Filter](#filter) for more complex QUERY filters
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2468,7 +2474,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > See [Filter](#filter) for more complex QUERY filters
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2533,7 +2539,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > See [Filter](#filter) for more complex QUERY filters
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2579,7 +2585,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2625,7 +2631,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2694,7 +2700,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > See [Filter](#filter) for more complex QUERY filters
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2763,7 +2769,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > See [Filter](#filter) for more complex QUERY filters
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2950,8 +2956,8 @@ Use `Filter` to create complex `WHERE QUERY` filters.
 
 | #  | Method                                                          | Parameters                                                                                                           | Description                                                                                                                                                                                                                     |
 |----|-----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1  | `new Filter(operator: LogicalOperator, ...filters: Filter<T>)`  | `operator`: `LogicalOperator` (`'AND'`, `'OR'`)<br />`filters`: `Array<Filter<T>>`                                                                         | Combines two or more filters with a logical operator.                                                                                                                                  |
-| 2  | `new Filter<T>(filters: (Filter<T> \| LogicalOperator \| Filter<T>)[])` | `filters`: `Array<Filter<T> \| LogicalOperator>`                                                                                     | Creates a multidimensional filter combining nested filters and logical operators (`'AND'`, `'OR'`) with arrays of other filters.                                                       |
+| 1  | `new Filter(operator: LogicalOperator, ...filters: Filter<T>[])`  | `operator`: `LogicalOperator` (`'AND'`, `'OR'`)<br />`filters`: `Array<Filter<T>>`                                                                         | Combines two or more filters with a logical operator.                                                                                                                                  |
+| 2  | `new Filter<T>(filters: (Filter<T> \| LogicalOperator)[])` | `filters`: `Array<Filter<T> \| LogicalOperator>`                                                                                     | Creates a multidimensional filter combining nested filters and logical operators (`'AND'`, `'OR'`) with arrays of other filters.                                                       |
 
 > [!NOTE]
 >
@@ -3131,7 +3137,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
     const filter = new Filter<MyEntity>({
       field: 'author.name',
       operator: 'EQUALS',
-      value: 'Edgar Allen Poe',
+      value: 'Edgar Allan Poe',
     });
 
     // execute filter using .find
@@ -3193,7 +3199,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 ```
 
 > [!NOTE]
-> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+> MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -3264,7 +3270,7 @@ Please make sure to update tests as appropriate.
 
 ## License
 
-![Licence](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=for-the-badge)
+![License](https://img.shields.io/github/license/dxfrontier/cds-ts-repository?style=for-the-badge)
 
 Copyright (c) 2024 DXFrontier
 
