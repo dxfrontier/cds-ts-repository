@@ -419,7 +419,7 @@ These methods operate on `active entities` — for the draft API see [`Methods` 
 
 #### create
 
-`(method) this.create(entry: Entry<T>) : Promise<InsertResult<T>>`.
+`create(entry: Entry<T>): Promise<InsertResult<T>>`
 
 The `create` method allows you to create a new entry in the table.
 
@@ -486,7 +486,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 #### createMany
 
-`(method) this.createMany(...entries: Entries<T>[]) : Promise<InsertResult<T>>`.
+`createMany(...entries: Entries<T>[]): Promise<InsertResult<T>>`
 
 The `createMany` method allows you to add multiple entries in the table.
 
@@ -546,7 +546,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 #### getAll
 
-`(method) this.getAll(): Promise<T[] | undefined>`
+`getAll(): Promise<T[] | undefined>`
 
 The `getAll` method retrieves all table entries.
 
@@ -588,7 +588,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 #### getDistinctColumns
 
-`(method) this.getDistinctColumns<Column extends keyof T>(...columns: Column[]): Promise<Array<Pick<T, Column>> | undefined>`
+`getDistinctColumns<Column extends keyof T>(...columns: Column[]): Promise<Array<Pick<T, Column>> | undefined>`
 
 The `getDistinctColumns` method retrieves distinct values for the specified columns from the table.
 
@@ -638,7 +638,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 #### getLocaleTexts
 
-`(method) this.getLocaleTexts<Column extends keyof T>(...columns: Column[]): Promise<Array<Pick<T, Column> & Locale> | undefined>`
+`getLocaleTexts<Column extends keyof T>(...columns: Column[]): Promise<Array<Pick<T, Column> & Locale> | undefined>`
 
 The `getLocaleTexts` method is designed to retrieve a list of items with localized text.
 
@@ -689,7 +689,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 #### paginate
 
-`(method) this.paginate(options: { limit: number; skip?: number | undefined }): Promise<T[]>`
+`paginate(options: { limit: number; skip?: number }): Promise<T[] | undefined>`
 
 The `paginate` method allows you to find and retrieve a list of items with optional pagination similar to `limit` from SQL.
 
@@ -935,6 +935,8 @@ export class MyRepository extends BaseRepository<MyEntity> {
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### builder
+
+The `builder()` method starts a chainable query builder: `.find` returns a [FindBuilder](#find-1), `.findOne` a [FindOneBuilder](#findone-1). Every chain method returns the builder itself — the terminal methods ([execute](#execute), [executeAndCount](#executeandcount), [forEach](#foreach), [pipeline](#pipeline), [stream](#stream)) run the constructed query.
 
 ##### .find
 
@@ -1349,6 +1351,8 @@ const results = await this.builder()
 > [!TIP]
 > More info can be found on the official SAP CAP [forUpdate](https://cap.cloud.sap/docs/node.js/cds-ql#forupdate) documentation.
 
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
 ###### forShareLock
 
 Locks the selected rows in the current transaction, thereby preventing concurrent updates by other parallel transactions, until the transaction is committed or rolled back. Using a shared lock allows all transactions to read the locked record.
@@ -1609,7 +1613,7 @@ const oneResult = await this.builder()
 ```
 
 > [!WARNING]
-> If `columns()` method is used together with `getExpand()` / `columnsFormatter()` the `columns()` method can have impact on the final typing
+> If `columns()` method is used together with `getExpand()` / `columnsFormatter()` the `columns()` method can have impact on the final typing — the list is shorter than in [.find's columns](#columns) because `FindOneBuilder` has no `groupBy()` / `orderAsc()` / `orderDesc()`.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -1803,6 +1807,8 @@ const oneResult = await this.builder()
 
 > [!TIP]
 > More info can be found on the official SAP CAP [forUpdate](https://cap.cloud.sap/docs/node.js/cds-ql#forupdate) documentation.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 ###### forShareLock
 
@@ -2545,7 +2551,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 #### increment
 
-`(method) this.increment(keys: Entry<T>, column: NumericKeys<T>, value?: number): Promise<boolean>`
+`increment(keys: Entry<T>, column: NumericKeys<T>, value?: number): Promise<boolean>`
 
 The `increment` method atomically increments a numeric field by the specified value.
 
@@ -2553,7 +2559,7 @@ The `increment` method atomically increments a numeric field by the specified va
 
 - `keys (object)`: An object representing the keys to identify the entity to update.
 - `column (string)`: The name of the numeric column to increment.
-- `value (number)`: The value to increment by (default: 1).
+- `value?` `(number) [optional]`: The value to increment by (default: `1`).
 
 `Return`
 
@@ -2591,7 +2597,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 #### decrement
 
-`(method) this.decrement(keys: Entry<T>, column: NumericKeys<T>, value?: number): Promise<boolean>`
+`decrement(keys: Entry<T>, column: NumericKeys<T>, value?: number): Promise<boolean>`
 
 The `decrement` method atomically decrements a numeric field by the specified value.
 
@@ -2599,7 +2605,7 @@ The `decrement` method atomically decrements a numeric field by the specified va
 
 - `keys (object)`: An object representing the keys to identify the entity to update.
 - `column (string)`: The name of the numeric column to decrement.
-- `value (number)`: The value to decrement by (default: 1).
+- `value?` `(number) [optional]`: The value to decrement by (default: `1`).
 
 `Return`
 
@@ -2782,7 +2788,7 @@ Methods operating directly on the `drafts persistence table` of a draft-enabled 
 
 #### createDraft
 
-`(method) this.createDraft(entry: Draft<T>) : Promise<InsertResult<Draft<T>>>`.
+`createDraft(entry: Draft<T>): Promise<InsertResult<Draft<T>>>`
 
 The `createDraft` method allows you to insert a single draft entry directly into the drafts persistence table.
 
@@ -2792,7 +2798,7 @@ The `createDraft` method allows you to insert a single draft entry directly into
 
 `Return`
 
-- `Promise<InsertResult<Draft<T>>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
+- `Promise<InsertResult<Draft<T>>>`: This method returns a `Promise` that resolves to the `InsertResult` of the insert, **not** the created draft rows — read them from `result.query.INSERT.entries`.
 
 `Example`
 
@@ -2819,13 +2825,13 @@ export class MyRepository extends BaseRepositoryDraft<MyEntity> {
 > This is a repository-level insert directly into the drafts table - no `DraftAdministrativeData` admin row is created and no Fiori draft-lifecycle events fire. `DraftAdministrativeData_DraftUUID` is auto-generated when omitted, `HasActiveEntity` defaults to `false` when omitted.
 
 > [!IMPORTANT]
-> Throws when an external service is attached via `@ExternalService`, the drafts table only exists on the primary database.
+> Throws when an external service is attached via [@ExternalService](#externalservice) — the drafts table only exists on the primary database.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### createManyDrafts
 
-`(method) this.createManyDrafts(...entries: DraftEntries<T>[]) : Promise<InsertResult<Draft<T>>>`.
+`createManyDrafts(...entries: DraftEntries<T>[]): Promise<InsertResult<Draft<T>>>`
 
 The `createManyDrafts` method allows you to insert multiple draft entries directly into the drafts persistence table.
 
@@ -2835,7 +2841,7 @@ The `createManyDrafts` method allows you to insert multiple draft entries direct
 
 `Return`
 
-- `Promise<InsertResult<Draft<T>>>`: This method returns a Promise that resolves when the insertion operation is completed successfully.
+- `Promise<InsertResult<Draft<T>>>`: This method returns a `Promise` that resolves to the `InsertResult` of the insert, **not** the created draft rows — read them from `result.query.INSERT.entries`.
 
 `Example`
 
@@ -2862,7 +2868,7 @@ export class MyRepository extends BaseRepositoryDraft<MyEntity> {
 > Same repository-level insert as `createDraft`, one per entry - no `DraftAdministrativeData` admin row is created and no Fiori draft-lifecycle events fire. `DraftAdministrativeData_DraftUUID` is auto-generated per entry when omitted, `HasActiveEntity` defaults to `false` when omitted.
 
 > [!IMPORTANT]
-> Throws when an external service is attached via `@ExternalService`, the drafts table only exists on the primary database.
+> Throws when an external service is attached via [@ExternalService](#externalservice) — the drafts table only exists on the primary database.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2907,7 +2913,7 @@ export class MyRepository extends BaseRepositoryDraft<MyEntity> {
 > `DraftAdministrativeData_DraftUUID` is auto-generated per entry when omitted - pass the existing UUID on an update to preserve its linkage. `HasActiveEntity` is left untouched when omitted, so an existing draft's value (E.g. `true` after `draftEdit`) is not silently reset - on the create path of the upsert it stays `NULL` unless explicitly provided.
 
 > [!IMPORTANT]
-> Throws when an external service is attached via `@ExternalService`, the drafts table only exists on the primary database.
+> Throws when an external service is attached via [@ExternalService](#externalservice) — the drafts table only exists on the primary database.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2943,6 +2949,8 @@ All other `BaseRepositoryDraft` methods delegate to the same implementation as t
 
 > [!NOTE]
 > `findOrCreateDraft` now goes through the same normalization as `createDraft` on its insert path: `DraftAdministrativeData_DraftUUID` is generated when omitted and `HasActiveEntity` defaults to `false`, without overwriting a value already present in `keys` / `defaults`.
+>
+> `deleteManyDrafts` takes a single array argument — `deleteManyDrafts(entries: DraftEntries<T>[])` — unlike its twin [deleteMany](#deletemany), which also accepts a spread of objects.
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
