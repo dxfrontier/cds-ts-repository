@@ -36,7 +36,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [`Step 2` : Inject MyRepository class](#step-2--inject-myrepository-class)
   - [`Drafts` : `BaseRepositoryDraft`](#drafts--baserepositorydraft)
     - [Usage](#usage-1)
-  - [`Methods`](#methods)
+  - [`Methods` — `Active entity`](#methods--active-entity)
     - [create](#create)
     - [createMany](#createmany)
     - [getAll](#getall)
@@ -93,11 +93,11 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [decrement](#decrement)
     - [incrementMany](#incrementmany)
     - [decrementMany](#decrementmany)
-    - [`CRUD` — `Draft entity`](#crud--draft-entity)
-      - [createDraft](#createdraft)
-      - [createManyDrafts](#createmanydrafts)
-      - [updateOrCreateDraft](#updateorcreatedraft)
-      - [Draft ↔ active twins](#draft--active-twins)
+  - [`Methods` — `Draft entity`](#methods--draft-entity)
+    - [createDraft](#createdraft)
+    - [createManyDrafts](#createmanydrafts)
+    - [updateOrCreateDraft](#updateorcreatedraft)
+    - [Draft ↔ active twins](#draft--active-twins)
   - [`Helpers`](#helpers)
     - [Filter](#filter)
       - [Overloads](#overloads)
@@ -356,10 +356,10 @@ Use `BaseRepository` methods when dealing with `active entity instances`.
 
 Use `BaseRepositoryDraft` methods when working with `draft entity instances`.
 
-- `updateDraft`
-- `deleteDraft`
-- `findOneDraft`
-- `findDrafts`
+- [`updateDraft`](#draft--active-twins)
+- [`deleteDraft`](#draft--active-twins)
+- [`findOneDraft`](#draft--active-twins)
+- [`findDrafts`](#draft--active-twins)
 - `...`
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
@@ -406,9 +406,13 @@ export class MyRepository extends BaseRepositoryDraft<MyEntity> {
 >
 > The same is true when an external service is attached via [@ExternalService](#externalservice): every `*Draft` method throws instead of silently targeting the remote active entity set — a remote OData entity has no drafts table.
 
+Full draft reference: [`Methods` — `Draft entity`](#methods--draft-entity).
+
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-### `Methods`
+### `Methods` — `Active entity`
+
+These methods operate on `active entities` — for the draft API see [`Methods` — `Draft entity`](#methods--draft-entity).
 
 #### create
 
@@ -2763,7 +2767,7 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-#### `CRUD` — `Draft entity`
+### `Methods` — `Draft entity`
 
 Methods operating directly on the `drafts persistence table` of a draft-enabled entity.
 
@@ -2901,7 +2905,7 @@ export class MyRepository extends BaseRepositoryDraft<MyEntity> {
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
-##### Draft ↔ active twins
+#### Draft ↔ active twins
 
 All other `BaseRepositoryDraft` methods delegate to the same implementation as their active counterpart, targeting the drafts persistence table instead of the active one - each is documented by its active twin:
 
