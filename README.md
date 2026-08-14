@@ -102,6 +102,7 @@ The goal of **BaseRepository** is to significantly reduce the boilerplate code r
     - [Filter](#filter)
       - [Overloads](#overloads)
       - [Discriminated union](#discriminated-union)
+    - [Types](#types)
   - [`Decorators`](#decorators)
     - [@ExternalService](#externalservice)
 - [`Samples`](#samples)
@@ -3208,6 +3209,71 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the class.
+
+<p align="right">(<a href="#table-of-contents">back to top</a>)</p>
+
+#### Types
+
+Every type below is exported from `@dxfrontier/cds-ts-repository` and carries full JSDoc — hover it in the IDE for details and examples.
+
+`Repository types`
+
+| Type                        | Description                                                                                                                                              |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ExtractSingular<T>`        | Narrows a plural `cds-typer` type to its singular entity type — `BaseRepository<Books>` and `Filter<Books>` mean the same as their singular counterparts. |
+| `Entry<T>`                  | A partial entity, every element optional — the payload of [create](#create) and the keys of [find](#find), [update](#update), …                           |
+| `Entries<T>`                | One entry or a list of entries — the [createMany](#createmany) payload.                                                                                   |
+| `Draft<T>`                  | A draft row: the singular entity plus the draft administrative elements.                                                                                  |
+| `EntryDraft<T>`             | Adds the draft administrative elements to an entity type.                                                                                                 |
+| `DraftEntries<T>`           | One draft entry or a list of them — the [createManyDrafts](#createmanydrafts) payload.                                                                    |
+| `DraftAdministrativeFields` | The draft administrative elements CAP maintains on every draft row.                                                                                       |
+| `InsertResult<T>`           | What [create](#create) / [createMany](#createmany) and their draft twins resolve to: the executed `INSERT` query, entries under `query.INSERT.entries`.   |
+| `Locale`                    | The language code carried by the localized `.texts` rows — part of the [getLocaleTexts](#getlocaletexts) result.                                          |
+| `Request`                   | Re-export of the `@sap/cds` request object, so a handler can type `req` without importing `@sap/cds` itself.                                              |
+| `Columns<T>`                | A column selection: one element name or an array of them.                                                                                                 |
+| `ShowOnlyColumns`           | Resolves a column selection to the element names the result is narrowed to.                                                                               |
+| `AssociationFunction`       | The callback CDS-QL hands over for an expanded association inside a column projection.                                                                    |
+| `Entity`                    | The `cds-typer` entity a repository is constructed with, reduced to what the query building needs.                                                        |
+| `AutoExpandLevels`          | The auto-expand depth of [getExpand](#getexpand)`({ levels })`.                                                                                           |
+| `BaseRepositoryConstructor` | The repository class as seen from its own constructor — a constructable optionally carrying the service attached by [@ExternalService](#externalservice). |
+
+`Builder & Filter types`
+
+| Type                     | Description                                                                                                     |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `FindReturn`             | The entry point of the chainable query API, returned by [builder()](#builder) and `builderDraft()`.              |
+| `LogicalOperator`        | Constrains how two or more filters are combined: `'AND'` / `'OR'`.                                               |
+| `FilterOperator`         | The supported comparison, range, list, null and association operators of a [Filter](#filter).                    |
+| `FilterValue`            | Constrains the value a filter compares against.                                                                  |
+| `FilterField`            | Constrains the field of the value-based filter operators: an element of `T` or a one-hop path (`'author.name'`). |
+| `FilterOptions<T>`       | The discriminated union accepted by the options constructor of [Filter](#filter).                                |
+| `CompoundFilter`         | The multidimensional filter array: filters, logical operators and nested arrays of both.                         |
+| `Expand<T>`              | The deep expand structure accepted by [getExpand](#getexpand).                                                   |
+| `ExpandStructure`        | The normalized expand tree the `getExpand` internals walk.                                                       |
+| `ValueExpand`            | One node of an expand tree: the columns to expose and the expands nested below it.                               |
+| `ExecuteAndCountResult`  | What [executeAndCount](#executeandcount) resolves to: the rows of the query together with the total matching it. |
+
+`columnsFormatter types`
+
+| Type                                 | Description                                                                                |
+| ------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `ColumnFormatter`                    | The list of column formatters accepted by [columnsFormatter](#columnsformatter).           |
+| `AddNewFields`                       | Adds the formatted columns to the entity type.                                             |
+| `GetColumnNames`                     | Widens a tuple of column formatters to an array of its members.                            |
+| `AppendColumns`                      | The entity type `columnsFormatter` returns: the entity plus its formatted columns.         |
+| `DynamicColumnTypes`                 | Resolves the type of every formatted column out of the aggregate function applied on it.   |
+| `NumericAggregateFunctions`          | The aggregate functions applicable on a numeric column.                                    |
+| `DateAggregateFunctions`             | The extraction functions applicable on a date / time column.                               |
+| `StringAggregateFunctions`           | The functions applicable on a single string column.                                        |
+| `StringAggregateTwoColumnsFunctions` | The string functions taking two columns, currently only `'CONCAT'`.                        |
+| `TemporalTwoColumnsFunctions`        | The temporal difference functions computing the distance between two date / time columns.  |
+
+`Increment / decrement types`
+
+| Type                 | Description                                                                                                                     |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `NumericKeys<T>`     | Extracts the numeric elements of `T` — the valid `column` of [increment](#increment) / [decrement](#decrement).                  |
+| `IncrementFields<T>` | The numeric elements of `T` to move, mapped to the amount each one is moved by — the [incrementMany](#incrementmany) payload.    |
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
