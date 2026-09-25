@@ -250,4 +250,179 @@ describe('coreRepositoryUtils', () => {
       expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow('No operator found');
     });
   });
+
+  describe('.buildSingleFilter() - string values are always literals', () => {
+    it('doubles an embedded single quote inside the quoted literal (EQUALS)', () => {
+      const filter = new Filter<Book>({ field: 'title', operator: 'EQUALS', value: "O'Reilly' x" });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("title = 'O''Reilly'' x'");
+    });
+
+    it('keeps a legit apostrophe value doubled the same way (LIKE family)', () => {
+      // The 'LIKE' overload wraps the raw value in '%' itself (see Filter's constructor).
+      const filter = new Filter<Book>({ field: 'title', operator: 'LIKE', value: "O'Reilly" });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("title LIKE '%O''Reilly%'");
+    });
+
+    it('escapes each quoted IN item independently', () => {
+      const filter = new Filter<Book>({
+        field: 'title',
+        operator: 'IN',
+        value: ["Jane Eyre's Copy", 'Catweazle'],
+      });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("title IN ('Jane Eyre''s Copy','Catweazle')");
+    });
+
+    it('renders a string BETWEEN bound as a quoted, escaped literal', () => {
+      const filter = new Filter<Book>({
+        field: 'title',
+        operator: 'BETWEEN',
+        value1: "A's Edition",
+        value2: 'Z',
+      });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("(title BETWEEN 'A''s Edition' AND 'Z')");
+    });
+
+    it('emits a finite number BETWEEN bound unquoted', () => {
+      const filter = new Filter<Book>({ field: 'stock', operator: 'BETWEEN', value1: 11, value2: 333 });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe('(stock BETWEEN 11 AND 333)');
+    });
+  });
+
+  describe('.buildSingleFilter() - field path validation', () => {
+    it('throws when the field is not a valid CDS element path', () => {
+      const filter = new Filter<Book>({
+        field: 'title name' as unknown as 'title',
+        operator: 'EQUALS',
+        value: 'x',
+      });
+
+      expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow(/valid CDS element path/);
+    });
+
+    it('accepts a one-hop path expression across a to-one association', () => {
+      const filter = new Filter<Book>({ field: 'author.name', operator: 'EQUALS', value: 'Edgar Allen Poe' });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("author.name = 'Edgar Allen Poe'");
+    });
+
+    it('accepts a field segment containing a combining mark, like the CDS compiler does', () => {
+      // U+093E (DEVANAGARI VOWEL SIGN AA) is a combining mark (Unicode category Mc): not in \p{L},
+      // but accepted by the CDS compiler lexer's identifier rule (\p{ID_Continue}).
+      const filter = new Filter<Book>({ field: 'नाम' as unknown as 'title', operator: 'EQUALS', value: 'x' });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("नाम = 'x'");
+    });
+  });
+
+  describe('.buildSingleFilter() - non-primitive values are rejected', () => {
+    it('throws when the value is a plain object', () => {
+      const filter = new Filter<Book>({ field: 'title', operator: 'EQUALS', value: { x: 1 } as unknown as string });
+
+      expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow(
+        /must be a string, a finite number, a bigint or null/,
+      );
+    });
+
+    it('throws when the value is NaN', () => {
+      const filter = new Filter<Book>({ field: 'stock', operator: 'EQUALS', value: NaN });
+
+      expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow(
+        /must be a string, a finite number, a bigint or null/,
+      );
+    });
+
+    it('throws when the value is a function', () => {
+      const filter = new Filter<Book>({ field: 'title', operator: 'EQUALS', value: (() => 1) as unknown as string });
+
+      expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow(
+        /must be a string, a finite number, a bigint or null/,
+      );
+    });
+
+    it('throws when the value is a symbol', () => {
+      const filter = new Filter<Book>({ field: 'title', operator: 'EQUALS', value: Symbol('x') as unknown as string });
+
+      expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow(
+        /must be a string, a finite number, a bigint or null/,
+      );
+    });
+
+    it('throws when the value is Infinity', () => {
+      const filter = new Filter<Book>({ field: 'stock', operator: 'EQUALS', value: Infinity });
+
+      expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow(
+        /must be a string, a finite number, a bigint or null/,
+      );
+    });
+
+    it('throws when the value is undefined', () => {
+      const filter = new Filter<Book>({ field: 'title', operator: 'EQUALS', value: undefined as unknown as string });
+
+      expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow(
+        /must be a string, a finite number, a bigint or null/,
+      );
+    });
+
+    it('throws when an array value is used with a non-IN operator', () => {
+      const filter = new Filter<Book>({ field: 'title', operator: 'EQUALS', value: ['a'] as unknown as string });
+
+      expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow(
+        /must be a string, a finite number, a bigint or null/,
+      );
+    });
+
+    it('throws when a BETWEEN bound is a plain object', () => {
+      const filter = new Filter<Book>({
+        field: 'stock',
+        operator: 'BETWEEN',
+        value1: {} as unknown as number,
+        value2: 333,
+      });
+
+      expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow(
+        /must be a finite number, a bigint, a boolean or a string/,
+      );
+    });
+  });
+
+  describe('.buildSingleFilter() - a bigint value is accepted, quoted like a number', () => {
+    it('renders an EQUALS bigint value quoted', () => {
+      const filter = new Filter<Book>({ field: 'ID', operator: 'EQUALS', value: 10n as unknown as string });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("ID = '10'");
+    });
+  });
+
+  describe('.buildSingleFilter() - a boolean value is accepted by the LIKE family', () => {
+    it('renders a LIKE boolean value wrapped in the literal', () => {
+      const filter = new Filter<Book>({ field: 'title', operator: 'LIKE', value: true as unknown as string });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("title LIKE '%true%'");
+    });
+
+    it('renders a STARTS_WITH boolean value wrapped in the literal', () => {
+      const filter = new Filter<Book>({ field: 'title', operator: 'STARTS_WITH', value: false as unknown as string });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("title LIKE 'false%'");
+    });
+
+    it('renders an ENDS_WITH boolean value wrapped in the literal', () => {
+      const filter = new Filter<Book>({ field: 'title', operator: 'ENDS_WITH', value: true as unknown as string });
+
+      expect(coreRepositoryUtils.buildSingleFilter(filter)).toBe("title LIKE '%true'");
+    });
+  });
+
+  describe('.buildSingleFilter() - an operator outside the declared union throws', () => {
+    it('throws via mapOperator for an operator that is not part of FilterOperator', () => {
+      const filter = new Filter<Book>({ field: 'title', operator: 'FOO' as unknown as 'EQUALS', value: 'x' });
+
+      expect(() => coreRepositoryUtils.buildSingleFilter(filter)).toThrow('No operator found');
+    });
+  });
 });

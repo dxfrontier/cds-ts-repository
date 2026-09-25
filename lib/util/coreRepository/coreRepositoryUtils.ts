@@ -1,6 +1,102 @@
 import type { CompoundFilter, Entry, LogicalOperator } from '../../types/types';
 import { Filter } from '../filter/Filter';
 
+/**
+ * Matches a single CDS element name segment, mirroring the cds-compiler lexer's identifier rule
+ * (`[$_\p{ID_Start}][$\p{ID_Continue}\u200C\u200D]*`): a Unicode identifier-start character, `_` or
+ * `$`, followed by identifier-continue characters (which additionally cover combining marks), `_`,
+ * `$`, ZWNJ (U+200C) or ZWJ (U+200D).
+ */
+const FIELD_PATH_SEGMENT = /^[$_\p{ID_Start}][$\p{ID_Continue}\u200C\u200D]*$/u;
+
+/**
+ * Doubles every embedded single quote (the CQL / SQL string-literal escape) so a string value can
+ * never terminate the single-quoted literal it is placed in.
+ * @param value - The raw string value.
+ * @returns `value` with every `'` doubled.
+ */
+function escapeStringLiteral(value: string): string {
+  return value.replace(/'/g, "''");
+}
+
+/**
+ * Validates a filter field (or, for `EXISTS` / `NOT EXISTS`, the association path) : it must be a
+ * dot-separated sequence of {@link FIELD_PATH_SEGMENT} segments, e.g. `'stock'` or `'author.name'`.
+ * @param field - The field / association path to validate.
+ * @param operator - The operator applied on `field` (only used to name it in the thrown error).
+ * @throws Error if `field` is not a valid CDS element path.
+ */
+function assertValidFieldPath(field: string, operator: unknown): void {
+  const isValid = field.length > 0 && field.split('.').every((segment) => FIELD_PATH_SEGMENT.test(segment));
+
+  if (!isValid) {
+    throw new Error(`Filter field '${field}' (operator '${String(operator)}') is not a valid CDS element path.`);
+  }
+}
+
+/**
+ * Renders a filter value as a quoted CQL string literal - used wherever a value is compared as a
+ * string (`EQUALS`, `NOT EQUAL`, the comparison / `LIKE` family operators, and each `IN` / `NOT IN`
+ * item). Strings are escaped via {@link escapeStringLiteral}; finite numbers and `bigint`s are
+ * rendered as-is inside the quotes and `null` renders as the literal text `'null'`. Anything else (a plain object, an array, a function, a symbol, `NaN`, `Infinity`,
+ * `undefined`, …) throws, naming the offending field and operator.
+ * @param value - The value to quote.
+ * @param field - The field the value is compared against (only used to name it in the thrown error).
+ * @param operator - The operator applied (only used to name it in the thrown error).
+ * @returns The quoted, literal-safe CQL fragment.
+ * @throws Error if `value` is not a string, a finite number, a `bigint` or `null`.
+ */
+function quoteLiteral(value: unknown, field: string, operator: unknown): string {
+  if (typeof value === 'string') {
+    return `'${escapeStringLiteral(value)}'`;
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return `'${value}'`;
+  }
+
+  if (typeof value === 'bigint') {
+    return `'${value}'`;
+  }
+
+  if (value === null) {
+    return `'null'`;
+  }
+
+  throw new Error(
+    `Filter value for field '${field}' (operator '${String(operator)}') must be a string, a finite number, a bigint or null.`,
+  );
+}
+
+/**
+ * Renders a filter value without surrounding quotes - used for `BETWEEN` / `NOT BETWEEN` bounds and
+ * the boolean branch. Finite numbers, `bigint`s, booleans and `null` are emitted as-is; string bounds
+ * are rendered as quoted literals, escaped via {@link escapeStringLiteral}. Anything else throws,
+ * naming the offending field and operator.
+ * @param value - The value to render.
+ * @param field - The field the value is compared against (only used to name it in the thrown error).
+ * @param operator - The operator applied (only used to name it in the thrown error).
+ * @returns The literal-safe CQL fragment.
+ * @throws Error if `value` is not a finite number, a `bigint`, a `boolean`, `null` or a string.
+ */
+function renderUnquotedLiteral(value: unknown, field: string, operator: unknown): string {
+  if (typeof value === 'bigint' || typeof value === 'boolean' || value === null) {
+    return String(value);
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  if (typeof value === 'string') {
+    return `'${escapeStringLiteral(value)}'`;
+  }
+
+  throw new Error(
+    `Filter value for field '${field}' (operator '${String(operator)}') must be a finite number, a bigint, a boolean or a string.`,
+  );
+}
+
 const coreRepositoryUtils = {
   /**
    * Checks if all items in the array are non-zero.
@@ -169,6 +265,8 @@ const coreRepositoryUtils = {
     const filterOperator = keys.operator;
     const key = keys.field as string;
 
+    assertValidFieldPath(key, filterOperator);
+
     if (this.isExistsOrNotExists(keys)) {
       const existsOperator = filterOperator === 'EXISTS' ? 'exists' : 'not exists';
       const [innerFilter] = (keys.filters ?? []) as Filter<T>[];
@@ -182,12 +280,15 @@ const coreRepositoryUtils = {
     }
 
     if (this.isBetweenOrNotBetween(keys)) {
-      return `(${key} ${filterOperator} ${keys.value1} AND ${keys.value2})`;
+      const lowerBound = renderUnquotedLiteral(keys.value1, key, filterOperator);
+      const upperBound = renderUnquotedLiteral(keys.value2, key, filterOperator);
+
+      return `(${key} ${filterOperator} ${lowerBound} AND ${upperBound})`;
     }
 
     if (this.isInOrNotIn(keys)) {
       if (Array.isArray(keys.value)) {
-        const remodeledString = keys.value.map((item) => `'${item.toString()}'`);
+        const remodeledString = keys.value.map((item) => quoteLiteral(item, key, filterOperator));
 
         return `${key} ${filterOperator} (${remodeledString.toString()})`;
       }
@@ -198,11 +299,11 @@ const coreRepositoryUtils = {
     }
 
     if (typeof keys.value === 'boolean') {
-      return `${key} ${this.mapOperator(keys)} ${keys.value}`;
+      return `${key} ${this.mapOperator(keys)} ${renderUnquotedLiteral(keys.value, key, filterOperator)}`;
     }
 
-    // All others operators
-    return `${key} ${this.mapOperator(keys)} '${keys.value as string}'`;
+    // All other operators
+    return `${key} ${this.mapOperator(keys)} ${quoteLiteral(keys.value, key, filterOperator)}`;
   },
 
   /**

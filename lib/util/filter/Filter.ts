@@ -8,6 +8,32 @@ import type {
 } from '../../types/types';
 
 /**
+ * Validates a `LIKE` / `STARTS_WITH` / `ENDS_WITH` value before it is wrapped in `%...%` below.
+ * Accepts a string, a finite number, a `bigint`, a boolean or `null` - the same types
+ * `coreRepositoryUtils`' `buildSingleFilter()` accepts for a single-value operator - so these three
+ * operators throw the same way every other operator already does, instead of silently stringifying
+ * a plain object, `undefined` or `NaN` into the literal.
+ * @param value - The raw filter value.
+ * @param field - The field the value is compared against (only used to name it in the thrown error).
+ * @param operator - The operator applied (only used to name it in the thrown error).
+ * @throws Error if `value` is not a string, a finite number, a `bigint`, a boolean or `null`.
+ */
+function assertQuotableValue(value: unknown, field: unknown, operator: unknown): void {
+  const isQuotable =
+    typeof value === 'string' ||
+    (typeof value === 'number' && Number.isFinite(value)) ||
+    typeof value === 'bigint' ||
+    typeof value === 'boolean' ||
+    value === null;
+
+  if (!isQuotable) {
+    throw new Error(
+      `Filter value for field '${String(field)}' (operator '${String(operator)}') must be a string, a finite number, a bigint, a boolean or null.`,
+    );
+  }
+}
+
+/**
  * A typed, composable where-tree for building `WHERE` predicates.
  * Accepted by most `BaseRepository` / `BaseRepositoryDraft` methods anywhere a plain keys object is
  * accepted (`find`, `countWhere`, `updateMany`, `deleteWhere`, …).
@@ -184,18 +210,21 @@ class Filter<T> {
       }
 
       if (filter.operator === 'LIKE') {
+        assertQuotableValue(filter.value, filter.field, filter.operator);
         this.value = `%${filter.value}%`;
 
         return;
       }
 
       if (filter.operator === 'STARTS_WITH') {
+        assertQuotableValue(filter.value, filter.field, filter.operator);
         this.value = `${filter.value}%`;
 
         return;
       }
 
       if (filter.operator === 'ENDS_WITH') {
+        assertQuotableValue(filter.value, filter.field, filter.operator);
         this.value = `%${filter.value}`;
 
         return;
