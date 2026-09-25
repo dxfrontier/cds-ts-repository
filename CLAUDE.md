@@ -37,7 +37,7 @@ A trusted-publishing (OIDC) migration is pending.
 
 ## Test fixture
 
-`test/bookshop` is an npm workspace containing a full CAP app (CDS schema, services, CSV data). The `#cds-models/*` alias resolves to its committed cds-typer output — wired in root `package.json` `imports` (runtime) and `tsconfig.json` `paths` (types). Regenerate `@cds-models` with cds-typer when `test/bookshop/db/schema.cds` changes. External-service behavior is tested against `test/util/fakeExternalService.ts`, not a live connection.
+`test/bookshop` is an npm workspace containing a full CAP app (CDS schema, services, CSV data). The `#cds-models/*` alias resolves to its committed cds-typer output — wired in root `package.json` `imports` (runtime) and `tsconfig.json` `paths` (types). Regenerate `@cds-models` with cds-typer when `test/bookshop/db/schema.cds` changes. External-service behavior is tested against `test/util/fakeExternalService.ts` for most branches, plus `test/unit/external-service/EXTERNAL.ODATA.test.ts`, which connects to a served OData v4 remote over HTTP.
 
 ## TypeScript pin
 

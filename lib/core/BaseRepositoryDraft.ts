@@ -34,8 +34,10 @@ import util from '../util/util';
  * Everything here is a plain repository-level statement — NO `DraftAdministrativeData` admin row is
  * written and NO Fiori draft-lifecycle event (`NEW`, `draftEdit`, `draftActivate`, `draftDiscard`)
  * fires, drafts normally originate through the service. External services are NOT supported — a remote
- * OData entity has no drafts table, so `createDraft` / `createManyDrafts` / `updateOrCreateDraft` throw
- * and every other method would target the remote ACTIVE entity set instead.
+ * OData entity has no drafts table, so `createDraft` / `createManyDrafts` / `updateOrCreateDraft` throw;
+ * every other method targets the remote ACTIVE entity set instead, except that methods which cannot run
+ * on an OData external service still throw there too — see the active counterpart's `@remarks` (each
+ * draft method names it) and the README `@ExternalService` section for the full list.
  *
  * @example
  * ```ts

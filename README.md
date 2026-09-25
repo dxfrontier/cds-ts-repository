@@ -915,6 +915,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > [!TIP]
 > The method first verifies entity existence before attempting the update, ensuring safe update operations.
 
+> [!IMPORTANT]
+> On `External services` the row is found with any properties and then updated through the found row's own key; the method resolves to `false` when no row matches or the remote row no longer exists. See [@ExternalService](#externalservice).
+
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### builder
@@ -1908,6 +1911,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
+> [!IMPORTANT]
+> On `External services` only a full key object is accepted (all key fields and nothing else, otherwise an error is thrown before anything is sent); the method resolves to `false` when the remote row does not exist. See [@ExternalService](#externalservice).
+
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### updateOrCreate
@@ -1994,6 +2000,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
+> [!IMPORTANT]
+> On `External services` `localeCodeKeys` addresses the `.texts` row directly (the full-key check applied to other keyed writes does not apply here); the method throws when the row does not exist instead of resolving to `false`. See [@ExternalService](#externalservice).
+
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### delete
@@ -2031,6 +2040,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+> [!IMPORTANT]
+> On `External services` only a full key object is accepted (all key fields and nothing else, otherwise an error is thrown before anything is sent); the method resolves to `false` when the remote row does not exist. See [@ExternalService](#externalservice).
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2079,6 +2091,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+> [!IMPORTANT]
+> On `External services` every entry must be a full key object (otherwise an error is thrown before anything is sent). All deletes are awaited : the method resolves to `false` when a remote row does not exist and rethrows any other remote error. See [@ExternalService](#externalservice).
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2452,6 +2467,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
+> [!IMPORTANT]
+> On `External services` only a full key object is accepted (the method resolves to `1`, or `0` when the row does not exist); passing a `Filter` throws an error. See [@ExternalService](#externalservice).
+
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### deleteWhere
@@ -2517,6 +2535,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
+> [!IMPORTANT]
+> On `External services` only a full key object is accepted (the method resolves to `1`, or `0` when the row does not exist); passing a `Filter` throws an error. See [@ExternalService](#externalservice).
+
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### increment
@@ -2563,6 +2584,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
+> [!IMPORTANT]
+> Currently not supported on `External services` : the method throws an error, read the current value and write the new one with `update` instead. See [@ExternalService](#externalservice).
+
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### decrement
@@ -2608,6 +2632,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+> [!IMPORTANT]
+> Currently not supported on `External services` : the method throws an error, read the current value and write the new one with `update` instead. See [@ExternalService](#externalservice).
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -2678,6 +2705,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
 
+> [!IMPORTANT]
+> Currently not supported on `External services` : the method throws an error, read the current value and write the new one with `update` instead. See [@ExternalService](#externalservice).
+
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
 #### decrementMany
@@ -2746,6 +2776,9 @@ export class MyRepository extends BaseRepository<MyEntity> {
 
 > [!NOTE]
 > MyEntity was generated using [CDS-Typer](#generate-cds-typed-entities) and imported in the the class.
+
+> [!IMPORTANT]
+> Currently not supported on `External services` : the method throws an error, read the current value and write the new one with `update` instead. See [@ExternalService](#externalservice).
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
 
@@ -3216,6 +3249,27 @@ export class BusinessPartnerRepository extends BaseRepository<A_BusinessPartner>
 
 > [!NOTE]
 > API_BUSINESS_PARTNER is just for showing, it can differ from use case to use case.
+
+`Writes on an OData external service`
+
+An OData service addresses the written row by its key in the URL (`PATCH /A_BusinessPartner('1004155')`, `DELETE /A_BusinessPartner('1004155')`), so writes on an external service behave as follows :
+
+- `update`, `delete` and `deleteMany` address every row by its **full key** : pass all key fields and only key fields (e.g. `{ BusinessPartner: '1004155' }`). A missing key field or a property that is not a key field throws an error before anything is sent. The key fields are read from the entity definition of the external service; when it cannot be resolved, the keys are sent unchecked.
+- `findOneAndUpdate` finds the row with any properties and then updates it through the found row's own key.
+- They resolve to `true` when the remote service confirms the write and to `false` when the remote row does not exist (the remote answers `404`). Every other remote error is rethrown unchanged.
+- `deleteMany` waits for every delete to finish : it resolves to `false` when a remote row does not exist, and rethrows any other remote error.
+- `updateMany` and `deleteWhere` accept a full key object only : the addressed row is written and the method resolves to `1`, or to `0` when the remote row does not exist. Passing a `Filter` throws an error, as filter-based writes are not supported on OData external services — find the rows first and address each one by key.
+- `updateLocaleTexts` addresses the `.texts` row directly by `localeCodeKeys` (no full-key check) and rethrows an error when the row does not exist, instead of resolving to `false`.
+- `increment`, `decrement`, `incrementMany` and `decrementMany` throw an error, as they are not supported on OData external services. Read the current value and write the new one with `update` instead.
+
+```ts
+const updated = await this.businessPartnerRepository.update(
+  { BusinessPartner: '1004155' },
+  { BusinessPartnerFullName: 'ABS GmbH' },
+); // true, or false when the business partner does not exist
+
+const deleted = await this.businessPartnerRepository.delete({ BusinessPartner: '1004155' });
+```
 
 ## `Samples`
 

@@ -11,9 +11,10 @@ import cds from '@sap/cds';
  * it silently queries the primary database instead of throwing — so construct repositories once
  * bootstrap has settled, not at import time. Once attached, it applies to the whole class: every
  * `CoreRepository` method reroutes through `externalService.run(query)` — except `getLocaleTexts` and
- * `updateOrCreate`, which throw instead. `BaseRepositoryDraft` accepts it too, but its `createDraft` /
- * `createManyDrafts` / `updateOrCreateDraft` throw regardless, because the remote entity has no
- * `.drafts` table.
+ * `updateOrCreate`, which throw instead, along with any other method that cannot run on an OData
+ * external service; see each method's `@remarks` and the README `@ExternalService` section for the full
+ * list. `BaseRepositoryDraft` accepts it too, but its `createDraft` / `createManyDrafts` /
+ * `updateOrCreateDraft` throw regardless, because the remote entity has no `.drafts` table.
  *
  * @param service - The name of the external service to connect to.
  * @returns A class decorator that, once `cds.connect.to(service)` resolves, defines the connected

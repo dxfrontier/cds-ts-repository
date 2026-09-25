@@ -103,12 +103,12 @@ Surfaced while writing the agentic-dx JSDoc pass (`docs(jsdoc)` f3e3378): the ne
 **Code:**
 
 - **`@ExternalService` attaches fire-and-forget** — `cds.connect.to().then()` is not awaited (`lib/decorators/class.ts`); a repository instantiated before it resolves silently targets the primary database. Candidate: awaitable/lazy attachment. `status: idea`
-- **`findOneAndUpdate` is not atomic** — `SELECT.one` then separate `UPDATE`, no lock (`lib/core/CoreRepository.ts:152-176`); README calls it "atomic". `status: idea`
-- **`updateLocaleTexts` external asymmetry** — routes `<Entity>.texts` UPDATE through `externalService.run` while `getLocaleTexts` throws on the external path (`CoreRepository.ts:225-231`). Align (probably both throw). `status: idea`
-- **`delete` external success check is `deleted === ''`** (`CoreRepository.ts:242-243`) — a remote service answering with an affected count yields `false`. `status: idea`
+- **`findOneAndUpdate` is not atomic** — `SELECT.one` then separate `UPDATE`, no lock (`lib/core/CoreRepository.ts:154-180`); README calls it "atomic". `status: idea`
+- **`updateLocaleTexts` external asymmetry** — routes `<Entity>.texts` UPDATE through `externalService.run` while `getLocaleTexts` throws on the external path (`CoreRepository.ts:230-239`). Align (probably both throw). `status: idea`
+- **`delete` external success check is `deleted === ''`** — fixed by `resolveExternalWriteSuccess` (`coreRepositoryUtils.ts:161-175`), which normalizes every service-kind result shape. `status: shipped` (7.1.1)
 - **`findOrCreateDraft` bypasses draft normalization** — create path goes through `CoreRepository.findOrCreate` → `create`, not `createDraft`, so `DraftAdministrativeData_DraftUUID` / `HasActiveEntity` are not defaulted. `status: idea`
 - **Draft methods beyond the create/upsert trio run remotely against the ACTIVE entity set** when `@ExternalService` is attached, and a non-draft-enabled entity silently falls back to the active table (`findUtils.resolveEntityName`). Candidate: guard or warn. `status: idea`
-- **`deleteManyDrafts([])` resolves `false`** — `isAllSuccess` returns `false` for an empty array (`coreRepositoryUtils.ts:10-17`). `status: idea`
+- **`deleteManyDrafts([])` resolves `false`** — `isAllSuccess` returns `false` for an empty array (`coreRepositoryUtils.ts:106-113`). `status: idea`
 - **`countWhere()` / `deleteWhere()` no-arg forms unreachable** — implementations accept `undefined` but both public overloads require a parameter. Decide: expose or drop. `status: idea`
 - **`FindReturn` generic shadowing** — `find(filter: Filter<T>)` / `findOne(filter: Filter<T>)` declare their own `T` (`lib/types/types.ts`), so `new Filter<Author>(…)` is accepted on a `Book` repository and re-types the rows. `status: idea`
 - **Aggregate typing gaps** — `LENGTH` result typed `string` (SQL returns a number); a plain `{ column, renameAs }` rename loses a numeric column's type (`DynamicColumnTypes`). `status: idea`

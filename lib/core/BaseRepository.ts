@@ -383,6 +383,8 @@ abstract class BaseRepository<T> {
    * separate round trips and are NOT locked against each other, so wrap the call in a CDS transaction when a
    * concurrent write would be harmful. `fieldsToUpdate` is a partial patch: omitted columns keep their value. Use
    * `updateMany` to patch every matching row. Draft counterpart: `findOneDraftAndUpdate`.
+   * Bound to an external service via `@ExternalService`, the found row is patched through its OWN key, so `keys` may be
+   * any properties.
    *
    * @param keys - The keys to find the entity.
    * @param fieldsToUpdate - The fields to update on the found entity.
@@ -447,6 +449,9 @@ abstract class BaseRepository<T> {
    * matching no row resolve to `false` without an error; gate the write on existence with `findOneAndUpdate`, or
    * insert the missing row with `updateOrCreate`. `fieldsToUpdate` is a partial patch: omitted columns keep their
    * value. Draft counterpart: `updateDraft`.
+   * Bound to an external service via `@ExternalService`, `keys` must be exactly the full key of the row — a missing
+   * key element or a non-key property throws an `Error` before anything is sent — and a missing row resolves to
+   * `false`.
    *
    * @param keys - An object representing the keys to filter the entries.
    * @param fieldsToUpdate - An object representing the fields and their updated values for the matching entries.
@@ -503,6 +508,9 @@ abstract class BaseRepository<T> {
    * row in `.texts` yet is NOT created — an `UPDATE` never inserts. The active table stays untouched: patch the
    * default-language values with `update`. Read the same texts back with `getLocaleTexts` — which, unlike this
    * method, is NOT available on an external service.
+   * Bound to an external service via `@ExternalService`, `localeCodeKeys` addresses the `.texts` row directly (the
+   * full-key check applied to other keyed writes does not apply here), and a row that does not exist is rethrown as
+   * an `Error` instead of resolving to `false`.
    *
    * @param localeCodeKeys - An object representing the language code and the keys to filter the entries.
    * @param fieldsToUpdate - An object representing the fields and their updated values for the matching entries.
@@ -532,6 +540,9 @@ abstract class BaseRepository<T> {
    * resolve to `false` — use `deleteWhere`, which returns the deleted-row count. Keys matching no row resolve to
    * `false` without an error. Use `deleteMany` for a list of key objects and `deleteAll` to empty the table. Draft
    * counterpart: `deleteDraft`.
+   * Bound to an external service via `@ExternalService`, `keys` must be exactly the full key of the row — a missing
+   * key element or a non-key property throws an `Error` before anything is sent — and a missing row resolves to
+   * `false`.
    *
    * @param keys - An object representing the keys to filter the entries.
    * @returns A promise that resolves to `true` when exactly one row was deleted, `false` otherwise.
@@ -557,6 +568,9 @@ abstract class BaseRepository<T> {
    * ONLY when EVERY single delete affected exactly one row — one key matching nothing turns the whole call `false`
    * even though the other deletes have already been executed. Use `deleteWhere` to remove a whole matching set with
    * one statement and get the count back. Draft counterpart: `deleteManyDrafts`.
+   * Bound to an external service via `@ExternalService`, every key object must be the full key of its row (otherwise an
+   * `Error` is thrown before anything is sent); every delete is awaited, a missing row resolves the call to `false` and
+   * any other remote error is rethrown.
    *
    * @param entries - The key objects of the entries to be deleted, passed as a spread or as a single array.
    * @returns A promise that resolves to `true` when every single delete affected exactly one row, `false` otherwise.
@@ -796,6 +810,8 @@ abstract class BaseRepository<T> {
    * boolean — `0` when nothing matched, which is the only way to detect a no-op. `fieldsToUpdate` is a partial
    * patch, omitted columns keep their value; use `incrementMany` / `decrementMany` when a numeric column must change
    * relative to its current value. Draft counterpart: `updateManyDrafts`.
+   * Bound to an external service via `@ExternalService`, `keys` must be exactly the full key of ONE row (otherwise an
+   * `Error` is thrown before anything is sent) and the call resolves to `1`, or `0` when the row does not exist.
    *
    * @param keys - An object representing the keys to filter the entries.
    * @param fieldsToUpdate - An object representing the fields and their updated values.
@@ -804,6 +820,7 @@ abstract class BaseRepository<T> {
    * @example
    * ```ts
    * const updatedCount = await this.updateMany({ currency_code: 'GBP' }, { currency_code: 'EUR' });
+   * // on an `@ExternalService` repository only a full key object is accepted, e.g. { ID: 201 }
    * ```
    *
    * @see {@link https://github.com/dxfrontier/cds-ts-repository#updatemany | CDS-TS-Repository - updateMany}
@@ -819,6 +836,8 @@ abstract class BaseRepository<T> {
    * Reaches the rows a keys object cannot address — ranges, `LIKE`, `IN`, association paths, `'OR'` combinations —
    * with a single statement, resolving to the affected-row count (`0` when nothing matched). Count the set first
    * with the same `Filter` via `countWhere` when the write must be previewed. Draft counterpart: `updateManyDrafts`.
+   * Throws an `Error` when the repository is bound to an external service via `@ExternalService` — pass a full key
+   * object there instead.
    *
    * @param filter - A `Filter` instance describing the where clause.
    * @param fieldsToUpdate - An object representing the fields and their updated values.
@@ -853,6 +872,8 @@ abstract class BaseRepository<T> {
    * The bulk twin of `delete`: one statement for the whole matching set, resolving to the deleted-row count instead
    * of a boolean — `0` when nothing matched. Use `deleteMany` when the rows are addressed by a list of key objects
    * and `deleteAll` to empty the table. Draft counterpart: `deleteDraftsWhere`.
+   * Bound to an external service via `@ExternalService`, `keys` must be exactly the full key of ONE row (otherwise an
+   * `Error` is thrown before anything is sent) and the call resolves to `1`, or `0` when the row does not exist.
    *
    * @param keys - An object representing the keys to filter the entries.
    * @returns A promise that resolves to the number of deleted entries, `0` when nothing matched.
@@ -860,6 +881,7 @@ abstract class BaseRepository<T> {
    * @example
    * ```ts
    * const deletedCount = await this.deleteWhere({ stock: 0 });
+   * // on an `@ExternalService` repository only a full key object is accepted, e.g. { ID: 201 }
    * ```
    *
    * @see {@link https://github.com/dxfrontier/cds-ts-repository#deletewhere | CDS-TS-Repository - deleteWhere}
@@ -875,6 +897,8 @@ abstract class BaseRepository<T> {
    * Removes rows a keys object cannot address — ranges, `LIKE`, `IN`, association paths, `'OR'` combinations — with
    * one statement, resolving to the deleted-row count (`0` when nothing matched). Sizing the set first with the same
    * `Filter` via `countWhere` is the only way to preview the damage. Draft counterpart: `deleteDraftsWhere`.
+   * Throws an `Error` when the repository is bound to an external service via `@ExternalService` — pass a full key
+   * object there instead.
    *
    * @param filter - A `Filter` instance describing the where clause.
    * @returns A promise that resolves to the number of deleted entries, `0` when nothing matched.
@@ -908,6 +932,8 @@ abstract class BaseRepository<T> {
    * of the entity by `NumericKeys`. Resolves to `true` ONLY when exactly one row was affected, so keys matching
    * nothing yield `false`. Use `incrementMany` for several columns or several rows and `decrement` for the opposite
    * direction. Draft counterpart: `incrementDraft`.
+   * Throws an `Error` when the repository is bound to an external service via `@ExternalService` — read the value and
+   * write the new one with `update` there instead.
    *
    * @param keys - The keys to identify the entity to update.
    * @param column - The numeric column to increment.
@@ -940,6 +966,8 @@ abstract class BaseRepository<T> {
    * clamps the result: the column can go negative, so guard the floor yourself (for example with a preceding
    * `countWhere`) when that is not acceptable. Resolves to `true` ONLY when exactly one row was affected. Use
    * `decrementMany` for several columns or several rows. Draft counterpart: `decrementDraft`.
+   * Throws an `Error` when the repository is bound to an external service via `@ExternalService` — read the value and
+   * write the new one with `update` there instead.
    *
    * @param keys - The keys to identify the entity to update.
    * @param column - The numeric column to decrement.
@@ -972,6 +1000,8 @@ abstract class BaseRepository<T> {
    * boolean — `0` when nothing matched. `fields` is restricted to the numeric columns by `IncrementFields`, and a
    * field left `undefined` is skipped instead of being treated as `0`. Use `increment` for the single-row, single-
    * column case. Draft counterpart: `incrementManyDrafts`.
+   * Throws an `Error` when the repository is bound to an external service via `@ExternalService` — read the value and
+   * write the new one with `update` there instead.
    *
    * @param keys - The keys to identify the entries to update.
    * @param fields - An object with numeric field names as keys and increment values as values.
@@ -999,6 +1029,8 @@ abstract class BaseRepository<T> {
    * Same single-statement, in-database arithmetic as the keys overload, but over the sets only a `Filter` can
    * address — ranges, `LIKE`, `IN`, association paths, `'OR'` combinations. Resolves to the affected-row count, `0`
    * when nothing matched. Draft counterpart: `incrementManyDrafts`.
+   * Throws an `Error` when the repository is bound to an external service via `@ExternalService` — read the value and
+   * write the new one with `update` there instead.
    *
    * @param filter - A `Filter` instance describing the where clause.
    * @param fields - An object with numeric field names as keys and increment values as values.
@@ -1034,6 +1066,8 @@ abstract class BaseRepository<T> {
    * affected-row count (`0` when nothing matched). A field left `undefined` is skipped, and NOTHING clamps the
    * results — the columns can go negative. Use `decrement` for the single-row, single-column case. Draft
    * counterpart: `decrementManyDrafts`.
+   * Throws an `Error` when the repository is bound to an external service via `@ExternalService` — read the value and
+   * write the new one with `update` there instead.
    *
    * @param keys - The keys to identify the entries to update.
    * @param fields - An object with numeric field names as keys and decrement values as values.
@@ -1061,6 +1095,8 @@ abstract class BaseRepository<T> {
    * Same single-statement, in-database arithmetic as the keys overload, but over the sets only a `Filter` can
    * address. Resolves to the affected-row count, `0` when nothing matched, and NOTHING clamps the results — the
    * columns can go negative. Draft counterpart: `decrementManyDrafts`.
+   * Throws an `Error` when the repository is bound to an external service via `@ExternalService` — read the value and
+   * write the new one with `update` there instead.
    *
    * @param filter - A `Filter` instance describing the where clause.
    * @param fields - An object with numeric field names as keys and decrement values as values.

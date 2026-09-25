@@ -134,6 +134,47 @@ const coreRepositoryUtils = {
   },
 
   /**
+   * Tells whether a connected external service speaks OData, based on its `kind` (`srv.kind` is the configured
+   * `cds.requires.<service>.kind`, for example `'odata'`, `'odata-v2'` or `'odata-v4'`). An in-process mocked service
+   * reports `'app-service'` instead.
+   * @param serviceKind - The `kind` of the connected external service.
+   * @returns `true` for an OData service, `false` otherwise.
+   */
+  isODataServiceKind(serviceKind: unknown): boolean {
+    return typeof serviceKind === 'string' && /^odata(-v[24])?$/.test(serviceKind);
+  },
+
+  /**
+   * Normalizes the resolved result of a key-addressed external-service write (`UPDATE.entity(target, keys)` /
+   * `DELETE.from(target, keys)`) into a success boolean.
+   * An OData service answers a keyed single-row request with 2xx or rejects, so ANY resolved result of an OData
+   * service is a success : CAP resolves a 200 `PATCH` to the updated entity, or to its `value` element when the entity
+   * has one (a string, a number …), and a 204 `DELETE` to `''`. A missing row is answered with 404 and rejects
+   * (handled by the caller).
+   * Other services (for example an in-process mocked service) resolve a `number` or a `{ affected }` carrier (object or
+   * array), which must report exactly one affected row (delegated to `resolveAffected`); `''` / `undefined` / `null`
+   * and a plain object are a success, anything else (a non-empty string, a plain array) is a failure.
+   * @param result - The resolved value of an awaited key-addressed external-service write query.
+   * @param serviceKind - The `kind` of the connected external service (see `isODataServiceKind`).
+   * @returns `true` when the result reports a successful single-row write, `false` otherwise.
+   */
+  resolveExternalWriteSuccess(result: unknown, serviceKind?: unknown): boolean {
+    if (this.isODataServiceKind(serviceKind)) {
+      return true;
+    }
+
+    if (result === '' || result === undefined || result === null) {
+      return true;
+    }
+
+    if (typeof result === 'number' || (typeof result === 'object' && 'affected' in result)) {
+      return this.resolveAffected(result) === 1;
+    }
+
+    return typeof result === 'object' && !Array.isArray(result);
+  },
+
+  /**
    * Normalizes the resolved row of a `count(*)` aggregate query into a numeric count.
    * `@cap-js/sqlite` resolves the aliased `count(*)` column to a JS `number`, whereas other
    * databases (for example `HANA`) may resolve it to a `string` or `bigint`. Coercing keeps the
